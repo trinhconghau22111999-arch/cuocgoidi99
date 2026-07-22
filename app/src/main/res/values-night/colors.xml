@@ -1,0 +1,35 @@
+<resources>
+    <color name="primary">#81C995</color>
+    <color name="primary_dark">#5BB974</color>
+    <color name="btn_call">#1E8E3E</color>
+    <color name="btn_decline">#EA4335</color>
+    <color name="bg">#1C1B1F</color>
+    <color name="bg_surface">#2B2930</color>
+    <color name="bg_row">#1C1B1F</color>
+    <color name="incall_bg">#202124</color>
+    <color name="incall_surface">#3C4043</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_primary">#E6E1E5</color>
+    <color name="text_secondary">#CAC4D0</color>
+    <color name="text_hint">#938F99</color>
+    <color name="text_on_dark">#E8EAED</color>
+    <color name="divider">#49454F</color>
+    <color name="key_ripple">#2281C995</color>
+    <color name="key_bg">#2B2930</color>
+    <color name="btn_action_bg">#3C4043</color>
+    <color name="btn_action_active">#81C995</color>
+    <color name="status_on">#81C995</color>
+    <color name="status_off">#938F99</color>
+    <color name="avatar_bg">#1E3A2A</color>
+    <color name="avatar_text">#81C995</color>
+    <color name="missed_red">#F28B82</color>
+    <color name="blocked_bg">#3E2A00</color>
+    <color name="blocked_text">#FFB74D</color>
+    <color name="av0">#1A2D4E</color><color name="av0t">#8AB4F8</color>
+    <color name="av1">#4E1A1A</color><color name="av1t">#F28B82</color>
+    <color name="av2">#4E3D00</color><color name="av2t">#FDD663</color>
+    <color name="av3">#1E3A2A</color><color name="av3t">#81C995</color>
+    <color name="av4">#3A1F5E</color><color name="av4t">#CF9FFF</color>
+    <color name="av5">#4E1A1A</color><color name="av5t">#F28B82</color>
+</resources>

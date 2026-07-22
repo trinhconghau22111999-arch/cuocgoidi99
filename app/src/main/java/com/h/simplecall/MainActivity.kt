@@ -12,7 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.h.simplecall.call.BlockedNumbersManager
 import com.h.simplecall.call.CallForwardManager
+import com.h.simplecall.call.MissedCallNotifier
 import com.h.simplecall.databinding.ActivityMainBinding
 import com.h.simplecall.ui.CallLogFragment
 import com.h.simplecall.ui.ContactsFragment
@@ -22,7 +24,6 @@ import com.h.simplecall.ui.ForwardSettingsFragment
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var missedCount = 0
 
     private val permissions = arrayOf(
         android.Manifest.permission.CALL_PHONE,
@@ -30,7 +31,8 @@ class MainActivity : AppCompatActivity() {
         android.Manifest.permission.READ_CALL_LOG,
         android.Manifest.permission.WRITE_CALL_LOG,
         android.Manifest.permission.READ_CONTACTS,
-        android.Manifest.permission.ANSWER_PHONE_CALLS
+        android.Manifest.permission.ANSWER_PHONE_CALLS,
+        android.Manifest.permission.VIBRATE
     )
 
     private val permLauncher = registerForActivityResult(
@@ -44,17 +46,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         CallForwardManager.init(this)
+        BlockedNumbersManager.init(this)
+        MissedCallNotifier.init(this)
+
         requestPermissions()
         requestDefaultDialer()
 
-        // Settings tap (3-dot icon, kín đáo)
         binding.btnSettings.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, ForwardSettingsFragment())
                 .addToBackStack("settings")
                 .commit()
-            binding.bottomNav.visibility = View.GONE
-            binding.btnSettings.visibility = View.GONE
+            hideNav()
         }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
@@ -63,48 +66,42 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_contacts -> ContactsFragment()
                 else              -> DialerFragment()
             })
-            // Xóa badge khi vào tab nhật ký
-            if (item.itemId == R.id.nav_log) {
+            if (item.itemId == R.id.nav_log)
                 binding.bottomNav.getBadge(R.id.nav_log)?.isVisible = false
-            }
             true
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
-            val back = supportFragmentManager.backStackEntryCount == 0
-            binding.bottomNav.visibility  = if (back) View.VISIBLE else View.GONE
-            binding.btnSettings.visibility = if (back) View.VISIBLE else View.GONE
+            val empty = supportFragmentManager.backStackEntryCount == 0
+            binding.bottomNav.visibility   = if (empty) View.VISIBLE else View.GONE
+            binding.btnSettings.visibility = if (empty) View.VISIBLE else View.GONE
         }
 
         if (savedInstanceState == null) {
             navigateTo(DialerFragment())
             handleIntent(intent)
         }
-
         updateMissedBadge()
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateMissedBadge()
-    }
+    override fun onResume() { super.onResume(); updateMissedBadge() }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleIntent(intent)
-    }
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); handleIntent(intent) }
 
     private fun handleIntent(intent: Intent?) {
         val data = intent?.data ?: return
-        if (data.scheme == "tel") {
+        if (data.scheme == "tel")
             navigateTo(DialerFragment.newInstanceWithNumber(data.schemeSpecificPart))
-        }
     }
 
-    private fun navigateTo(f: Fragment) {
+    fun navigateTo(f: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, f)
-            .commit()
+            .replace(R.id.fragmentContainer, f).commit()
+    }
+
+    fun hideNav() {
+        binding.bottomNav.visibility   = View.GONE
+        binding.btnSettings.visibility = View.GONE
     }
 
     private fun requestPermissions() {
@@ -134,11 +131,10 @@ class MainActivity : AppCompatActivity() {
         val cur = contentResolver.query(
             android.provider.CallLog.Calls.CONTENT_URI,
             arrayOf(android.provider.CallLog.Calls.TYPE),
-            "${android.provider.CallLog.Calls.NEW} = 1 AND ${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
-            null, null
-        )
-        val count = cur?.count ?: 0
-        cur?.close()
+            "${android.provider.CallLog.Calls.NEW} = 1 AND " +
+                "${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
+            null, null)
+        val count = cur?.count ?: 0; cur?.close()
         val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_log)
         if (count > 0) { badge.isVisible = true; badge.number = count }
         else badge.isVisible = false

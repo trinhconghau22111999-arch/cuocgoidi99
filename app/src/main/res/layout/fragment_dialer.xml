@@ -7,35 +7,28 @@
 
     <!-- Number display -->
     <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="88dp"
-        android:paddingStart="32dp"
-        android:paddingEnd="4dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="8dp">
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        android:paddingStart="32dp" android:paddingEnd="4dp"
+        android:paddingTop="16dp" android:paddingBottom="4dp">
 
         <EditText
             android:id="@+id/etNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="52dp"
             android:background="@null"
             android:gravity="center"
-            android:textSize="40sp"
-            android:textColor="@color/text_primary"
+            android:textSize="40sp" android:textColor="@color/text_primary"
             android:letterSpacing="0.03"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
             android:cursorVisible="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:focusable="true" android:focusableInTouchMode="true" />
 
         <ImageButton
             android:id="@+id/btnBackspace"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="48dp" android:layout_height="48dp"
             android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_backspace"
@@ -43,60 +36,50 @@
             android:visibility="invisible" />
     </FrameLayout>
 
-    <!-- Keypad 4x3 -->
+    <!-- Suggestions list (ẩn mặc định) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSuggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="160dp"
+        android:visibility="gone"
+        android:background="@color/bg" />
+
+    <!-- Divider -->
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+    <!-- Keypad -->
     <GridLayout
         android:id="@+id/keypad"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="4dp"
-        android:columnCount="3"
-        android:rowCount="4">
+        android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="4dp"
+        android:columnCount="3" android:rowCount="4">
 
-        <!-- 1: voicemail sub (chấm nhỏ) -->
-        <Button style="@style/KeyBtn" android:id="@+id/key1"
-            android:text="1" android:tag="1" />
-        <Button style="@style/KeyBtn" android:id="@+id/key2"
-            android:text="2" android:tag="2" />
-        <Button style="@style/KeyBtn" android:id="@+id/key3"
-            android:text="3" android:tag="3" />
-        <Button style="@style/KeyBtn" android:id="@+id/key4"
-            android:text="4" android:tag="4" />
-        <Button style="@style/KeyBtn" android:id="@+id/key5"
-            android:text="5" android:tag="5" />
-        <Button style="@style/KeyBtn" android:id="@+id/key6"
-            android:text="6" android:tag="6" />
-        <Button style="@style/KeyBtn" android:id="@+id/key7"
-            android:text="7" android:tag="7" />
-        <Button style="@style/KeyBtn" android:id="@+id/key8"
-            android:text="8" android:tag="8" />
-        <Button style="@style/KeyBtn" android:id="@+id/key9"
-            android:text="9" android:tag="9" />
-        <Button style="@style/KeyBtn" android:id="@+id/keyStar"
-            android:text="✱" android:tag="*" android:textSize="28sp"/>
-        <Button style="@style/KeyBtn" android:id="@+id/key0"
-            android:text="0" android:tag="0" />
-        <Button style="@style/KeyBtn" android:id="@+id/keyHash"
-            android:text="#" android:tag="#" android:textSize="28sp"/>
+        <Button style="@style/KeyBtn" android:id="@+id/key1"  android:text="1"  android:tag="1" />
+        <Button style="@style/KeyBtn" android:id="@+id/key2"  android:text="2"  android:tag="2" />
+        <Button style="@style/KeyBtn" android:id="@+id/key3"  android:text="3"  android:tag="3" />
+        <Button style="@style/KeyBtn" android:id="@+id/key4"  android:text="4"  android:tag="4" />
+        <Button style="@style/KeyBtn" android:id="@+id/key5"  android:text="5"  android:tag="5" />
+        <Button style="@style/KeyBtn" android:id="@+id/key6"  android:text="6"  android:tag="6" />
+        <Button style="@style/KeyBtn" android:id="@+id/key7"  android:text="7"  android:tag="7" />
+        <Button style="@style/KeyBtn" android:id="@+id/key8"  android:text="8"  android:tag="8" />
+        <Button style="@style/KeyBtn" android:id="@+id/key9"  android:text="9"  android:tag="9" />
+        <Button style="@style/KeyBtn" android:id="@+id/keyStar" android:text="✱" android:tag="*" android:textSize="28sp"/>
+        <Button style="@style/KeyBtn" android:id="@+id/key0"  android:text="0"  android:tag="0" />
+        <Button style="@style/KeyBtn" android:id="@+id/keyHash" android:text="#" android:tag="#" android:textSize="28sp"/>
     </GridLayout>
 
-    <!-- Call button row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/btnCall"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+    <!-- Call button -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="96dp"
+        android:gravity="center">
+        <ImageButton android:id="@+id/btnCall"
+            android:layout_width="72dp" android:layout_height="72dp"
             android:background="@drawable/bg_call_circle"
             android:src="@drawable/ic_call"
             android:contentDescription="@string/call" />
-
     </LinearLayout>
-
 </LinearLayout>

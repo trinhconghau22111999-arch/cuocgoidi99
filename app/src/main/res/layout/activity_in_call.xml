@@ -7,59 +7,61 @@
     android:background="@color/incall_bg">
 
     <!-- Avatar -->
-    <FrameLayout
-        android:id="@+id/avatarWrap"
+    <FrameLayout android:id="@+id/avatarWrap"
         android:layout_width="88dp" android:layout_height="88dp"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="64dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-        <View
-            android:id="@+id/avatarView"
+        <View android:id="@+id/avatarView"
             android:layout_width="match_parent" android:layout_height="match_parent"
             android:background="@drawable/bg_avatar" />
-
-        <TextView
-            android:id="@+id/tvAvatarLetter"
+        <TextView android:id="@+id/tvAvatarLetter"
             android:layout_width="match_parent" android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="36sp"
+            android:gravity="center" android:textSize="36sp"
             android:textColor="@color/avatar_text"
-            android:fontFamily="sans-serif-medium"
-            android:text="?" />
+            android:fontFamily="sans-serif-medium" android:text="?" />
+        <!-- Ảnh danh bạ thật (đè lên avatar chữ nếu có) -->
+        <ImageView android:id="@+id/ivContactPhoto"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
     </FrameLayout>
 
-    <!-- Caller -->
-    <TextView
-        android:id="@+id/tvCallerName"
+    <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginStart="40dp" android:layout_marginEnd="40dp"
         android:gravity="center"
-        android:textColor="@color/text_on_dark"
-        android:textSize="28sp"
-        android:fontFamily="sans-serif"
-        android:singleLine="true"
+        android:textColor="@color/text_on_dark" android:textSize="28sp"
+        android:fontFamily="sans-serif" android:singleLine="true"
         app:layout_constraintTop_toBottomOf="@id/avatarWrap"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Status / Timer -->
-    <TextView
-        android:id="@+id/tvCallStatus"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="#9AA0A6"
-        android:textSize="14sp"
+    <!-- Số điện thoại (hiện dưới tên nếu có tên) -->
+    <TextView android:id="@+id/tvCallerNumber"
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textColor="#9AA0A6" android:textSize="14sp"
         android:fontFamily="sans-serif"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- INCOMING -->
-    <LinearLayout
-        android:id="@+id/incomingControls"
+    <TextView android:id="@+id/tvCallStatus"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="#9AA0A6" android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- INCOMING controls -->
+    <LinearLayout android:id="@+id/incomingControls"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center"
         android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
@@ -93,20 +95,20 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- ACTIVE -->
-    <LinearLayout
-        android:id="@+id/activeControls"
+    <!-- ACTIVE controls -->
+    <LinearLayout android:id="@+id/activeControls"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:orientation="vertical" android:visibility="gone"
-        android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-        android:layout_marginBottom="56dp"
+        android:layout_marginStart="16dp" android:layout_marginEnd="16dp"
+        android:layout_marginBottom="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Row 1: Mute | Speaker | DTMF -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="32dp">
+            android:layout_marginBottom="24dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
@@ -118,7 +120,7 @@
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Tắt mic" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -131,10 +133,44 @@
                 <TextView android:id="@+id/tvSpeakerLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnDtmf"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_dialpad"
+                    android:contentDescription="Bàn phím"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- DTMF panel (ẩn mặc định) -->
+        <GridLayout android:id="@+id/dtmfPanel"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:columnCount="3" android:rowCount="4"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp">
+
+            <Button style="@style/KeyBtn" android:text="1" android:tag="1" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="2" android:tag="2" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="3" android:tag="3" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="4" android:tag="4" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="5" android:tag="5" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="6" android:tag="6" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="7" android:tag="7" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="8" android:tag="8" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="9" android:tag="9" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="*" android:tag="*" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="0" android:tag="0" android:textColor="@color/text_on_dark"/>
+            <Button style="@style/KeyBtn" android:text="#" android:tag="#" android:textColor="@color/text_on_dark"/>
+        </GridLayout>
+
+        <!-- End call -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:gravity="center" android:orientation="vertical">
             <ImageButton android:id="@+id/btnEndCall"

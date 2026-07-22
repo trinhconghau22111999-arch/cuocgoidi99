@@ -1,16 +1,31 @@
 package com.h.simplecall.ui
 
+import android.content.Context
+import android.database.Cursor
+import android.media.ToneGenerator
+import android.media.AudioManager
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.provider.CallLog
+import android.provider.ContactsContract
 import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.GridLayout
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
+import com.h.simplecall.data.Contact
 import com.h.simplecall.databinding.FragmentDialerBinding
 
 class DialerFragment : Fragment() {
@@ -20,6 +35,14 @@ class DialerFragment : Fragment() {
             "2" to "ABC", "3" to "DEF", "4" to "GHI",
             "5" to "JKL", "6" to "MNO", "7" to "PQRS",
             "8" to "TUV", "9" to "WXYZ", "0" to "+"
+        )
+        private val DTMF_MAP = mapOf(
+            "0" to ToneGenerator.TONE_DTMF_0, "1" to ToneGenerator.TONE_DTMF_1,
+            "2" to ToneGenerator.TONE_DTMF_2, "3" to ToneGenerator.TONE_DTMF_3,
+            "4" to ToneGenerator.TONE_DTMF_4, "5" to ToneGenerator.TONE_DTMF_5,
+            "6" to ToneGenerator.TONE_DTMF_6, "7" to ToneGenerator.TONE_DTMF_7,
+            "8" to ToneGenerator.TONE_DTMF_8, "9" to ToneGenerator.TONE_DTMF_9,
+            "*" to ToneGenerator.TONE_DTMF_S, "#" to ToneGenerator.TONE_DTMF_P
         )
 
         fun newInstanceWithNumber(number: String?): DialerFragment {
@@ -31,6 +54,8 @@ class DialerFragment : Fragment() {
 
     private var _b: FragmentDialerBinding? = null
     private val b get() = _b!!
+    private var toneGen: ToneGenerator? = null
+    private lateinit var suggestAdapter: ContactSuggestAdapter
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentDialerBinding.inflate(i, c, false); return b.root
@@ -39,54 +64,18 @@ class DialerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        try { toneGen = ToneGenerator(AudioManager.STREAM_DTMF, 80) } catch (_: Exception) {}
+
+        // Suggestions RecyclerView
+        suggestAdapter = ContactSuggestAdapter { number ->
+            (activity as? MainActivity)?.placeCall(number)
+        }
+        b.rvSuggestions.layoutManager = LinearLayoutManager(requireContext())
+        b.rvSuggestions.adapter = suggestAdapter
+
         arguments?.getString("number")?.let { b.etNumber.setText(it) }
 
-        // Sub-labels trên mỗi phím
-        val grid = view.findViewById<GridLayout>(R.id.keypad)
-        for (i in 0 until grid.childCount) {
-            val btn = grid.getChildAt(i) as? Button ?: continue
-            val tag = btn.tag as? String ?: continue
-            val sub = SUB_LABELS[tag]
-            if (sub != null) {
-                // Hiển thị số lớn + sub nhỏ hơn bằng cách set text 2 dòng
-                // Dùng SpannableString để cỡ chữ khác nhau
-                val ss = android.text.SpannableStringBuilder()
-                ss.append(tag)
-                ss.append("\n")
-                val subStart = ss.length
-                ss.append(sub)
-                ss.setSpan(
-                    android.text.style.RelativeSizeSpan(0.38f),
-                    subStart, ss.length,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                ss.setSpan(
-                    android.text.style.ForegroundColorSpan(
-                        requireContext().getColor(R.color.text_secondary)
-                    ),
-                    subStart, ss.length,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                btn.text = ss
-                btn.setLines(2)
-                btn.textSize = 24f
-            }
-
-            btn.setOnClickListener {
-                appendDigit(tag)
-            }
-
-            // Long press 0 → +
-            if (tag == "0") {
-                btn.setOnLongClickListener {
-                    val cur = b.etNumber.text.toString()
-                    if (cur.endsWith("0")) b.etNumber.setText(cur.dropLast(1) + "+")
-                    else appendDigit("+")
-                    syncBackspace()
-                    true
-                }
-            }
-        }
+        setupKeypad(view)
 
         // Backspace
         b.btnBackspace.setOnClickListener {
@@ -95,19 +84,16 @@ class DialerFragment : Fragment() {
             syncBackspace()
         }
         b.btnBackspace.setOnLongClickListener {
-            b.etNumber.setText("")
-            syncBackspace()
-            true
+            b.etNumber.setText(""); syncBackspace(); true
         }
 
-        // Format real-time (VN phone number)
+        // Format + suggestions
         b.etNumber.addTextChangedListener(object : TextWatcher {
             private var editing = false
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+            override fun onTextChanged(s: CharSequence?, st: Int, b2: Int, c: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                if (editing) return
-                editing = true
+                if (editing) return; editing = true
                 val raw = s.toString().filter { it.isDigit() || it == '+' }
                 val fmt = formatVN(raw)
                 if (fmt != s.toString()) {
@@ -115,16 +101,76 @@ class DialerFragment : Fragment() {
                     b.etNumber.setSelection(fmt.length)
                 }
                 syncBackspace()
+                searchSuggestions(raw)
                 editing = false
             }
         })
 
+        // Nút gọi: gọi lại nếu rỗng
         b.btnCall.setOnClickListener {
-            val number = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
-            if (number.isNotEmpty()) (activity as? MainActivity)?.placeCall(number)
+            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            if (raw.isNotEmpty()) {
+                (activity as? MainActivity)?.placeCall(raw)
+            } else {
+                // Gọi lại số cuối cùng
+                val last = getLastCalledNumber()
+                if (last != null) {
+                    b.etNumber.setText(formatVN(last))
+                    b.etNumber.setSelection(b.etNumber.text.length)
+                    syncBackspace()
+                }
+            }
         }
 
         syncBackspace()
+    }
+
+    private fun setupKeypad(view: View) {
+        val grid = view.findViewById<GridLayout>(R.id.keypad)
+        for (i in 0 until grid.childCount) {
+            val btn = grid.getChildAt(i) as? Button ?: continue
+            val tag = btn.tag as? String ?: continue
+
+            // Sub-labels
+            val sub = SUB_LABELS[tag]
+            if (sub != null) {
+                val ss = SpannableStringBuilder()
+                ss.append(tag); ss.append("\n")
+                val subStart = ss.length; ss.append(sub)
+                ss.setSpan(RelativeSizeSpan(0.38f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
+                    subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btn.text = ss; btn.setLines(2); btn.textSize = 24f
+            }
+
+            // Phím 1: voicemail icon text nhỏ
+            if (tag == "1") {
+                val ss = SpannableStringBuilder()
+                ss.append("1"); ss.append("\n")
+                val sub2Start = ss.length; ss.append("☎")
+                ss.setSpan(RelativeSizeSpan(0.38f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
+                    sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btn.text = ss; btn.setLines(2); btn.textSize = 24f
+            }
+
+            btn.setOnClickListener {
+                appendDigit(tag)
+                haptic()
+                toneGen?.startTone(DTMF_MAP[tag] ?: ToneGenerator.TONE_DTMF_0, 120)
+            }
+
+            if (tag == "0") {
+                btn.setOnLongClickListener {
+                    val cur = b.etNumber.text.toString()
+                    val raw = cur.filter { it.isDigit() || it == '+' }
+                    val newRaw = if (raw.endsWith("0")) raw.dropLast(1) + "+" else raw + "+"
+                    b.etNumber.setText(formatVN(newRaw))
+                    b.etNumber.setSelection(b.etNumber.text.length)
+                    syncBackspace(); true
+                }
+            }
+        }
     }
 
     private fun appendDigit(d: String) {
@@ -135,19 +181,15 @@ class DialerFragment : Fragment() {
         syncBackspace()
     }
 
-    /** Format số VN: 0xxx xxx xxx hoặc +84 xxx xxx xxx */
     private fun formatVN(raw: String): String {
         if (raw.isEmpty()) return raw
         val digits = raw.filter { it.isDigit() }
         return when {
-            raw.startsWith("+") -> {
-                // +84 xxx xxx xxx
-                when {
-                    digits.length <= 2  -> "+$digits"
-                    digits.length <= 5  -> "+${digits.take(2)} ${digits.drop(2)}"
-                    digits.length <= 8  -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5)}"
-                    else -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5).take(3)} ${digits.drop(8)}"
-                }
+            raw.startsWith("+") -> when {
+                digits.length <= 2  -> "+$digits"
+                digits.length <= 5  -> "+${digits.take(2)} ${digits.drop(2)}"
+                digits.length <= 8  -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5)}"
+                else -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5).take(3)} ${digits.drop(8)}"
             }
             digits.length <= 4  -> digits
             digits.length <= 7  -> "${digits.take(4)} ${digits.drop(4)}"
@@ -160,5 +202,49 @@ class DialerFragment : Fragment() {
             if (b.etNumber.text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _b = null }
+    private fun searchSuggestions(raw: String) {
+        if (raw.length < 2) { suggestAdapter.update(emptyList()); b.rvSuggestions.visibility = View.GONE; return }
+        val list = mutableListOf<Contact>()
+        try {
+            val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+            val cur: Cursor = requireContext().contentResolver.query(uri,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
+                arrayOf("%$raw%"), null) ?: return
+            cur.use {
+                val iName = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                val iNum  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                while (it.moveToNext() && list.size < 5) {
+                    list.add(Contact(it.getString(iName) ?: "", it.getString(iNum) ?: ""))
+                }
+            }
+        } catch (_: Exception) {}
+        suggestAdapter.update(list)
+        b.rvSuggestions.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+    }
+
+    private fun getLastCalledNumber(): String? {
+        return try {
+            val cur = requireContext().contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(CallLog.Calls.NUMBER),
+                null, null,
+                "${CallLog.Calls.DATE} DESC LIMIT 1"
+            ) ?: return null
+            cur.use { if (it.moveToFirst()) it.getString(0) else null }
+        } catch (_: Exception) { null }
+    }
+
+    private fun haptic() {
+        val v = requireContext().getSystemService(Vibrator::class.java) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            v.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+        else @Suppress("DEPRECATION") v.vibrate(25)
+    }
+
+    override fun onDestroyView() {
+        toneGen?.release(); toneGen = null
+        super.onDestroyView(); _b = null
+    }
 }

@@ -8,16 +8,10 @@ object CallManager {
     var currentCall: Call? = null
         private set
 
-    // Dùng identity map để lambda remove được đúng
     private val listeners = mutableListOf<(Call?, Int) -> Unit>()
 
-    fun addListener(l: (Call?, Int) -> Unit) {
-        if (!listeners.contains(l)) listeners.add(l)
-    }
-
-    fun removeListener(l: (Call?, Int) -> Unit) {
-        listeners.remove(l)
-    }
+    fun addListener(l: (Call?, Int) -> Unit) { if (!listeners.contains(l)) listeners.add(l) }
+    fun removeListener(l: (Call?, Int) -> Unit) { listeners.remove(l) }
 
     fun onCallAdded(call: Call) {
         currentCall = call
@@ -37,16 +31,20 @@ object CallManager {
 
     fun toggleMute(mute: Boolean) { MyInCallService.instance?.muteCall(mute) }
     fun setSpeaker(on: Boolean)   { MyInCallService.instance?.setSpeaker(on) }
+    fun playDtmf(digit: Char)     { MyInCallService.instance?.playDtmf(digit) }
+    fun stopDtmf()                { MyInCallService.instance?.stopDtmf() }
 
     fun callerNumber(call: Call?): String =
         call?.details?.handle?.schemeSpecificPart ?: ""
+
+    fun callerName(call: Call?): String =
+        call?.details?.callerDisplayName ?: ""
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = notifyListeners(state)
     }
 
     private fun notifyListeners(state: Int) {
-        // snapshot để tránh ConcurrentModificationException
         listeners.toList().forEach { it(currentCall, state) }
     }
 }

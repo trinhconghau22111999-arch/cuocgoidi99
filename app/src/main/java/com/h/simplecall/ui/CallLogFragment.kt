@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
-import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.databinding.FragmentCallLogBinding
 
@@ -26,16 +25,13 @@ class CallLogFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (ContextCompat.checkSelfPermission(requireContext(),
-                android.Manifest.permission.READ_CALL_LOG)
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
             != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             b.tvEmpty.text = "Chưa cấp quyền đọc nhật ký"
-            b.tvEmpty.visibility = View.VISIBLE
-            return
+            b.tvEmpty.visibility = View.VISIBLE; return
         }
 
         val entries = loadCallLog()
-
         if (entries.isEmpty()) {
             b.tvEmpty.visibility = View.VISIBLE
             b.recyclerView.visibility = View.GONE
@@ -43,10 +39,20 @@ class CallLogFragment : Fragment() {
             b.tvEmpty.visibility = View.GONE
             b.recyclerView.visibility = View.VISIBLE
             b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            b.recyclerView.adapter = CallLogAdapter(entries) { number ->
-                (activity as? MainActivity)?.placeCall(number)
-            }
-            // Đánh dấu missed calls đã đọc
+            b.recyclerView.adapter = CallLogAdapter(
+                entries,
+                onCall = { (activity as? MainActivity)?.placeCall(it) },
+                onShowHistory = { number ->
+                    val entry = entries.firstOrNull { it.number == number }
+                    val name = entry?.name ?: number
+                    requireActivity().supportFragmentManager.beginTransaction()
+                        .replace(com.h.simplecall.R.id.fragmentContainer,
+                            CallHistoryFragment.newInstance(number, name))
+                        .addToBackStack("history")
+                        .commit()
+                    (activity as? MainActivity)?.hideNav()
+                }
+            )
             markMissedAsRead()
         }
     }
@@ -57,8 +63,7 @@ class CallLogFragment : Fragment() {
             CallLog.Calls.CONTENT_URI,
             arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
                 CallLog.Calls.DATE, CallLog.Calls.TYPE),
-            null, null,
-            "${CallLog.Calls.DATE} DESC LIMIT 100"
+            null, null, "${CallLog.Calls.DATE} DESC LIMIT 100"
         ) ?: return list
         cursor.use {
             val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)

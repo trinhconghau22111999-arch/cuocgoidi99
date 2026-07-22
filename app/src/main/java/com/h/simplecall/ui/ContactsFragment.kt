@@ -1,6 +1,7 @@
 package com.h.simplecall.ui
 
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -25,40 +26,40 @@ class ContactsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         val contacts = loadContacts()
-        adapter = ContactsAdapter(contacts) { number ->
-            (activity as? MainActivity)?.placeCall(number)
-        }
+        adapter = ContactsAdapter(contacts) { (activity as? MainActivity)?.placeCall(it) }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
-
         b.etSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) { adapter.filter(s.toString()) }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
-            override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, st: Int, b2: Int, c: Int) {}
         })
     }
 
     private fun loadContacts(): List<Contact> {
-        if (ContextCompat.checkSelfPermission(requireContext(),
-                android.Manifest.permission.READ_CONTACTS)
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
             != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
-
         val list = mutableListOf<Contact>()
         val cur = requireContext().contentResolver.query(
-            android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
             arrayOf(
-                android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
             ), null, null,
-            android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
         ) ?: return list
         cur.use {
-            val iName = it.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val iNum  = it.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val iName  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val iNum   = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val iPhoto = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
             while (it.moveToNext()) {
-                list.add(Contact(it.getString(iName) ?: "", it.getString(iNum) ?: ""))
+                list.add(Contact(
+                    name     = it.getString(iName) ?: "",
+                    number   = it.getString(iNum) ?: "",
+                    photoUri = it.getString(iPhoto)
+                ))
             }
         }
         return list

@@ -1,10 +1,17 @@
 package com.h.simplecall
 
+import android.content.ContentUris
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.provider.ContactsContract
 import android.telecom.Call
 import android.view.View
+import android.widget.Button
+import android.widget.GridLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.h.simplecall.call.CallForwardManager
 import com.h.simplecall.call.CallManager
@@ -13,16 +20,16 @@ import com.h.simplecall.databinding.ActivityInCallBinding
 class InCallActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityInCallBinding
-    private var isMuted    = false
-    private var isSpeaker  = false
+    private var isMuted   = false
+    private var isSpeaker = false
+    private var dtmfVisible = false
 
-    // Timer đếm giờ cuộc gọi active
     private val timerHandler = Handler(Looper.getMainLooper())
-    private var callStartMs  = 0L
+    private var callStartMs = 0L
     private val timerRunnable = object : Runnable {
         override fun run() {
-            val elapsed = (System.currentTimeMillis() - callStartMs) / 1000
-            val h = elapsed / 3600; val m = (elapsed % 3600) / 60; val s = elapsed % 60
+            val e = (System.currentTimeMillis() - callStartMs) / 1000
+            val h = e / 3600; val m = (e % 3600) / 60; val s = e % 60
             binding.tvCallStatus.text =
                 if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
             timerHandler.postDelayed(this, 1000)
@@ -33,11 +40,8 @@ class InCallActivity : AppCompatActivity() {
         runOnUiThread { updateUi(call, state) }
     }
 
-    // Palette avatar – xoay theo hashCode tên/số
-    private val avatarBgs  = intArrayOf(
-        R.color.av0, R.color.av1, R.color.av2, R.color.av3, R.color.av4, R.color.av5)
-    private val avatarTxts = intArrayOf(
-        R.color.av0t, R.color.av1t, R.color.av2t, R.color.av3t, R.color.av4t, R.color.av5t)
+    private val avatarBgs  = intArrayOf(R.color.av0,R.color.av1,R.color.av2,R.color.av3,R.color.av4,R.color.av5)
+    private val avatarTxts = intArrayOf(R.color.av0t,R.color.av1t,R.color.av2t,R.color.av3t,R.color.av4t,R.color.av5t)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,12 +57,41 @@ class InCallActivity : AppCompatActivity() {
             CallManager.toggleMute(isMuted)
             binding.btnMute.setBackgroundResource(
                 if (isMuted) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.btnMute.setImageResource(
+                if (isMuted) R.drawable.ic_mic_off else R.drawable.ic_mic)
+            binding.tvMuteLabel.text = if (isMuted) "Bật mic" else "Tắt mic"
         }
+
         binding.btnSpeaker.setOnClickListener {
             isSpeaker = !isSpeaker
             CallManager.setSpeaker(isSpeaker)
             binding.btnSpeaker.setBackgroundResource(
                 if (isSpeaker) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+        }
+
+        // DTMF toggle
+        binding.btnDtmf.setOnClickListener {
+            dtmfVisible = !dtmfVisible
+            binding.dtmfPanel.visibility = if (dtmfVisible) View.VISIBLE else View.GONE
+            binding.btnDtmf.setBackgroundResource(
+                if (dtmfVisible) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+        }
+
+        // DTMF keys
+        val dtmfGrid = binding.dtmfPanel
+        for (i in 0 until dtmfGrid.childCount) {
+            val btn = dtmfGrid.getChildAt(i) as? Button ?: continue
+            val tag = (btn.tag as? String)?.firstOrNull() ?: continue
+            btn.setOnTouchListener { _, event ->
+                when (event.action) {
+                    android.view.MotionEvent.ACTION_DOWN -> {
+                        CallManager.playDtmf(tag)
+                        haptic()
+                    }
+                    android.view.MotionEvent.ACTION_UP -> CallManager.stopDtmf()
+                }
+                false
+            }
         }
 
         CallManager.addListener(listener)
@@ -78,17 +111,34 @@ class InCallActivity : AppCompatActivity() {
         }
 
         val isOutgoing = state != Call.STATE_RINGING
-        val display = if (isOutgoing && CallForwardManager.lastDisplayNumber.isNotEmpty())
+        val number = if (isOutgoing && CallForwardManager.lastDisplayNumber.isNotEmpty())
             CallForwardManager.lastDisplayNumber
         else CallManager.callerNumber(call)
 
-        binding.tvCallerName.text = display
+        // Tra cứu tên + ảnh trong danh bạ
+        val contactInfo = lookupContact(number)
+        val displayName = contactInfo?.first ?: number
+        val photoUri    = contactInfo?.second
 
-        // Avatar: chữ cái + màu từ palette
-        val idx = Math.abs(display.hashCode()) % avatarBgs.size
-        binding.tvAvatarLetter.text = display.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-        binding.avatarView.setBackgroundResource(avatarBgs[idx])
-        binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
+        binding.tvCallerName.text = displayName
+        if (contactInfo != null && displayName != number) {
+            binding.tvCallerNumber.text = number
+            binding.tvCallerNumber.visibility = View.VISIBLE
+        } else {
+            binding.tvCallerNumber.visibility = View.GONE
+        }
+
+        // Avatar
+        if (photoUri != null) {
+            binding.ivContactPhoto.visibility = View.VISIBLE
+            binding.ivContactPhoto.setImageURI(photoUri)
+        } else {
+            binding.ivContactPhoto.visibility = View.GONE
+            val idx = Math.abs(displayName.hashCode()) % avatarBgs.size
+            binding.avatarView.setBackgroundResource(avatarBgs[idx])
+            binding.tvAvatarLetter.text = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
+            binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
+        }
 
         val isRinging = state == Call.STATE_RINGING
         binding.incomingControls.visibility = if (isRinging) View.VISIBLE else View.GONE
@@ -118,5 +168,32 @@ class InCallActivity : AppCompatActivity() {
                 binding.tvCallStatus.text = "Đang kết thúc..."
             }
         }
+    }
+
+    private fun lookupContact(number: String): Pair<String, android.net.Uri?>? {
+        if (number.isEmpty()) return null
+        val uri = android.net.Uri.withAppendedPath(
+            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+            android.net.Uri.encode(number)
+        )
+        val cursor = contentResolver.query(uri,
+            arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME,
+                ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI,
+                ContactsContract.PhoneLookup._ID),
+            null, null, null) ?: return null
+        return cursor.use {
+            if (!it.moveToFirst()) return null
+            val name = it.getString(0) ?: return null
+            val photoUriStr = it.getString(1)
+            val photoUri = if (photoUriStr != null) android.net.Uri.parse(photoUriStr) else null
+            Pair(name, photoUri)
+        }
+    }
+
+    private fun haptic() {
+        val v = getSystemService(Vibrator::class.java) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            v.vibrate(VibrationEffect.createOneShot(30, VibrationEffect.DEFAULT_AMPLITUDE))
+        else @Suppress("DEPRECATION") v.vibrate(30)
     }
 }

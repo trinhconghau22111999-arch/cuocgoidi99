@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.SimpleCall" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.SimpleCall" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/primary</item>
@@ -16,7 +16,6 @@
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
     </style>
 
-    <!-- Keypad button base -->
     <style name="KeyBtn">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">0dp</item>
@@ -32,14 +31,6 @@
         <item name="android:minHeight">0dp</item>
         <item name="android:textSize">26sp</item>
         <item name="android:lines">1</item>
-    </style>
-
-    <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">@color/bg</item>
-        <item name="itemIconTint">@color/nav_selector</item>
-        <item name="itemTextColor">@color/nav_selector</item>
-        <item name="labelVisibilityMode">labeled</item>
-        <item name="elevation">8dp</item>
     </style>
 
 </resources>

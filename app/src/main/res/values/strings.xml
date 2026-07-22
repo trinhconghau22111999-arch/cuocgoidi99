@@ -12,4 +12,17 @@
     <string name="incoming_call">Cuộc gọi đến</string>
     <string name="set_default_dialer">Đặt làm ứng dụng gọi điện mặc định</string>
     <string name="grant_permissions">Cấp quyền</string>
+    <string name="missed_call">Cuộc gọi nhỡ</string>
+    <string name="missed_call_from">Cuộc gọi nhỡ từ %s</string>
+    <string name="tap_to_call_back">Bấm để gọi lại</string>
+    <string name="call_blocked">Đã chặn cuộc gọi</string>
+    <string name="number_copied">Đã sao chép số</string>
+    <string name="block_number">Chặn số này</string>
+    <string name="unblock_number">Bỏ chặn số này</string>
+    <string name="block_confirm">Chặn %s?</string>
+    <string name="block_confirm_msg">Số này sẽ không thể gọi đến bạn nữa.</string>
+    <string name="yes_block">Chặn</string>
+    <string name="cancel">Hủy</string>
+    <string name="call_history">Lịch sử cuộc gọi</string>
+    <string name="no_calls_with">Chưa có cuộc gọi nào với số này</string>
 </resources>
