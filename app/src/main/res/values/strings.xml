@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Gọi Điện</string>
+    <string name="tab_dialer">Bàn phím</string>
+    <string name="tab_log">Nhật ký</string>
+    <string name="tab_contacts">Danh bạ</string>
+    <string name="call">Gọi</string>
+    <string name="answer">Trả lời</string>
+    <string name="decline">Từ chối</string>
+    <string name="end_call">Kết thúc</string>
+    <string name="mute">Tắt tiếng</string>
+    <string name="speaker">Loa ngoài</string>
+    <string name="incoming_call">Cuộc gọi đến</string>
+    <string name="set_default_dialer">Đặt làm ứng dụng gọi điện mặc định</string>
+    <string name="grant_permissions">Cấp quyền</string>
+</resources>
