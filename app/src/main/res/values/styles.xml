@@ -7,6 +7,7 @@
         <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowSoftInputMode">stateAlwaysVisible</item>
     </style>
 
     <style name="Theme.SimpleCall.InCall" parent="Theme.MaterialComponents.NoActionBar">
@@ -16,12 +17,13 @@
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
     </style>
 
+    <!-- KeyBtn: to và đậm hơn -->
     <style name="KeyBtn">
-        <item name="android:layout_width">76dp</item>
-        <item name="android:layout_height">76dp</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_width">72dp</item>
+        <item name="android:layout_height">68dp</item>
+        <item name="android:layout_margin">8dp</item>
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/bg_key</item>
         <item name="android:stateListAnimator">@null</item>
@@ -32,7 +34,8 @@
         <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
-        <item name="android:textSize">26sp</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
         <item name="android:lines">1</item>
     </style>
 
