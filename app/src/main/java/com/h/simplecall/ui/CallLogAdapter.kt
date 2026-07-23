@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.h.simplecall.R
 import com.h.simplecall.call.BlockedNumbersManager
@@ -22,9 +23,6 @@ class CallLogAdapter(
     private val onShowHistory: (String) -> Unit
 ) : RecyclerView.Adapter<CallLogAdapter.VH>() {
 
-    private val avatarBgs  = intArrayOf(R.color.av0,R.color.av1,R.color.av2,R.color.av3,R.color.av4,R.color.av5)
-    private val avatarTxts = intArrayOf(R.color.av0t,R.color.av1t,R.color.av2t,R.color.av3t,R.color.av4t,R.color.av5t)
-
     inner class VH(val b: ItemCallLogBinding) : RecyclerView.ViewHolder(b.root)
 
     override fun onCreateViewHolder(p: ViewGroup, t: Int) =
@@ -37,41 +35,48 @@ class CallLogAdapter(
         val display = item.name.ifEmpty { item.number }
         val isBlocked = BlockedNumbersManager.isBlocked(item.number)
 
-        val idx = Math.abs(display.hashCode()) % avatarBgs.size
-        h.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
-        h.b.avatarView.background.setTint(ctx.getColor(avatarBgs[idx]))
-        h.b.tvInitial.text = display.take(1).uppercase()
-        h.b.tvInitial.setTextColor(ctx.getColor(avatarTxts[idx]))
+        // Icon loại cuộc gọi: vào / ra / nhỡ (bên trái thay avatar)
+        when (item.type) {
+            CallLog.Calls.MISSED_TYPE   -> {
+                h.b.ivType.setImageResource(R.drawable.ic_call_missed)
+                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.missed_red))
+            }
+            CallLog.Calls.OUTGOING_TYPE -> {
+                h.b.ivType.setImageResource(R.drawable.ic_call_outgoing)
+                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.primary))
+            }
+            else -> {
+                h.b.ivType.setImageResource(R.drawable.ic_call_incoming)
+                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.primary))
+            }
+        }
 
+        // Tên / số
         h.b.tvName.text = if (isBlocked) "🚫 $display" else display
         h.b.tvName.setTextColor(ctx.getColor(
             if (item.type == CallLog.Calls.MISSED_TYPE) R.color.missed_red
             else R.color.text_primary
         ))
 
+        // SIM badge: dùng subId từ extras nếu có, mặc định SIM 1
+        val simLabel = if ((item.simSlot ?: 0) == 1) "SIM 2" else "SIM 1"
+        h.b.tvSimBadge.text = simLabel
+
+        // Loại đường dây: "Di động" mặc định
+        h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
+
+        // Thời gian cột phải
         val today = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY,0); set(Calendar.MINUTE,0); set(Calendar.SECOND,0)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
         val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
                   else SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
-        h.b.tvDate.text = fmt.format(Date(item.date))
-
-        when (item.type) {
-            CallLog.Calls.MISSED_TYPE   -> h.b.ivType.setImageResource(R.drawable.ic_call_missed)
-            CallLog.Calls.OUTGOING_TYPE -> h.b.ivType.setImageResource(R.drawable.ic_call_outgoing)
-            else -> h.b.ivType.setImageResource(R.drawable.ic_call_incoming)
-        }
-        h.b.ivType.clearColorFilter()
+        h.b.tvCallTime.text = fmt.format(Date(item.date))
 
         h.b.btnCallBack.setOnClickListener { onCall(item.number) }
         h.b.root.setOnClickListener { onShowHistory(item.number) }
-
-        // Long press: menu copy / block
-        h.b.root.setOnLongClickListener {
-            showContextMenu(ctx, item.number, display)
-            true
-        }
+        h.b.root.setOnLongClickListener { showContextMenu(ctx, item.number, display); true }
     }
 
     private fun showContextMenu(ctx: Context, number: String, display: String) {
