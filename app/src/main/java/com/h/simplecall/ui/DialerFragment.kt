@@ -23,6 +23,7 @@ import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.GridLayout
 import androidx.core.content.ContextCompat
@@ -65,8 +66,6 @@ class DialerFragment : Fragment() {
     private var keypadVisible = true
     private var pendingNumberToAdd: String = ""
 
-    // "Thêm vào liên hệ hiện có": cho người dùng chọn 1 liên hệ có sẵn, sau đó mở màn
-    // hình sửa liên hệ đó với số điện thoại đang gõ được điền sẵn để họ lưu thêm số này.
     private val pickContactLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.PickContact()
     ) { contactUri ->
@@ -91,14 +90,12 @@ class DialerFragment : Fragment() {
 
         try { toneGen = ToneGenerator(AudioManager.STREAM_DTMF, 80) } catch (_: Exception) {}
 
-        // Suggestions RecyclerView (hiện khi đang gõ số để tìm liên hệ khớp)
         suggestAdapter = ContactSuggestAdapter { number ->
             (activity as? MainActivity)?.placeCall(number)
         }
         b.rvSuggestions.layoutManager = LinearLayoutManager(requireContext())
         b.rvSuggestions.adapter = suggestAdapter
 
-        // Danh sách "Gần đây" mặc định, dữ liệu thật đầy đủ từ Nhật ký cuộc gọi trên máy
         b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
         loadRecents()
 
@@ -106,7 +103,6 @@ class DialerFragment : Fragment() {
 
         setupKeypad(view)
 
-        // Backspace
         b.btnBackspace.setOnClickListener {
             val t = b.etNumber.text.toString()
             if (t.isNotEmpty()) b.etNumber.setText(t.dropLast(1))
@@ -116,7 +112,6 @@ class DialerFragment : Fragment() {
             b.etNumber.setText(""); syncBackspace(); true
         }
 
-        // Format + suggestions
         b.etNumber.addTextChangedListener(object : TextWatcher {
             private var editing = false
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
@@ -135,17 +130,14 @@ class DialerFragment : Fragment() {
             }
         })
 
-        // Nút gọi: nếu máy có 2 SIM khả dụng, hiện pill chia đôi "1"/"2" giống trình quay số
-        // hệ thống; ngược lại giữ nút tròn đơn như cũ.
         setupCallButtons()
 
-        // Gọi video: tính năng chưa được hỗ trợ, thông báo cho người dùng biết thay vì im lặng.
-        b.btnVideoCall.setOnClickListener {
+        // Nút video dùng FrameLayout có id btnVideoCall
+        view.findViewById<View>(R.id.btnVideoCall)?.setOnClickListener {
             android.widget.Toast.makeText(requireContext(),
                 getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
         }
 
-        // Menu hành động khi số đang gõ không khớp liên hệ nào
         b.rowCreateContact.setOnClickListener {
             val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
             try {
@@ -157,35 +149,34 @@ class DialerFragment : Fragment() {
         }
         b.rowAddToExisting.setOnClickListener {
             pendingNumberToAdd = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
-            try {
-                pickContactLauncher.launch(null)
-            } catch (_: Exception) {
+            try { pickContactLauncher.launch(null) } catch (_: Exception) {
                 android.widget.Toast.makeText(requireContext(), "Không thể chọn liên hệ", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
         b.rowSendSms.setOnClickListener {
             val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
-            try {
-                startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$raw")))
-            } catch (_: Exception) {
+            try { startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$raw"))) } catch (_: Exception) {
                 android.widget.Toast.makeText(requireContext(), "Không tìm thấy ứng dụng nhắn tin", android.widget.Toast.LENGTH_SHORT).show()
             }
         }
         b.rowVideoMeet.setOnClickListener {
-            // Chưa tích hợp Google Meet thật; thông báo rõ cho người dùng thay vì im lặng.
             android.widget.Toast.makeText(requireContext(),
                 getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
         }
 
-        // Ẩn/hiện bàn phím số để xem trọn danh sách Gần đây / gợi ý liên hệ khi cần.
-        // Dùng GONE (không phải INVISIBLE) để danh sách phía trên thực sự giãn ra
-        // chiếm khoảng trống đó, thay vì để lại một vùng trống vô ích.
         b.btnKeypadToggle.setOnClickListener {
             keypadVisible = !keypadVisible
             b.keypad.visibility = if (keypadVisible) View.VISIBLE else View.GONE
         }
 
         syncBackspace()
+
+        // Tự động bật bàn phím ảo khi vào DialerFragment
+        b.etNumber.requestFocus()
+        b.etNumber.postDelayed({
+            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(b.etNumber, InputMethodManager.SHOW_IMPLICIT)
+        }, 150)
     }
 
     private fun setupKeypad(view: View) {
@@ -194,27 +185,25 @@ class DialerFragment : Fragment() {
             val btn = grid.getChildAt(i) as? Button ?: continue
             val tag = btn.tag as? String ?: continue
 
-            // Sub-labels
             val sub = SUB_LABELS[tag]
             if (sub != null) {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                ss.setSpan(RelativeSizeSpan(0.38f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(RelativeSizeSpan(0.35f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btn.text = ss; btn.setLines(2); btn.textSize = 27f
+                btn.text = ss; btn.setLines(2); btn.textSize = 30f
             }
 
-            // Phím 1: voicemail icon text nhỏ
             if (tag == "1") {
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
                 val sub2Start = ss.length; ss.append("☎")
-                ss.setSpan(RelativeSizeSpan(0.38f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(RelativeSizeSpan(0.35f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btn.text = ss; btn.setLines(2); btn.textSize = 27f
+                btn.text = ss; btn.setLines(2); btn.textSize = 30f
             }
 
             btn.setOnClickListener {
@@ -236,8 +225,6 @@ class DialerFragment : Fragment() {
         }
     }
 
-    /** Lấy danh sách tài khoản SIM có thể gọi (PhoneAccountHandle). Trả về rỗng nếu thiếu quyền
-     *  hoặc thiết bị chỉ có 1 SIM. */
     private fun callCapableAccounts(): List<PhoneAccountHandle> {
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_PHONE_STATE)
             != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
@@ -304,8 +291,6 @@ class DialerFragment : Fragment() {
             if (b.etNumber.text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
 
-    /** Nạp đầy đủ Nhật ký cuộc gọi thật trên máy để hiển thị mặc định phía trên bàn phím,
-     *  giống màn hình Bàn phím của trình quay số hệ thống. Không giới hạn số lượng bản ghi. */
     private fun loadRecents() {
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
             != android.content.pm.PackageManager.PERMISSION_GRANTED) {
@@ -314,23 +299,52 @@ class DialerFragment : Fragment() {
         }
         val entries = mutableListOf<CallLogEntry>()
         try {
+            val projection = arrayOf(
+                CallLog.Calls.CACHED_NAME,
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.DATE,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.PHONE_ACCOUNT_ID,
+                CallLog.Calls.CACHED_NUMBER_TYPE,
+                CallLog.Calls.CACHED_NUMBER_LABEL
+            )
             val cur = requireContext().contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
-                arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
-                    CallLog.Calls.DATE, CallLog.Calls.TYPE),
+                projection,
                 null, null, "${CallLog.Calls.DATE} DESC"
             )
             cur?.use {
-                val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
-                val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
-                val iDate = it.getColumnIndex(CallLog.Calls.DATE)
-                val iType = it.getColumnIndex(CallLog.Calls.TYPE)
+                val iName   = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
+                val iNum    = it.getColumnIndex(CallLog.Calls.NUMBER)
+                val iDate   = it.getColumnIndex(CallLog.Calls.DATE)
+                val iType   = it.getColumnIndex(CallLog.Calls.TYPE)
+                val iAcct   = it.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+                val iNumType = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_TYPE)
+                val iLabel  = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_LABEL)
                 while (it.moveToNext()) {
+                    // Xác định SIM slot từ account id (thường chứa "1" hoặc "2")
+                    val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
+                    val simSlot = when {
+                        acctId.contains("2") -> 1
+                        else -> 0
+                    }
+                    // Loại đường dây
+                    val numType = if (iNumType >= 0) it.getInt(iNumType) else 0
+                    val label   = if (iLabel >= 0) it.getString(iLabel) ?: "" else ""
+                    val typeLabel = when (numType) {
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE -> "Di động"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_HOME   -> "Nhà riêng"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_WORK   -> "Cơ quan"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM -> label.ifEmpty { "Di động" }
+                        else -> "Di động"
+                    }
                     entries.add(CallLogEntry(
                         name = it.getString(iName) ?: "",
                         number = it.getString(iNum) ?: "",
                         date = it.getLong(iDate),
-                        type = it.getInt(iType)
+                        type = it.getInt(iType),
+                        simSlot = simSlot,
+                        numberType = typeLabel
                     ))
                 }
             }
@@ -371,7 +385,6 @@ class DialerFragment : Fragment() {
             cur?.use {
                 val iName = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val iNum  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                // Không còn giới hạn 5 kết quả: trả về toàn bộ liên hệ khớp trên máy.
                 while (it.moveToNext()) {
                     list.add(Contact(it.getString(iName) ?: "", it.getString(iNum) ?: ""))
                 }
@@ -379,8 +392,6 @@ class DialerFragment : Fragment() {
         } catch (_: Exception) {}
 
         if (list.isEmpty()) {
-            // Không tìm thấy liên hệ nào khớp: hiện menu tạo liên hệ / thêm vào liên hệ có
-            // sẵn / gửi SMS / gọi video, giống trình quay số hệ thống.
             b.rvSuggestions.visibility = View.GONE
             b.llNoMatchActions.visibility = View.VISIBLE
         } else {
