@@ -1,7 +1,9 @@
 package com.h.simplecall.ui
 
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
+import android.net.Uri
 import android.media.ToneGenerator
 import android.media.AudioManager
 import android.os.Build
@@ -59,6 +61,24 @@ class DialerFragment : Fragment() {
     private var toneGen: ToneGenerator? = null
     private lateinit var suggestAdapter: ContactSuggestAdapter
     private var keypadVisible = true
+    private var pendingNumberToAdd: String = ""
+
+    // "Thêm vào liên hệ hiện có": cho người dùng chọn 1 liên hệ có sẵn, sau đó mở màn
+    // hình sửa liên hệ đó với số điện thoại đang gõ được điền sẵn để họ lưu thêm số này.
+    private val pickContactLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickContact()
+    ) { contactUri ->
+        if (contactUri == null) return@registerForActivityResult
+        try {
+            startActivity(Intent(Intent.ACTION_EDIT).apply {
+                setDataAndType(contactUri, android.provider.ContactsContract.Contacts.CONTENT_ITEM_TYPE)
+                putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, pendingNumberToAdd)
+                putExtra("finishActivityOnSaveCompleted", true)
+            })
+        } catch (_: Exception) {
+            android.widget.Toast.makeText(requireContext(), "Không thể mở màn hình sửa liên hệ", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentDialerBinding.inflate(i, c, false); return b.root
@@ -131,6 +151,38 @@ class DialerFragment : Fragment() {
 
         // Gọi video: tính năng chưa được hỗ trợ, thông báo cho người dùng biết thay vì im lặng.
         b.btnVideoCall.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(),
+                getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        // Menu hành động khi số đang gõ không khớp liên hệ nào
+        b.rowCreateContact.setOnClickListener {
+            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            try {
+                startActivity(Intent(Intent.ACTION_INSERT, android.provider.ContactsContract.Contacts.CONTENT_URI)
+                    .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, raw))
+            } catch (_: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Không thể mở màn hình tạo liên hệ", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowAddToExisting.setOnClickListener {
+            pendingNumberToAdd = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            try {
+                pickContactLauncher.launch(null)
+            } catch (_: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Không thể chọn liên hệ", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowSendSms.setOnClickListener {
+            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            try {
+                startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$raw")))
+            } catch (_: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Không tìm thấy ứng dụng nhắn tin", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowVideoMeet.setOnClickListener {
+            // Chưa tích hợp Google Meet thật; thông báo rõ cho người dùng thay vì im lặng.
             android.widget.Toast.makeText(requireContext(),
                 getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
         }
@@ -274,6 +326,7 @@ class DialerFragment : Fragment() {
     private fun searchSuggestions(raw: String) {
         if (raw.length < 2) {
             b.rvSuggestions.visibility = View.GONE
+            b.llNoMatchActions.visibility = View.GONE
             b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
             return
         }
@@ -285,8 +338,8 @@ class DialerFragment : Fragment() {
                 arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER),
                 "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
-                arrayOf("%$raw%"), null) ?: return
-            cur.use {
+                arrayOf("%$raw%"), null)
+            cur?.use {
                 val iName = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val iNum  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
                 // Không còn giới hạn 5 kết quả: trả về toàn bộ liên hệ khớp trên máy.
@@ -295,8 +348,17 @@ class DialerFragment : Fragment() {
                 }
             }
         } catch (_: Exception) {}
-        suggestAdapter.update(list)
-        b.rvSuggestions.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
+
+        if (list.isEmpty()) {
+            // Không tìm thấy liên hệ nào khớp: hiện menu tạo liên hệ / thêm vào liên hệ có
+            // sẵn / gửi SMS / gọi video, giống trình quay số hệ thống.
+            b.rvSuggestions.visibility = View.GONE
+            b.llNoMatchActions.visibility = View.VISIBLE
+        } else {
+            suggestAdapter.update(list, raw)
+            b.rvSuggestions.visibility = View.VISIBLE
+            b.llNoMatchActions.visibility = View.GONE
+        }
     }
 
     private fun getLastCalledNumber(): String? {
