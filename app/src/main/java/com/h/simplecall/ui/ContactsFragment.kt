@@ -20,6 +20,11 @@ import com.h.simplecall.databinding.FragmentContactsBinding
 
 /** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
  *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 private val INDEX_LETTERS = listOf(
     "★", "#", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
     "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "…"
@@ -48,15 +53,10 @@ class ContactsFragment : Fragment() {
             ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
         )
 
-        val contacts = loadContacts()
-        adapter = ContactsAdapter(contacts, headers) { (activity as? MainActivity)?.placeCall(it) }
+        // Khởi tạo adapter rỗng ngay để tránh crash khi cuộn trước khi load xong
+        adapter = ContactsAdapter(emptyList(), headers) { (activity as? MainActivity)?.placeCall(it) }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
-
-        if (contacts.isNotEmpty()) {
-            b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
-            b.tvContactsCount.visibility = View.VISIBLE
-        }
 
         b.btnContactsSettings.setOnClickListener {
             (activity as? MainActivity)?.openSettings()
@@ -80,6 +80,19 @@ class ContactsFragment : Fragment() {
                 highlightIndexLetter(adapter.letterAtOrBefore(firstVisible))
             }
         })
+
+        // BUG FIX: load danh bạ trên IO thread, không block main thread (tránh ANR với 7000+ liên hệ)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val contacts = withContext(Dispatchers.IO) { loadContacts() }
+            if (_b == null) return@launch   // fragment đã detach
+            adapter.updateContacts(contacts)
+            if (contacts.isNotEmpty()) {
+                b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
+                b.tvContactsCount.visibility = View.VISIBLE
+            }
+            setupAlphabetIndex()
+            highlightIndexLetter(adapter.letterAtOrBefore(0))
+        }
     }
 
     private fun setupAlphabetIndex() {
