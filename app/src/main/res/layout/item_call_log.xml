@@ -6,75 +6,90 @@
     android:gravity="center_vertical"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
     android:background="@color/bg">
 
-    <!-- Icon cuộc gọi vào/ra/nhỡ - thay avatar -->
+    <!-- Icon cuộc gọi: vào/ra/nhỡ, kích thước lớn hơn -->
     <ImageView
         android:id="@+id/ivType"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:padding="6dp" />
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:padding="8dp" />
 
     <LinearLayout
-        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginStart="12dp"
         android:orientation="vertical">
 
+        <!-- Tên: 1 dòng, dài thì "..." -->
         <TextView
             android:id="@+id/tvName"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textSize="15sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
             android:textColor="@color/text_primary"
-            android:fontFamily="sans-serif" />
+            android:fontFamily="sans-serif"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
-        <!-- SIM badge + loại (Di động / Việt Nam...) -->
+        <!-- Hàng dưới: [□2] Di động -->
         <LinearLayout
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="2dp">
+            android:layout_marginTop="3dp">
 
+            <!-- SIM badge: ô vuông nhỏ có số bên trong, giống ảnh gốc -->
             <TextView
                 android:id="@+id/tvSimBadge"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="SIM 1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"
                 android:textSize="11sp"
                 android:textColor="@color/text_secondary"
-                android:background="@drawable/bg_status_pill_off"
-                android:paddingStart="5dp" android:paddingEnd="5dp"
-                android:paddingTop="1dp" android:paddingBottom="1dp"
-                android:layout_marginEnd="6dp" />
+                android:background="@drawable/bg_sim_badge"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:paddingTop="1dp"
+                android:paddingBottom="1dp"
+                android:layout_marginEnd="5dp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvDate"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textSize="13sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
                 android:textColor="@color/text_secondary"
                 android:fontFamily="sans-serif" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Thời gian cuộc gọi + nút gọi lại (info) - cùng 1 hàng, giờ nằm bên trái -->
+    <!-- Thời gian + nút info -->
     <LinearLayout
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_marginStart="8dp">
 
         <TextView
             android:id="@+id/tvCallTime"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
             android:textColor="@color/text_secondary"
             android:layout_marginEnd="8dp"
             android:fontFamily="sans-serif" />
 
         <ImageButton
             android:id="@+id/btnCallBack"
-            android:layout_width="32dp" android:layout_height="32dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
             android:contentDescription="@string/call_history" />
