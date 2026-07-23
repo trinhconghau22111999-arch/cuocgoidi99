@@ -171,12 +171,11 @@ class DialerFragment : Fragment() {
 
         syncBackspace()
 
-        // Tự động bật bàn phím ảo khi vào DialerFragment
-        b.etNumber.requestFocus()
-        b.etNumber.postDelayed({
-            val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-            imm?.showSoftInput(b.etNumber, InputMethodManager.SHOW_IMPLICIT)
-        }, 150)
+        // KHÔNG bật bàn phím hệ thống của máy ở đây nữa. etNumber chỉ dùng để HIỂN THỊ số đang
+        // gõ (showSoftInputOnFocus=false trong layout), việc nhập số chỉ đến từ các phím bấm
+        // 0-9 * # trong bàn phím số riêng của app (xem setupKeypad bên dưới).
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(b.etNumber.windowToken, 0)
     }
 
     private fun setupKeypad(view: View) {

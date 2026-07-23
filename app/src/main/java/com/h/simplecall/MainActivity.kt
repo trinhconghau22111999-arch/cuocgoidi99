@@ -69,27 +69,15 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissions()
 
-        binding.bottomNav.setOnItemSelectedListener { item ->
-            currentNavId = item.itemId
-            navigateTo(when (item.itemId) {
-                R.id.nav_contacts -> ContactsFragment()
-                else              -> CallLogFragment()
-            })
-            // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
-            // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
-            binding.fabDialpad.visibility =
-                if (item.itemId == R.id.nav_contacts) View.GONE else View.VISIBLE
-            if (item.itemId == R.id.nav_recents)
-                binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
-            true
-        }
+        binding.bottomNav.setOnItemSelectedListener { item -> goToTab(item.itemId); true }
+        binding.bottomNav.setOnItemReselectedListener { item -> goToTab(item.itemId) }
 
         binding.fabDialpad.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, DialerFragment())
-                .addToBackStack("dialpad")
-                .commit()
-            hideNav()
+            // Chỉ thay nội dung bằng DialerFragment, KHÔNG push vào back stack và KHÔNG ẩn
+            // thanh điều hướng dưới (Gần đây/Danh bạ) - bàn phím số phải hiện cùng lúc với
+            // thanh điều hướng, không được che/ẩn nó đi.
+            navigateTo(DialerFragment())
+            binding.fabDialpad.visibility = View.GONE
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
@@ -124,6 +112,20 @@ class MainActivity : AppCompatActivity() {
     fun navigateTo(f: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, f).commit()
+    }
+
+    /** Chuyển sang tab Gần đây/Danh bạ. Tách riêng để dùng chung cho cả lần bấm đầu tiên
+     *  (OnItemSelectedListener) VÀ khi bấm lại đúng tab đang được chọn (OnItemReselectedListener) -
+     *  trường hợp thứ 2 cần thiết để người dùng có thể thoát khỏi bàn phím số (mở qua FAB, không
+     *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ. */
+    private fun goToTab(itemId: Int) {
+        currentNavId = itemId
+        navigateTo(if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment())
+        // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
+        // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
+        binding.fabDialpad.visibility = if (itemId == R.id.nav_contacts) View.GONE else View.VISIBLE
+        if (itemId == R.id.nav_recents)
+            binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
     }
 
     fun hideNav() {

@@ -4,6 +4,7 @@
     <color name="btn_call">#1E8E3E</color>
     <color name="btn_call_sim1">#2FBF60</color>
     <color name="btn_call_sim2">#146830</color>
+    <color name="btn_call_pill_right">#1AA155</color>
     <color name="btn_decline">#EA4335</color>
     <color name="bg">#FFFFFF</color>
     <color name="bg_surface">#F1F3F4</color>
@@ -19,6 +20,7 @@
     <color name="divider">#DADCE0</color>
     <color name="key_ripple">#1A1E8E3E</color>
     <color name="key_bg">#F1F3F4</color>
+    <color name="video_btn_bg">#3A3D40</color>
     <color name="btn_action_bg">#3C4043</color>
     <color name="btn_action_active">#1E8E3E</color>
     <color name="status_on">#1E8E3E</color>

@@ -7,47 +7,8 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- Ô nhập số điện thoại + nút xóa -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp">
-
-        <EditText
-            android:id="@+id/etNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:paddingEnd="48dp"
-            android:background="@null"
-            android:inputType="phone"
-            android:gravity="center"
-            android:textSize="32sp"
-            android:textColor="@color/text_primary"
-            android:fontFamily="sans-serif-light"
-            android:cursorVisible="true"
-            android:maxLines="1" />
-
-        <ImageButton
-            android:id="@+id/btnBackspace"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical|end"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_backspace"
-            android:contentDescription="@string/cancel"
-            android:visibility="invisible" />
-    </FrameLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="12dp"
-        android:background="@color/divider" />
-
-    <!-- Vùng nội dung linh hoạt: gợi ý liên hệ / danh sách gần đây / hành động khi không khớp -->
+    <!-- Vùng nội dung linh hoạt: gợi ý liên hệ / danh sách gần đây / hành động khi không khớp.
+         Nằm TRÊN CÙNG, phía trên ô nhập số + bàn phím (không phải ngược lại). -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -92,7 +53,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_add"
-                    app:tint="@color/primary"
+                    app:tint="@color/white"
                     tools:ignore="MissingClass" />
 
                 <TextView
@@ -124,7 +85,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_person"
-                    app:tint="@color/primary"
+                    app:tint="@color/white"
                     tools:ignore="MissingClass" />
 
                 <TextView
@@ -153,10 +114,10 @@
                 android:paddingBottom="14dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@android:drawable/ic_dialog_email"
-                    app:tint="@color/primary"
+                    app:tint="@color/white"
                     tools:ignore="MissingClass" />
 
                 <TextView
@@ -188,7 +149,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_video_call"
-                    app:tint="@color/primary"
+                    app:tint="@color/white"
                     tools:ignore="MissingClass" />
 
                 <TextView
@@ -204,28 +165,56 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Nút bật/tắt bàn phím số -->
-    <LinearLayout
+    <!-- Ô nhập số điện thoại + nút xóa: nằm NGAY TRÊN bàn phím số (không phải trên cùng màn hình).
+         showSoftInputOnFocus=false + inputType=none để tuyệt đối không bao giờ bật bàn phím
+         hệ thống của máy lên - chỉ nhập được qua bàn phím số riêng của app bên dưới. -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="4dp">
+        android:paddingTop="12dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <EditText
+            android:id="@+id/etNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingEnd="48dp"
+            android:background="@null"
+            android:inputType="none"
+            android:showSoftInputOnFocus="false"
+            android:gravity="center"
+            android:textSize="32sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-light"
+            android:cursorVisible="true"
+            android:maxLines="1" />
 
         <ImageButton
-            android:id="@+id/btnKeypadToggle"
+            android:id="@+id/btnBackspace"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/bg_key"
-            android:src="@drawable/ic_dialpad"
-            android:contentDescription="@string/open_dialpad" />
-    </LinearLayout>
+            android:layout_gravity="center_vertical|end"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_backspace"
+            android:contentDescription="@string/cancel"
+            android:visibility="invisible" />
+    </FrameLayout>
 
-    <!-- Bàn phím số: dàn đều 3 cột từ mép trái sang mép phải -->
+    <!-- Viền trên của bàn phím, hiển thị rõ để tách khỏi ô nhập số phía trên -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/divider" />
+
+    <!-- Bàn phím số: dàn đều 3 cột từ mép trái sang mép phải. Cho phép nhập cả * và #. -->
     <GridLayout
         android:id="@+id/keypad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="6dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:columnCount="3"
@@ -246,70 +235,20 @@
         <Button android:tag="#" style="@style/KeyBtn" android:text="#" android:layout_columnWeight="1" />
     </GridLayout>
 
-    <!-- Hàng nút gọi: 1 SIM (btnCall) hoặc 2 SIM (llCallDual) + nút video -->
+    <!-- Hàng điều khiển dưới cùng: video (trái) - nút gọi 1/2 SIM (giữa) - nút bật/tắt bàn phím (phải) -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
-        android:paddingBottom="24dp">
-
-        <ImageButton
-            android:id="@+id/btnCall"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_call_circle"
-            android:src="@drawable/ic_call"
-            android:contentDescription="@string/call"
-            android:visibility="visible" />
-
-        <FrameLayout
-            android:id="@+id/llCallDual"
-            android:layout_width="wrap_content"
-            android:layout_height="60dp"
-            android:layout_gravity="center"
-            android:visibility="gone">
-
-            <!-- SIM 1: phụ, sáng hơn, nằm bên phải/dưới lớp -->
-            <Button
-                android:id="@+id/btnCallSim1"
-                android:layout_width="90dp"
-                android:layout_height="52dp"
-                android:layout_gravity="center"
-                android:translationX="37dp"
-                android:elevation="2dp"
-                android:background="@drawable/bg_call_pill_sim1"
-                android:text="SIM 1"
-                android:textSize="14sp"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:stateListAnimator="@null" />
-
-            <!-- SIM 2: SIM chính, to hơn, sậm hơn, lệch trái, đè lên SIM 1 một chút -->
-            <Button
-                android:id="@+id/btnCallSim2"
-                android:layout_width="98dp"
-                android:layout_height="60dp"
-                android:layout_gravity="center"
-                android:translationX="-37dp"
-                android:elevation="6dp"
-                android:background="@drawable/bg_call_pill_sim2"
-                android:text="SIM 2"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:stateListAnimator="@null" />
-        </FrameLayout>
+        android:paddingBottom="20dp"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp">
 
         <FrameLayout
             android:id="@+id/btnVideoCall"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:layout_gravity="center_vertical|end"
-            android:layout_marginEnd="32dp"
+            android:layout_gravity="center_vertical|start"
             android:background="@drawable/bg_video_call_btn"
             android:clickable="true"
             android:focusable="true"
@@ -322,7 +261,79 @@
                 android:src="@drawable/ic_video_call"
                 app:tint="@color/text_primary"
                 tools:ignore="MissingClass" />
+
+            <!-- Chấm trắng nhỏ góc trên-trái, giống icon quay video trên máy thật -->
+            <View
+                android:layout_width="7dp"
+                android:layout_height="7dp"
+                android:layout_gravity="top|start"
+                android:layout_marginTop="6dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_white_dot" />
         </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/btnCall"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_call_circle"
+            android:src="@drawable/ic_call"
+            android:contentDescription="@string/call"
+            android:visibility="visible" />
+
+        <!-- Nút gọi 2 SIM: 1 viên thuốc liền mạch, 2 nửa liền kề nhau, không viền/đường kẻ ở giữa -->
+        <LinearLayout
+            android:id="@+id/llCallDual"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCallSim1"
+                android:layout_width="76dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_call_pill_left"
+                android:text="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null"
+                android:drawableStart="@drawable/ic_call"
+                android:drawablePadding="8dp"
+                android:paddingStart="14dp"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnCallSim2"
+                android:layout_width="76dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_call_pill_right"
+                android:text="2"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null"
+                android:drawableStart="@drawable/ic_call"
+                android:drawablePadding="8dp"
+                android:paddingStart="14dp"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnKeypadToggle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|end"
+            android:background="@drawable/bg_key"
+            android:src="@drawable/ic_dialpad"
+            android:contentDescription="@string/open_dialpad" />
     </FrameLayout>
 
 </LinearLayout>
