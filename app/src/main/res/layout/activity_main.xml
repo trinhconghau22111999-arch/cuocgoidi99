@@ -27,6 +27,8 @@
             app:menu="@menu/bottom_nav"
             app:itemIconTint="@color/nav_selector"
             app:itemTextColor="@color/nav_selector"
+            app:itemTextAppearanceActive="@style/BottomNavLabel"
+            app:itemTextAppearanceInactive="@style/BottomNavLabel"
             app:labelVisibilityMode="labeled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -40,26 +42,12 @@
             android:layout_marginEnd="16dp"
             android:src="@drawable/ic_dialpad"
             app:tint="@color/white"
-            app:backgroundTint="@color/primary"
+            app:backgroundTint="@color/accent_blue"
             app:fabSize="normal"
             android:contentDescription="@string/open_dialpad"
             app:layout_constraintBottom_toTopOf="@id/bottomNav"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- 3-dot button overlay – căn giữa theo chiều dọc với thanh tìm kiếm (48dp cao, marginTop 12dp) -->
-    <ImageButton
-        android:id="@+id/btnSettings"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="10dp"
-        android:background="@drawable/bg_key"
-        android:src="@drawable/ic_more_vert"
-        android:elevation="4dp"
-        android:alpha="0.87"
-        android:contentDescription="Cài đặt" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
