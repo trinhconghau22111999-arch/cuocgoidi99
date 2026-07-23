@@ -30,7 +30,7 @@
             android:text="@string/contacts_title"
             android:textSize="34sp"
             android:textColor="@color/text_primary"
-            android:fontFamily="sans-serif-light" />
+            android:fontFamily="sans-serif-medium" />
         <TextView
             android:id="@+id/tvContactsCount"
             android:layout_width="wrap_content" android:layout_height="wrap_content"

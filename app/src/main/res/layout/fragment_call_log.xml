@@ -36,7 +36,7 @@
         android:text="@string/recents_title"
         android:textSize="34sp"
         android:textColor="@color/text_primary"
-        android:fontFamily="sans-serif-light" />
+        android:fontFamily="sans-serif-medium" />
 
     <!-- 2 tab: Tất cả / Cuộc gọi nhỡ -->
     <LinearLayout

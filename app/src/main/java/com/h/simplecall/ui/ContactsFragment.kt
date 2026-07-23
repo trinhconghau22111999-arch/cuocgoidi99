@@ -8,6 +8,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.MotionEvent
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -111,6 +112,43 @@ class ContactsFragment : Fragment() {
             indexViews[letter] = tv
             b.llAlphabetIndex.addView(tv)
         }
+
+        // Cho phép LƯỚT ngón tay dọc thanh chữ cái (không chỉ bấm từng chữ): trong lúc ngón tay
+        // di chuyển, xác định chữ cái đang ở dưới vị trí Y hiện tại và nhảy danh bạ tới đó ngay,
+        // giống thanh chỉ mục nhanh (fast scroller) trong app Danh bạ gốc của máy.
+        var lastLetter: String? = null
+        b.llAlphabetIndex.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                    if (v.height <= 0) return@setOnTouchListener true
+                    val ratio = (event.y / v.height).coerceIn(0f, 0.999f)
+                    val index = (ratio * INDEX_LETTERS.size).toInt().coerceIn(0, INDEX_LETTERS.size - 1)
+                    val letter = INDEX_LETTERS[index]
+                    if (letter != lastLetter) {
+                        lastLetter = letter
+                        jumpTo(letter)
+                        haptic()
+                    }
+                    true // giữ luồng sự kiện chạm cho riêng thanh chỉ mục, không để RecyclerView tranh chấp
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    lastLetter = null
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    /** Rung nhẹ mỗi khi ngón tay lướt sang một chữ cái mới trên thanh chỉ mục, giống cảm giác
+     *  "tách nấc" (detent) của thanh cuộn nhanh trong app Danh bạ gốc. */
+    private fun haptic() {
+        val v = requireContext().getSystemService(android.os.Vibrator::class.java) ?: return
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                v.vibrate(android.os.VibrationEffect.createOneShot(8, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+            else @Suppress("DEPRECATION") v.vibrate(8)
+        } catch (_: Exception) {}
     }
 
     private fun highlightIndexLetter(letter: String?) {

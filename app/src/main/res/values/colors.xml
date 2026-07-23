@@ -31,9 +31,10 @@
     <color name="blocked_bg">#2A1A00</color>
     <color name="blocked_text">#FFB74D</color>
     <!-- 3 màu avatar luân phiên: xám nhạt, tím nhạt, xanh tím nhạt -->
-    <color name="av_c1">#2A2A2A</color>
-    <color name="av_c2">#2D2040</color>
-    <color name="av_c3">#1A2040</color>
+    <!-- 3 màu avatar luân phiên trong danh bạ: xám-xanh, tím nhạt, xanh dương sáng (theo ảnh mẫu) -->
+    <color name="av_c1">#7E8CA3</color>
+    <color name="av_c2">#A78BFA</color>
+    <color name="av_c3">#5C7CFA</color>
     <!-- avatar text tương ứng -->
     <color name="av0">#2A2A2A</color><color name="av0t">#9AA0A6</color>
     <color name="av1">#2D2040</color><color name="av1t">#CE93D8</color>
