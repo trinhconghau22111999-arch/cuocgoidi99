@@ -324,13 +324,13 @@ class DialerFragment : Fragment() {
                 val iNumType = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_TYPE)
                 val iLabel  = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_LABEL)
                 while (it.moveToNext()) {
-                    // Xác định SIM slot qua SubscriptionManager – đáng tin hơn đoán chuỗi
+                    // Xác định SIM slot qua SubscriptionManager.getActiveSubscriptionInfo
                     val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
                     val simSlot: Int? = try {
                         val subId = acctId.toIntOrNull()
                         if (subId != null) {
                             val sm = requireContext().getSystemService(SubscriptionManager::class.java)
-                            sm?.getSlotIndex(subId)?.takeIf { idx -> idx >= 0 }
+                            sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
                         } else null
                     } catch (_: Exception) { null }
                     // Loại đường dây
