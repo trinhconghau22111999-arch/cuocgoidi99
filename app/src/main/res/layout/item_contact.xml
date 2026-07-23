@@ -31,11 +31,4 @@
         android:layout_marginStart="14dp"
         android:textSize="15sp" android:textColor="@color/text_primary"
         android:fontFamily="sans-serif" />
-
-    <ImageButton android:id="@+id/btnCall"
-        android:layout_width="40dp" android:layout_height="40dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_tab_phone"
-        android:tint="@color/primary"
-        android:contentDescription="@string/call" />
 </LinearLayout>
