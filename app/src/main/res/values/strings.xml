@@ -1,7 +1,7 @@
-<string name="my_info">Thông tin của tôi</string>
+<resources>
+    <string name="my_info">Thông tin của tôi</string>
     <string name="my_groups">Nhóm của tôi</string>
     <string name="add_contact">Thêm liên hệ mới</string>
-<resources>
     <string name="app_name">Gọi Điện</string>
     <string name="tab_recents">Gần đây</string>
     <string name="tab_contacts">Danh bạ</string>
