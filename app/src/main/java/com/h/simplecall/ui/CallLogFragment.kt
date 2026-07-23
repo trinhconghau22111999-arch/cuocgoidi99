@@ -51,15 +51,16 @@ class CallLogFragment : Fragment() {
 
     private fun selectTab(missed: Boolean) {
         showMissedOnly = missed
-        val primary = ContextCompat.getColor(requireContext(), R.color.primary)
+        val accent = ContextCompat.getColor(requireContext(), R.color.accent_blue)
         val secondary = ContextCompat.getColor(requireContext(), R.color.text_secondary)
-        b.tvTabAll.setTextColor(if (missed) secondary else primary)
+        val transparent = ContextCompat.getColor(requireContext(), android.R.color.transparent)
+        b.tvTabAll.setTextColor(if (missed) secondary else accent)
         b.tvTabAll.setTypeface(null, if (missed) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
-        b.tvTabMissed.setTextColor(if (missed) primary else secondary)
+        b.tvTabMissed.setTextColor(if (missed) accent else secondary)
         b.tvTabMissed.setTypeface(null, if (missed) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
-        b.tabMissedUnderline.setBackgroundColor(
-            if (missed) primary else ContextCompat.getColor(requireContext(), android.R.color.transparent)
-        )
+        // Thanh gạch chân xanh dương luôn đi theo tab đang chọn
+        b.tabAllUnderline.setBackgroundColor(if (missed) transparent else accent)
+        b.tabMissedUnderline.setBackgroundColor(if (missed) accent else transparent)
         renderList()
     }
 
@@ -107,11 +108,16 @@ class CallLogFragment : Fragment() {
                 val iDate = it.getColumnIndex(CallLog.Calls.DATE)
                 val iType = it.getColumnIndex(CallLog.Calls.TYPE)
                 while (it.moveToNext()) {
+                    val name = it.getString(iName) ?: ""
+                    // Số đã lưu trong danh bạ (có CACHED_NAME) hiện "Di động";
+                    // số lạ chưa lưu hiện quốc gia (giống danh bạ điện thoại thật).
+                    val numberType = if (name.isNotEmpty()) "Di động" else "Việt Nam"
                     list.add(CallLogEntry(
-                        name = it.getString(iName) ?: "",
+                        name = name,
                         number = it.getString(iNum) ?: "",
                         date = it.getLong(iDate),
-                        type = it.getInt(iType)
+                        type = it.getInt(iType),
+                        numberType = numberType
                     ))
                 }
             }
