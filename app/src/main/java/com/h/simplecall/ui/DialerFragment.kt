@@ -21,10 +21,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.GridLayout
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
+import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.Contact
 import com.h.simplecall.databinding.FragmentDialerBinding
 
@@ -56,6 +58,7 @@ class DialerFragment : Fragment() {
     private val b get() = _b!!
     private var toneGen: ToneGenerator? = null
     private lateinit var suggestAdapter: ContactSuggestAdapter
+    private var keypadVisible = true
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentDialerBinding.inflate(i, c, false); return b.root
@@ -66,12 +69,16 @@ class DialerFragment : Fragment() {
 
         try { toneGen = ToneGenerator(AudioManager.STREAM_DTMF, 80) } catch (_: Exception) {}
 
-        // Suggestions RecyclerView
+        // Suggestions RecyclerView (hiện khi đang gõ số để tìm liên hệ khớp)
         suggestAdapter = ContactSuggestAdapter { number ->
             (activity as? MainActivity)?.placeCall(number)
         }
         b.rvSuggestions.layoutManager = LinearLayoutManager(requireContext())
         b.rvSuggestions.adapter = suggestAdapter
+
+        // Danh sách "Gần đây" mặc định, dữ liệu thật đầy đủ từ Nhật ký cuộc gọi trên máy
+        b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
+        loadRecents()
 
         arguments?.getString("number")?.let { b.etNumber.setText(it) }
 
@@ -128,10 +135,12 @@ class DialerFragment : Fragment() {
                 getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
         }
 
-        // Ẩn/hiện bàn phím số để xem trọn danh sách gợi ý liên hệ khi cần.
+        // Ẩn/hiện bàn phím số để xem trọn danh sách Gần đây / gợi ý liên hệ khi cần.
+        // Dùng GONE (không phải INVISIBLE) để danh sách phía trên thực sự giãn ra
+        // chiếm khoảng trống đó, thay vì để lại một vùng trống vô ích.
         b.btnKeypadToggle.setOnClickListener {
-            val showing = b.keypad.visibility == View.VISIBLE
-            b.keypad.visibility = if (showing) View.INVISIBLE else View.VISIBLE
+            keypadVisible = !keypadVisible
+            b.keypad.visibility = if (keypadVisible) View.VISIBLE else View.GONE
         }
 
         syncBackspace()
@@ -214,8 +223,61 @@ class DialerFragment : Fragment() {
             if (b.etNumber.text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
     }
 
+    /** Nạp đầy đủ Nhật ký cuộc gọi thật trên máy để hiển thị mặc định phía trên bàn phím,
+     *  giống màn hình Bàn phím của trình quay số hệ thống. Không giới hạn số lượng bản ghi. */
+    private fun loadRecents() {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            b.rvRecents.visibility = View.GONE
+            return
+        }
+        val entries = mutableListOf<CallLogEntry>()
+        try {
+            val cur = requireContext().contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
+                    CallLog.Calls.DATE, CallLog.Calls.TYPE),
+                null, null, "${CallLog.Calls.DATE} DESC"
+            )
+            cur?.use {
+                val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
+                val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
+                val iDate = it.getColumnIndex(CallLog.Calls.DATE)
+                val iType = it.getColumnIndex(CallLog.Calls.TYPE)
+                while (it.moveToNext()) {
+                    entries.add(CallLogEntry(
+                        name = it.getString(iName) ?: "",
+                        number = it.getString(iNum) ?: "",
+                        date = it.getLong(iDate),
+                        type = it.getInt(iType)
+                    ))
+                }
+            }
+        } catch (_: SecurityException) {}
+
+        b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+        b.rvRecents.adapter = CallLogAdapter(
+            entries,
+            onCall = { (activity as? MainActivity)?.placeCall(it) },
+            onShowHistory = { number ->
+                val entry = entries.firstOrNull { it.number == number }
+                val name = entry?.name ?: number
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
+                    .addToBackStack("history")
+                    .commit()
+                (activity as? MainActivity)?.hideNav()
+            }
+        )
+    }
+
     private fun searchSuggestions(raw: String) {
-        if (raw.length < 2) { suggestAdapter.update(emptyList()); b.rvSuggestions.visibility = View.GONE; return }
+        if (raw.length < 2) {
+            b.rvSuggestions.visibility = View.GONE
+            b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
+            return
+        }
+        b.rvRecents.visibility = View.GONE
         val list = mutableListOf<Contact>()
         try {
             val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
@@ -227,7 +289,8 @@ class DialerFragment : Fragment() {
             cur.use {
                 val iName = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val iNum  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                while (it.moveToNext() && list.size < 5) {
+                // Không còn giới hạn 5 kết quả: trả về toàn bộ liên hệ khớp trên máy.
+                while (it.moveToNext()) {
                     list.add(Contact(it.getString(iName) ?: "", it.getString(iNum) ?: ""))
                 }
             }
