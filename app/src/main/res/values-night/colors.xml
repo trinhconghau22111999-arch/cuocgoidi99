@@ -32,4 +32,5 @@
     <color name="av3">#1E3A2A</color><color name="av3t">#81C995</color>
     <color name="av4">#3A1F5E</color><color name="av4t">#CF9FFF</color>
     <color name="av5">#4E1A1A</color><color name="av5t">#F28B82</color>
+    <color name="accent_yellow">#FDD663</color>
 </resources>
