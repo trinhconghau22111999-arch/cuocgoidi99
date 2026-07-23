@@ -101,11 +101,18 @@ class InCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         timerHandler.removeCallbacks(timerRunnable)
         CallManager.removeListener(listener)
+        contactLookupExecutor.shutdownNow()
         super.onDestroy()
     }
 
     private var trackedCall: Call? = null
     private var isOutgoingCall = false
+
+    // Truy vấn danh bạ chạy nền: tránh block main thread (nguyên nhân gây ANR "Gọi Điện tiếp tục dừng")
+    private val contactLookupExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var lastLookedUpNumber: String? = null
+    private var lastContactInfo: Pair<String, android.net.Uri?>? = null
 
     private fun updateUi(call: Call?, state: Int) {
         if (call == null || state == Call.STATE_DISCONNECTED) {
@@ -130,34 +137,25 @@ class InCallActivity : AppCompatActivity() {
             CallForwardManager.lastDisplayNumber
         else CallManager.callerNumber(call)
 
-        // Tra cứu tên + ảnh trong danh bạ
-        val contactInfo = lookupContact(number)
-        val displayName = when {
-            contactInfo != null -> contactInfo.first
-            number.isNotEmpty() -> formatNumberForDisplay(number)
-            else -> "Không xác định"
-        }
-        val photoUri = contactInfo?.second
-
-        binding.tvCallerName.text = displayName
-        if (contactInfo != null && number.isNotEmpty()) {
-            binding.tvCallerNumber.text = formatNumberForDisplay(number)
-            binding.tvCallerNumber.visibility = View.VISIBLE
+        // Tra cứu tên + ảnh trong danh bạ CHẠY NỀN (contentResolver.query có thể chậm,
+        // không được gọi trên main thread vì sẽ gây treo/ANR). Kết quả được cache theo số
+        // để tránh truy vấn lại mỗi lần trạng thái cuộc gọi đổi (ringing -> active -> ...).
+        if (number != lastLookedUpNumber) {
+            lastLookedUpNumber = number
+            lastContactInfo = null
+            renderCallerInfo(number, null)
+            contactLookupExecutor.execute {
+                val info = lookupContact(number)
+                mainHandler.post {
+                    // Bỏ qua nếu số đã thay đổi trong lúc chờ (ví dụ chuyển sang cuộc gọi khác)
+                    if (number == lastLookedUpNumber) {
+                        lastContactInfo = info
+                        renderCallerInfo(number, info)
+                    }
+                }
+            }
         } else {
-            binding.tvCallerNumber.visibility = View.GONE
-        }
-
-        // Avatar
-        if (photoUri != null) {
-            binding.ivContactPhoto.visibility = View.VISIBLE
-            binding.ivContactPhoto.setImageURI(photoUri)
-        } else {
-            binding.ivContactPhoto.visibility = View.GONE
-            val idx = Math.abs(displayName.hashCode()) % avatarBgs.size
-            binding.avatarView.setBackgroundResource(R.drawable.bg_avatar)
-            binding.avatarView.background.setTint(getColor(avatarBgs[idx]))
-            binding.tvAvatarLetter.text = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-            binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
+            renderCallerInfo(number, lastContactInfo)
         }
 
         val isRinging = state == Call.STATE_RINGING
@@ -187,6 +185,36 @@ class InCallActivity : AppCompatActivity() {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang kết thúc..."
             }
+        }
+    }
+
+    private fun renderCallerInfo(number: String, contactInfo: Pair<String, android.net.Uri?>?) {
+        val displayName = when {
+            contactInfo != null -> contactInfo.first
+            number.isNotEmpty() -> formatNumberForDisplay(number)
+            else -> "Không xác định"
+        }
+        val photoUri = contactInfo?.second
+
+        binding.tvCallerName.text = displayName
+        if (contactInfo != null && number.isNotEmpty()) {
+            binding.tvCallerNumber.text = formatNumberForDisplay(number)
+            binding.tvCallerNumber.visibility = View.VISIBLE
+        } else {
+            binding.tvCallerNumber.visibility = View.GONE
+        }
+
+        // Avatar
+        if (photoUri != null) {
+            binding.ivContactPhoto.visibility = View.VISIBLE
+            binding.ivContactPhoto.setImageURI(photoUri)
+        } else {
+            binding.ivContactPhoto.visibility = View.GONE
+            val idx = Math.abs(displayName.hashCode()) % avatarBgs.size
+            binding.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+            binding.avatarView.background.setTint(getColor(avatarBgs[idx]))
+            binding.tvAvatarLetter.text = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
+            binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
         }
     }
 
