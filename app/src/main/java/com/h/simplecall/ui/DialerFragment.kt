@@ -420,6 +420,15 @@ class DialerFragment : Fragment() {
         else @Suppress("DEPRECATION") v.vibrate(25)
     }
 
+    // Khi mở màn hình này lần đầu, quyền READ_PHONE_STATE có thể CHƯA được cấp (hộp thoại xin
+    // quyền của MainActivity chạy bất đồng bộ). Nếu không làm mới lại ở đây, nút gọi sẽ bị kẹt
+    // vĩnh viễn ở chế độ 1 SIM ngay cả sau khi người dùng đã cấp quyền / cắm thêm SIM.
+    override fun onResume() {
+        super.onResume()
+        setupCallButtons()
+        loadRecents()
+    }
+
     override fun onDestroyView() {
         toneGen?.release(); toneGen = null
         super.onDestroyView(); _b = null
