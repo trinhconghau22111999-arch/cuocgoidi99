@@ -9,6 +9,7 @@ import com.h.simplecall.R
 import com.h.simplecall.data.Contact
 import com.h.simplecall.databinding.ItemContactBinding
 import com.h.simplecall.databinding.ItemContactHeaderBinding
+import com.h.simplecall.databinding.ItemContactLetterHeaderBinding
 import java.text.Normalizer
 
 /** Hàng tĩnh hiển thị phía trên danh sách (vd. "Thông tin của tôi", "Nhóm của tôi"). */
@@ -27,6 +28,13 @@ fun firstLetterKey(name: String): String {
     return if (base.isNotEmpty() && base[0] in 'A'..'Z') base[0].toString() else "#"
 }
 
+/** Một hàng bất kỳ trong danh sách: hàng tĩnh, hàng chữ cái nhóm (A, B, C...) hoặc một liên hệ. */
+private sealed class Row {
+    data class Static(val header: ContactHeader) : Row()
+    data class Letter(val letter: String) : Row()
+    data class Item(val contact: Contact, val colorIdx: Int) : Row()
+}
+
 class ContactsAdapter(
     private var allContacts: List<Contact>,
     private val headers: List<ContactHeader>,
@@ -34,77 +42,111 @@ class ContactsAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TYPE_HEADER = 0
-        private const val TYPE_CONTACT = 1
+        private const val TYPE_STATIC_HEADER = 0
+        private const val TYPE_LETTER_HEADER = 1
+        private const val TYPE_CONTACT = 2
     }
 
-    private val avatarBgs  = intArrayOf(R.color.av0,R.color.av1,R.color.av2,R.color.av3,R.color.av4,R.color.av5)
-    private val avatarTxts = intArrayOf(R.color.av0t,R.color.av1t,R.color.av2t,R.color.av3t,R.color.av4t,R.color.av5t)
+    // Chỉ 3 màu xen kẽ cho nền ảnh đại diện
+    private val avatarBgs = intArrayOf(R.color.av_c1, R.color.av_c2, R.color.av_c3)
+
     private var filtered = allContacts.toMutableList()
     private var query: String = ""
+    private var rows: List<Row> = buildRows()
 
-    /** Khi đang tìm kiếm thì ẩn 2 hàng tĩnh, chỉ hiện kết quả liên hệ. */
-    private fun headerCount() = if (query.isEmpty()) headers.size else 0
+    private fun buildRows(): List<Row> {
+        val list = mutableListOf<Row>()
+        if (query.isEmpty()) headers.forEach { list.add(Row.Static(it)) }
+        var lastLetter: String? = null
+        filtered.forEachIndexed { i, c ->
+            if (query.isEmpty()) {
+                val letter = firstLetterKey(c.name)
+                if (letter != lastLetter) {
+                    list.add(Row.Letter(letter))
+                    lastLetter = letter
+                }
+            }
+            list.add(Row.Item(c, i % avatarBgs.size))
+        }
+        return list
+    }
 
-    inner class HeaderVH(val b: ItemContactHeaderBinding) : RecyclerView.ViewHolder(b.root)
+    inner class StaticHeaderVH(val b: ItemContactHeaderBinding) : RecyclerView.ViewHolder(b.root)
+    inner class LetterHeaderVH(val b: ItemContactLetterHeaderBinding) : RecyclerView.ViewHolder(b.root)
     inner class ContactVH(val b: ItemContactBinding) : RecyclerView.ViewHolder(b.root)
 
-    override fun getItemViewType(position: Int): Int =
-        if (position < headerCount()) TYPE_HEADER else TYPE_CONTACT
+    override fun getItemViewType(position: Int): Int = when (rows[position]) {
+        is Row.Static -> TYPE_STATIC_HEADER
+        is Row.Letter -> TYPE_LETTER_HEADER
+        is Row.Item -> TYPE_CONTACT
+    }
 
     override fun onCreateViewHolder(p: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        if (viewType == TYPE_HEADER)
-            HeaderVH(ItemContactHeaderBinding.inflate(LayoutInflater.from(p.context), p, false))
-        else
-            ContactVH(ItemContactBinding.inflate(LayoutInflater.from(p.context), p, false))
+        when (viewType) {
+            TYPE_STATIC_HEADER -> StaticHeaderVH(
+                ItemContactHeaderBinding.inflate(LayoutInflater.from(p.context), p, false)
+            )
+            TYPE_LETTER_HEADER -> LetterHeaderVH(
+                ItemContactLetterHeaderBinding.inflate(LayoutInflater.from(p.context), p, false)
+            )
+            else -> ContactVH(
+                ItemContactBinding.inflate(LayoutInflater.from(p.context), p, false)
+            )
+        }
 
-    override fun getItemCount() = headerCount() + filtered.size
+    override fun getItemCount() = rows.size
 
     override fun onBindViewHolder(h: RecyclerView.ViewHolder, pos: Int) {
-        if (h is HeaderVH) {
-            val header = headers[pos]
-            h.b.ivIcon.setImageResource(header.iconRes)
-            h.b.tvLabel.text = header.label
-            h.b.root.setOnClickListener { header.onClick() }
-            return
-        }
-        val vh = h as ContactVH
-        val c = filtered[pos - headerCount()]; val ctx = vh.itemView.context
-        val idx = Math.abs(c.name.hashCode()) % avatarBgs.size
+        when (val row = rows[pos]) {
+            is Row.Static -> {
+                h as StaticHeaderVH
+                h.b.ivIcon.setImageResource(row.header.iconRes)
+                h.b.tvLabel.text = row.header.label
+                h.b.root.setOnClickListener { row.header.onClick() }
+            }
+            is Row.Letter -> {
+                h as LetterHeaderVH
+                h.b.tvLetter.text = row.letter
+            }
+            is Row.Item -> {
+                h as ContactVH
+                val c = row.contact; val ctx = h.itemView.context
 
-        if (c.photoUri != null) {
-            vh.b.ivContactPhoto.visibility = View.VISIBLE
-            vh.b.avatarView.visibility = View.GONE
-            vh.b.tvAvatar.visibility = View.GONE
-            vh.b.ivContactPhoto.setImageURI(Uri.parse(c.photoUri))
-        } else {
-            vh.b.ivContactPhoto.visibility = View.GONE
-            vh.b.avatarView.visibility = View.VISIBLE
-            vh.b.tvAvatar.visibility = View.VISIBLE
-            vh.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
-            vh.b.avatarView.background.setTint(ctx.getColor(avatarBgs[idx]))
-            vh.b.tvAvatar.text = c.name.take(1).uppercase()
-            vh.b.tvAvatar.setTextColor(ctx.getColor(avatarTxts[idx]))
-        }
+                if (c.photoUri != null) {
+                    h.b.ivContactPhoto.visibility = View.VISIBLE
+                    h.b.avatarView.visibility = View.GONE
+                    h.b.tvAvatar.visibility = View.GONE
+                    h.b.ivContactPhoto.setImageURI(Uri.parse(c.photoUri))
+                } else {
+                    h.b.ivContactPhoto.visibility = View.GONE
+                    h.b.avatarView.visibility = View.VISIBLE
+                    h.b.tvAvatar.visibility = View.VISIBLE
+                    h.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+                    h.b.avatarView.background.setTint(ctx.getColor(avatarBgs[row.colorIdx]))
+                    h.b.tvAvatar.text = c.name.take(1).uppercase()
+                    h.b.tvAvatar.setTextColor(ctx.getColor(R.color.white))
+                }
 
-        vh.b.tvName.text = c.name
-        vh.b.btnCall.setOnClickListener { onCall(c.number) }
-        vh.b.root.setOnClickListener { onCall(c.number) }
+                h.b.tvName.text = c.name
+                h.b.root.setOnClickListener { onCall(c.number) }
+            }
+        }
     }
 
     fun filter(q: String) {
         query = q
         filtered = if (q.isEmpty()) allContacts.toMutableList()
-        else allContacts.filter { it.name.contains(q,true) || it.number.contains(q) }.toMutableList()
+        else allContacts.filter { it.name.contains(q, true) || it.number.contains(q) }.toMutableList()
+        rows = buildRows()
         notifyDataSetChanged()
     }
 
-    /** Vị trí trong adapter của liên hệ đầu tiên có tên bắt đầu bằng [letter], hoặc null nếu không có. */
+    /** Vị trí của hàng tiêu đề chữ cái [letter] (để cuộn tới), hoặc null nếu không có. */
     fun positionForLetter(letter: String): Int? {
-        val idx = filtered.indexOfFirst { firstLetterKey(it.name) == letter }
-        return if (idx >= 0) idx + headerCount() else null
+        val idx = rows.indexOfFirst { it is Row.Letter && it.letter == letter }
+        return if (idx >= 0) idx else null
     }
 
-    fun firstContactPosition(): Int = headerCount()
+    fun firstContactPosition(): Int = rows.indexOfFirst { it is Row.Item }.coerceAtLeast(0)
     fun lastPosition(): Int = (itemCount - 1).coerceAtLeast(0)
 }
