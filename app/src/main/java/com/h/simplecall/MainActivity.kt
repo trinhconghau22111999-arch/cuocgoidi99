@@ -31,21 +31,23 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val permissions = arrayOf(
-        android.Manifest.permission.CALL_PHONE,
-        android.Manifest.permission.READ_PHONE_STATE,
-        android.Manifest.permission.READ_CALL_LOG,
-        android.Manifest.permission.WRITE_CALL_LOG,
-        android.Manifest.permission.READ_CONTACTS,
-        android.Manifest.permission.ANSWER_PHONE_CALLS,
-        android.Manifest.permission.VIBRATE
-    )
+    private val permissions: Array<String> = buildList {
+        add(android.Manifest.permission.CALL_PHONE)
+        add(android.Manifest.permission.READ_PHONE_STATE)
+        add(android.Manifest.permission.READ_CALL_LOG)
+        add(android.Manifest.permission.WRITE_CALL_LOG)
+        add(android.Manifest.permission.READ_CONTACTS)
+        add(android.Manifest.permission.ANSWER_PHONE_CALLS)
+        add(android.Manifest.permission.VIBRATE)
+        // Thiếu quyền này trước đây khiến app không bao giờ xin phép hiển thị
+        // thông báo cuộc gọi nhỡ trên Android 13+ (dù đã khai báo trong Manifest).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
 
     private val permLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) {
-        // Chỉ xin làm ứng dụng gọi mặc định SAU KHI hộp thoại quyền đã đóng lại,
-        // chứ không chạy song song — nếu không, trên nhiều máy hộp thoại "đặt mặc định"
-        // sẽ hiện lên (hoặc bị hệ thống tự huỷ) trước khi quyền kịp cấp, khiến nó luôn thất bại.
         requestDefaultDialer()
     }
     private val roleLauncher = registerForActivityResult(
@@ -133,18 +135,8 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
         if (missing.isNotEmpty()) {
-            permLauncher.launch(missing.toTypedArray())
+            binding.root.post { permLauncher.launch(missing.toTypedArray()) }
         } else {
-            // Đã có đủ quyền từ trước (lần mở sau) -> permLauncher sẽ KHÔNG được gọi,
-            // nên phải tự kích hoạt bước xin làm mặc định ở đây, nếu không nó sẽ không bao giờ chạy.
-            //
-            // QUAN TRỌNG: KHÔNG gọi requestDefaultDialer() trực tiếp ở đây. Ở lần mở thứ 2 trở đi,
-            // nhánh này chạy trong onCreate() TRƯỚC khi Activity kịp vẽ xong khung hình đầu tiên.
-            // Từ Android 12+, splash screen (logo) chỉ biến mất khi khung hình đầu tiên được vẽ
-            // xong — nếu nhảy sang Activity khác (hộp thoại đặt-mặc-định) trước đó, hệ thống
-            // không bao giờ nhận tín hiệu "đã vẽ xong" và logo bị treo vĩnh viễn, đồng thời hộp
-            // thoại đặt-mặc-định cũng không hiện ra hoàn chỉnh được cho người dùng bấm.
-            // -> Post vào hàng đợi vẽ của View để đảm bảo first frame đã render xong trước.
             binding.root.post { requestDefaultDialer() }
         }
     }
@@ -165,9 +157,6 @@ class MainActivity : AppCompatActivity() {
                 try {
                     roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
                 } catch (_: Exception) {
-                    // Một số ROM (MIUI/EMUI/OneUI cũ...) chặn hoặc lỗi khi mở hộp thoại này
-                    // trực tiếp -> đưa người dùng sang màn hình "Ứng dụng mặc định" của hệ thống
-                    // để họ tự chọn thủ công, thay vì im lặng thất bại.
                     openManualDefaultAppsSettings()
                 }
             }
@@ -186,7 +175,6 @@ class MainActivity : AppCompatActivity() {
         updateDefaultDialerStatus()
     }
 
-    /** Mở màn hình cài đặt "Ứng dụng mặc định" của hệ thống làm phương án dự phòng. */
     private fun openManualDefaultAppsSettings() {
         val opened = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -206,14 +194,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** true nếu app này hiện đang là ứng dụng gọi điện mặc định. */
     fun isDefaultDialer(): Boolean {
         val tm = getSystemService(TelecomManager::class.java) ?: return false
         return packageName == tm.defaultDialerPackage
     }
 
     private fun updateDefaultDialerStatus() {
-        // Hook để các fragment (vd. màn Cài đặt) có thể refresh trạng thái hiển thị của chúng.
         supportFragmentManager.fragments.forEach { (it as? DefaultDialerStatusListener)?.onDefaultDialerStatusChanged() }
     }
 
