@@ -4,13 +4,13 @@
     android:viewportWidth="24" android:viewportHeight="24">
     <!-- Vòng kính lúp -->
     <path
-        android:pathData="M10,4 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0"
+        android:pathData="M10,10 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0"
         android:strokeColor="@color/text_secondary"
         android:strokeWidth="2"
         android:fillColor="#00000000" />
-    <!-- Cán kính lúp - rút ngắn lại -->
+    <!-- Cán kính lúp -->
     <path
-        android:pathData="M14.4,14.4L17.2,17.2"
+        android:pathData="M15,15L20,20"
         android:strokeColor="@color/text_secondary"
         android:strokeWidth="2"
         android:strokeLineCap="round"
