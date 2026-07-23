@@ -40,4 +40,10 @@
         <item name="android:lines">1</item>
     </style>
 
+    <!-- Chữ "Gần đây" / "Danh bạ" ở bottom nav - đậm hơn (dày ~1.3 lần so với chữ mỏng mặc định) -->
+    <style name="BottomNavLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
 </resources>
