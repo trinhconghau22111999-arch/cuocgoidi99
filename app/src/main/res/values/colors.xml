@@ -32,4 +32,7 @@
     <color name="av3">#E6F4EA</color><color name="av3t">#137333</color>
     <color name="av4">#F3E8FD</color><color name="av4t">#A142F4</color>
     <color name="av5">#FCE8E6</color><color name="av5t">#C5221F</color>
+    <color name="av_c1">#E8F0FE</color>
+    <color name="av_c2">#FEF7E0</color>
+    <color name="av_c3">#E6F4EA</color>
 </resources>
