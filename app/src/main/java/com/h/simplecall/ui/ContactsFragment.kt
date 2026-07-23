@@ -12,19 +12,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.Contact
 import com.h.simplecall.databinding.FragmentContactsBinding
-
-/** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
- *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
+ *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
 private val INDEX_LETTERS = listOf(
     "★", "#", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
     "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "…"
@@ -36,8 +35,6 @@ class ContactsFragment : Fragment() {
     private val b get() = _b!!
     private lateinit var adapter: ContactsAdapter
 
-    /** Map chữ cái -> TextView tương ứng trên thanh chỉ mục A-Z, để tô sáng nhanh
-     *  chữ đang ở đúng vị trí đang cuộn tới, không phải duyệt lại toàn bộ view. */
     private val indexViews = mutableMapOf<String, TextView>()
     private var activeIndexLetter: String? = null
 
@@ -53,7 +50,7 @@ class ContactsFragment : Fragment() {
             ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
         )
 
-        // Khởi tạo adapter rỗng ngay để tránh crash khi cuộn trước khi load xong
+        // Khởi tạo adapter rỗng ngay – tránh crash khi cuộn trước khi load xong
         adapter = ContactsAdapter(emptyList(), headers) { (activity as? MainActivity)?.placeCall(it) }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
@@ -81,10 +78,10 @@ class ContactsFragment : Fragment() {
             }
         })
 
-        // BUG FIX: load danh bạ trên IO thread, không block main thread (tránh ANR với 7000+ liên hệ)
+        // Fix bug3: load danh bạ trên IO thread, tránh ANR với 7000+ liên hệ
         viewLifecycleOwner.lifecycleScope.launch {
             val contacts = withContext(Dispatchers.IO) { loadContacts() }
-            if (_b == null) return@launch   // fragment đã detach
+            if (_b == null) return@launch
             adapter.updateContacts(contacts)
             if (contacts.isNotEmpty()) {
                 b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
@@ -116,8 +113,6 @@ class ContactsFragment : Fragment() {
         }
     }
 
-    /** Tô sáng (vàng) chữ cái đang tương ứng với nhóm liên hệ đầu tiên đang hiển thị
-     *  trên màn hình; các chữ còn lại trở về màu bình thường. */
     private fun highlightIndexLetter(letter: String?) {
         if (letter == activeIndexLetter) return
         activeIndexLetter = letter
