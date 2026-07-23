@@ -159,4 +159,10 @@ class ContactsAdapter(
         }
         return null
     }
+    /** Cập nhật toàn bộ danh sách liên hệ (gọi từ coroutine sau khi load xong trên IO thread). */
+    fun updateContacts(contacts: List<Contact>) {
+        allContacts = contacts
+        filter(query)
+    }
+
 }
