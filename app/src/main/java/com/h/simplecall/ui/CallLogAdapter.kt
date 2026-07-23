@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.provider.CallLog
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +21,9 @@ import java.util.*
 class CallLogAdapter(
     private val items: List<CallLogEntry>,
     private val onCall: (String) -> Unit,
-    private val onShowHistory: (String) -> Unit
+    private val onShowHistory: (String) -> Unit,
+    /** true nếu máy có từ 2 SIM trở lên – chỉ khi đó mới hiện badge SIM */
+    private val isDualSim: Boolean = false
 ) : RecyclerView.Adapter<CallLogAdapter.VH>() {
 
     inner class VH(val b: ItemCallLogBinding) : RecyclerView.ViewHolder(b.root)
@@ -31,13 +34,14 @@ class CallLogAdapter(
     override fun getItemCount() = items.size
 
     override fun onBindViewHolder(h: VH, pos: Int) {
-        val item = items[pos]; val ctx = h.itemView.context
+        val item = items[pos]
+        val ctx = h.itemView.context
         val display = item.name.ifEmpty { item.number }
         val isBlocked = BlockedNumbersManager.isBlocked(item.number)
 
-        // Icon loại cuộc gọi: vào / ra / nhỡ (bên trái thay avatar)
+        // Icon loại cuộc gọi: ra / vào / nhỡ
         when (item.type) {
-            CallLog.Calls.MISSED_TYPE   -> {
+            CallLog.Calls.MISSED_TYPE -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_missed)
                 h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.missed_red))
             }
@@ -53,21 +57,24 @@ class CallLogAdapter(
 
         // Tên / số
         h.b.tvName.text = if (isBlocked) "🚫 $display" else display
-        h.b.tvName.setTextColor(ctx.getColor(
-            if (item.type == CallLog.Calls.MISSED_TYPE) R.color.missed_red
-            else R.color.text_primary
-        ))
+        h.b.tvName.setTextColor(
+            ctx.getColor(if (item.type == CallLog.Calls.MISSED_TYPE) R.color.missed_red else R.color.text_primary)
+        )
 
-        // SIM badge: dùng subId từ extras nếu có, mặc định SIM 1
-        val simLabel = if ((item.simSlot ?: 0) == 1) "SIM 2" else "SIM 1"
-        h.b.tvSimBadge.text = simLabel
+        // Badge SIM: chỉ hiện khi máy thực sự có ≥2 SIM và entry có slot hợp lệ
+        if (isDualSim && item.simSlot != null) {
+            h.b.tvSimBadge.text = "SIM ${item.simSlot + 1}"
+            h.b.tvSimBadge.visibility = View.VISIBLE
+        } else {
+            h.b.tvSimBadge.visibility = View.GONE
+        }
 
-        // Loại đường dây: "Di động" mặc định
+        // Loại đường dây
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
 
         // Thời gian cột phải
         val today = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
         val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -81,13 +88,11 @@ class CallLogAdapter(
 
     private fun showContextMenu(ctx: Context, number: String, display: String) {
         val isBlocked = BlockedNumbersManager.isBlocked(number)
-        val blockLabel = if (isBlocked)
-            ctx.getString(R.string.unblock_number) else ctx.getString(R.string.block_number)
-
-        val options = arrayOf(ctx.getString(R.string.number_copied), blockLabel)
+        val blockLabel = if (isBlocked) ctx.getString(R.string.unblock_number)
+                         else ctx.getString(R.string.block_number)
         AlertDialog.Builder(ctx)
             .setTitle(display)
-            .setItems(options) { _, which ->
+            .setItems(arrayOf(ctx.getString(R.string.number_copied), blockLabel)) { _, which ->
                 when (which) {
                     0 -> {
                         val cm = ctx.getSystemService(ClipboardManager::class.java)
