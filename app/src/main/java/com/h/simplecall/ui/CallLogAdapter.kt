@@ -43,11 +43,11 @@ class CallLogAdapter(
             }
             CallLog.Calls.OUTGOING_TYPE -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_outgoing)
-                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.primary))
+                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
             }
             else -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_incoming)
-                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.primary))
+                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
             }
         }
 
