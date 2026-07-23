@@ -22,6 +22,7 @@ object CallManager {
     fun onCallRemoved(call: Call) {
         call.unregisterCallback(callback)
         if (currentCall == call) currentCall = null
+        CallForwardManager.lastDisplayNumber = "" // tránh số cũ "rò rỉ" sang cuộc gọi kế tiếp
         notifyListeners(Call.STATE_DISCONNECTED)
     }
 
@@ -42,6 +43,11 @@ object CallManager {
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = notifyListeners(state)
+        // Khi vừa bấm gọi, số điện thoại (call.details.handle) đôi khi CHƯA có ngay lập tức
+        // ở thời điểm onCallAdded — nó chỉ được điền vào sau qua onDetailsChanged. Nếu không
+        // lắng nghe sự kiện này, màn hình "Đang gọi..." có thể hiện trống/không có số trong
+        // vài giây đầu cho tới khi trạng thái cuộc gọi đổi lần kế tiếp.
+        override fun onDetailsChanged(call: Call, details: Call.Details) = notifyListeners(call.state)
     }
 
     private fun notifyListeners(state: Int) {

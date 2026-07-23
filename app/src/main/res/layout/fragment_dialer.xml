@@ -50,34 +50,41 @@
         android:background="@color/divider"
         android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
-    <!-- Keypad -->
-    <GridLayout
-        android:id="@+id/keypad"
+    <!-- Khoảng trống linh hoạt để đẩy bàn phím xuống phía dưới màn hình -->
+    <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="4dp"
+        android:layout_weight="1" />
+
+    <!-- Keypad: dùng AppCompatButton (không phải <Button>) để tránh Material Components
+         tự động tô nền bằng colorPrimary (đó là lý do phím bị xanh trước đây).
+         Kích thước cố định 64dp, không kéo giãn lấp đầy màn hình. -->
+    <GridLayout
+        android:id="@+id/keypad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:columnCount="3" android:rowCount="4">
 
-        <Button style="@style/KeyBtn" android:id="@+id/key1"  android:text="1"  android:tag="1" />
-        <Button style="@style/KeyBtn" android:id="@+id/key2"  android:text="2"  android:tag="2" />
-        <Button style="@style/KeyBtn" android:id="@+id/key3"  android:text="3"  android:tag="3" />
-        <Button style="@style/KeyBtn" android:id="@+id/key4"  android:text="4"  android:tag="4" />
-        <Button style="@style/KeyBtn" android:id="@+id/key5"  android:text="5"  android:tag="5" />
-        <Button style="@style/KeyBtn" android:id="@+id/key6"  android:text="6"  android:tag="6" />
-        <Button style="@style/KeyBtn" android:id="@+id/key7"  android:text="7"  android:tag="7" />
-        <Button style="@style/KeyBtn" android:id="@+id/key8"  android:text="8"  android:tag="8" />
-        <Button style="@style/KeyBtn" android:id="@+id/key9"  android:text="9"  android:tag="9" />
-        <Button style="@style/KeyBtn" android:id="@+id/keyStar" android:text="✱" android:tag="*" android:textSize="28sp"/>
-        <Button style="@style/KeyBtn" android:id="@+id/key0"  android:text="0"  android:tag="0" />
-        <Button style="@style/KeyBtn" android:id="@+id/keyHash" android:text="#" android:tag="#" android:textSize="28sp"/>
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key1"  android:text="1"  android:tag="1" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key2"  android:text="2"  android:tag="2" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key3"  android:text="3"  android:tag="3" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key4"  android:text="4"  android:tag="4" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key5"  android:text="5"  android:tag="5" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key6"  android:text="6"  android:tag="6" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key7"  android:text="7"  android:tag="7" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key8"  android:text="8"  android:tag="8" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key9"  android:text="9"  android:tag="9" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/keyStar" android:text="✱" android:tag="*" android:textSize="24sp"/>
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/key0"  android:text="0"  android:tag="0" />
+        <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/keyHash" android:text="#" android:tag="#" android:textSize="24sp"/>
     </GridLayout>
 
     <!-- Call button -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="96dp"
+    <LinearLayout android:layout_width="match_parent" android:layout_height="88dp"
         android:gravity="center">
         <ImageButton android:id="@+id/btnCall"
-            android:layout_width="72dp" android:layout_height="72dp"
+            android:layout_width="64dp" android:layout_height="64dp"
             android:background="@drawable/bg_call_circle"
             android:src="@drawable/ic_call"
             android:contentDescription="@string/call" />

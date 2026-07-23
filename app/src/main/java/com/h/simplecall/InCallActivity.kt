@@ -104,25 +104,44 @@ class InCallActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private var trackedCall: Call? = null
+    private var isOutgoingCall = false
+
     private fun updateUi(call: Call?, state: Int) {
         if (call == null || state == Call.STATE_DISCONNECTED) {
             timerHandler.removeCallbacks(timerRunnable)
             finish(); return
         }
 
-        val isOutgoing = state != Call.STATE_RINGING
-        val number = if (isOutgoing && CallForwardManager.lastDisplayNumber.isNotEmpty())
+        // Xác định gọi đi/gọi đến MỘT LẦN DUY NHẤT khi nhận call, không tính lại theo state.
+        // Trước đây dùng "state != STATE_RINGING" mỗi lần cập nhật UI: sau khi TRẢ LỜI một
+        // cuộc gọi ĐẾN, trạng thái chuyển ACTIVE khiến điều kiện này hiểu nhầm thành gọi đi,
+        // có thể hiển thị nhầm số của lần chuyển hướng trước đó thay vì số người gọi đến.
+        if (call !== trackedCall) {
+            trackedCall = call
+            isOutgoingCall =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                    call.details?.callDirection == Call.Details.DIRECTION_OUTGOING
+                else
+                    state != Call.STATE_RINGING
+        }
+
+        val number = if (isOutgoingCall && CallForwardManager.lastDisplayNumber.isNotEmpty())
             CallForwardManager.lastDisplayNumber
         else CallManager.callerNumber(call)
 
         // Tra cứu tên + ảnh trong danh bạ
         val contactInfo = lookupContact(number)
-        val displayName = contactInfo?.first ?: number
-        val photoUri    = contactInfo?.second
+        val displayName = when {
+            contactInfo != null -> contactInfo.first
+            number.isNotEmpty() -> formatNumberForDisplay(number)
+            else -> "Không xác định"
+        }
+        val photoUri = contactInfo?.second
 
         binding.tvCallerName.text = displayName
-        if (contactInfo != null && displayName != number) {
-            binding.tvCallerNumber.text = number
+        if (contactInfo != null && number.isNotEmpty()) {
+            binding.tvCallerNumber.text = formatNumberForDisplay(number)
             binding.tvCallerNumber.visibility = View.VISIBLE
         } else {
             binding.tvCallerNumber.visibility = View.GONE
@@ -166,6 +185,25 @@ class InCallActivity : AppCompatActivity() {
             Call.STATE_DISCONNECTING -> {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang kết thúc..."
+            }
+        }
+    }
+
+    private fun formatNumberForDisplay(raw: String): String {
+        val digits = raw.filter { it.isDigit() }
+        if (digits.isEmpty()) return raw
+        return if (raw.startsWith("+")) {
+            when {
+                digits.length <= 2 -> "+$digits"
+                digits.length <= 5 -> "+${digits.take(2)} ${digits.drop(2)}"
+                digits.length <= 8 -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5)}"
+                else -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5).take(3)} ${digits.drop(8)}"
+            }
+        } else {
+            when {
+                digits.length <= 4 -> digits
+                digits.length <= 7 -> "${digits.take(4)} ${digits.drop(4)}"
+                else -> "${digits.take(4)} ${digits.drop(4).take(3)} ${digits.drop(7)}"
             }
         }
     }

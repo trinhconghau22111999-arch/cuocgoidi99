@@ -156,18 +156,18 @@
             android:visibility="gone"
             android:layout_marginBottom="16dp">
 
-            <Button style="@style/KeyBtn" android:text="1" android:tag="1" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="2" android:tag="2" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="3" android:tag="3" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="4" android:tag="4" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="5" android:tag="5" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="6" android:tag="6" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="7" android:tag="7" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="8" android:tag="8" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="9" android:tag="9" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="*" android:tag="*" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="0" android:tag="0" android:textColor="@color/text_on_dark"/>
-            <Button style="@style/KeyBtn" android:text="#" android:tag="#" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="1" android:tag="1" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="2" android:tag="2" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="3" android:tag="3" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="4" android:tag="4" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="5" android:tag="5" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="6" android:tag="6" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="7" android:tag="7" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="8" android:tag="8" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="9" android:tag="9" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="*" android:tag="*" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="0" android:tag="0" android:textColor="@color/text_on_dark"/>
+            <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="#" android:tag="#" android:textColor="@color/text_on_dark"/>
         </GridLayout>
 
         <!-- End call -->

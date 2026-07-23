@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.telecom.TelecomManager
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,6 +21,11 @@ import com.h.simplecall.ui.CallLogFragment
 import com.h.simplecall.ui.ContactsFragment
 import com.h.simplecall.ui.DialerFragment
 import com.h.simplecall.ui.ForwardSettingsFragment
+
+/** Fragment nào cần biết khi trạng thái "ứng dụng gọi mặc định" thay đổi thì implement cái này. */
+interface DefaultDialerStatusListener {
+    fun onDefaultDialerStatusChanged()
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,9 +42,14 @@ class MainActivity : AppCompatActivity() {
     )
 
     private val permLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) { }
+        ActivityResultContracts.RequestMultiplePermissions()) {
+        // Chỉ xin làm ứng dụng gọi mặc định SAU KHI hộp thoại quyền đã đóng lại,
+        // chứ không chạy song song — nếu không, trên nhiều máy hộp thoại "đặt mặc định"
+        // sẽ hiện lên (hoặc bị hệ thống tự huỷ) trước khi quyền kịp cấp, khiến nó luôn thất bại.
+        requestDefaultDialer()
+    }
     private val roleLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { }
+        ActivityResultContracts.StartActivityForResult()) { updateDefaultDialerStatus() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         MissedCallNotifier.init(this)
 
         requestPermissions()
-        requestDefaultDialer()
 
         binding.btnSettings.setOnClickListener {
             supportFragmentManager.beginTransaction()
@@ -108,13 +118,28 @@ class MainActivity : AppCompatActivity() {
         val missing = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
-        if (missing.isNotEmpty()) permLauncher.launch(missing.toTypedArray())
+        if (missing.isNotEmpty()) {
+            permLauncher.launch(missing.toTypedArray())
+        } else {
+            // Đã có đủ quyền từ trước (lần mở sau) -> permLauncher sẽ KHÔNG được gọi,
+            // nên phải tự kích hoạt bước xin làm mặc định ở đây, nếu không nó sẽ không bao giờ chạy.
+            requestDefaultDialer()
+        }
     }
 
-    private fun requestDefaultDialer() {
+    /** Có thể gọi lại thủ công (vd. từ màn Cài đặt) nếu người dùng lỡ từ chối lần đầu. */
+    fun requestDefaultDialer() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val rm = getSystemService(RoleManager::class.java) ?: return
-            if (rm.isRoleAvailable(RoleManager.ROLE_DIALER) && !rm.isRoleHeld(RoleManager.ROLE_DIALER))
+            val rm = getSystemService(RoleManager::class.java)
+            if (rm == null) {
+                Toast.makeText(this, "Thiết bị không hỗ trợ đặt ứng dụng gọi mặc định", Toast.LENGTH_LONG).show()
+                return
+            }
+            if (!rm.isRoleAvailable(RoleManager.ROLE_DIALER)) {
+                Toast.makeText(this, "Thiết bị/ROM này không hỗ trợ vai trò ứng dụng gọi mặc định", Toast.LENGTH_LONG).show()
+                return
+            }
+            if (!rm.isRoleHeld(RoleManager.ROLE_DIALER))
                 roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
         } else {
             val tm = getSystemService(TelecomManager::class.java) ?: return
@@ -123,6 +148,18 @@ class MainActivity : AppCompatActivity() {
                     putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
                 })
         }
+        updateDefaultDialerStatus()
+    }
+
+    /** true nếu app này hiện đang là ứng dụng gọi điện mặc định. */
+    fun isDefaultDialer(): Boolean {
+        val tm = getSystemService(TelecomManager::class.java) ?: return false
+        return packageName == tm.defaultDialerPackage
+    }
+
+    private fun updateDefaultDialerStatus() {
+        // Hook để các fragment (vd. màn Cài đặt) có thể refresh trạng thái hiển thị của chúng.
+        supportFragmentManager.fragments.forEach { (it as? DefaultDialerStatusListener)?.onDefaultDialerStatusChanged() }
     }
 
     private fun updateMissedBadge() {
@@ -143,6 +180,19 @@ class MainActivity : AppCompatActivity() {
     fun placeCall(number: String) {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
             != PackageManager.PERMISSION_GRANTED) { requestPermissions(); return }
+
+        // CHỈ app đang giữ vai trò "ứng dụng gọi điện mặc định" mới nhận được onCallAdded
+        // và được phép hiển thị màn hình "Đang gọi..." tuỳ chỉnh của chính nó. Nếu chưa được
+        // đặt làm mặc định, cuộc gọi vẫn kết nối bình thường nhưng ứng dụng gọi mặc định của
+        // máy (không phải app này) sẽ hiển thị màn hình gọi — đây là lý do phổ biến nhất khiến
+        // giao diện "Đang gọi" tuỳ chỉnh không hiện ra. Nhắc người dùng + mở lại hộp thoại đặt mặc định.
+        if (!isDefaultDialer()) {
+            Toast.makeText(this,
+                "Hãy đặt \"${getString(R.string.app_name)}\" làm ứng dụng gọi điện mặc định để dùng giao diện gọi riêng",
+                Toast.LENGTH_LONG).show()
+            requestDefaultDialer()
+        }
+
         CallForwardManager.prepareCall(number)
         val actual = CallForwardManager.resolveNumber(number)
         getSystemService(TelecomManager::class.java)

@@ -26,6 +26,42 @@
             android:layout_marginStart="4dp" />
     </LinearLayout>
 
+    <!-- Ứng dụng gọi mặc định -->
+    <LinearLayout
+        android:id="@+id/rowDefaultDialer"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="20dp" android:paddingEnd="20dp"
+        android:paddingTop="16dp" android:paddingBottom="16dp"
+        android:background="@drawable/bg_settings_row"
+        android:clickable="true" android:focusable="true">
+        <LinearLayout
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:orientation="vertical">
+            <TextView
+                android:text="@string/set_default_dialer"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textSize="16sp" android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif" />
+            <TextView
+                android:id="@+id/tvDefaultDialerStatus"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Đang kiểm tra..."
+                android:textSize="13sp" android:textColor="@color/text_secondary"
+                android:fontFamily="sans-serif"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSetDefaultDialer"
+            android:layout_width="wrap_content" android:layout_height="36dp"
+            android:text="Đặt ngay"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginStart="20dp" />
+
     <!-- Status card -->
     <LinearLayout
         android:id="@+id/cardStatus"

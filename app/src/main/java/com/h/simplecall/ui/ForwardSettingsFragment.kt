@@ -15,10 +15,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.h.simplecall.DefaultDialerStatusListener
+import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.call.CallForwardManager
 
-class ForwardSettingsFragment : Fragment() {
+class ForwardSettingsFragment : Fragment(), DefaultDialerStatusListener {
+
+    private var tvDefaultDialerStatus: TextView? = null
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View =
         i.inflate(R.layout.fragment_forward_settings, c, false)
@@ -33,6 +37,13 @@ class ForwardSettingsFragment : Fragment() {
         val tvStatus  = view.findViewById<TextView>(R.id.tvForwardStatus)
         val tvIcon    = view.findViewById<TextView>(R.id.tvStatusIcon)
         val card      = view.findViewById<View>(R.id.cardStatus)
+
+        tvDefaultDialerStatus = view.findViewById(R.id.tvDefaultDialerStatus)
+        val btnSetDefaultDialer = view.findViewById<MaterialButton>(R.id.btnSetDefaultDialer)
+        refreshDefaultDialerStatus()
+        btnSetDefaultDialer.setOnClickListener {
+            (activity as? MainActivity)?.requestDefaultDialer()
+        }
 
         switch.isChecked = CallForwardManager.isEnabled
         etTarget.setText(CallForwardManager.targetNumber)
@@ -69,6 +80,19 @@ class ForwardSettingsFragment : Fragment() {
             CallForwardManager.isEnabled = on
             refreshStatus(tvStatus, tvIcon, card, on, CallForwardManager.targetNumber)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshDefaultDialerStatus() // phòng khi người dùng quay lại từ hộp thoại hệ thống
+    }
+
+    override fun onDefaultDialerStatusChanged() = refreshDefaultDialerStatus()
+
+    private fun refreshDefaultDialerStatus() {
+        val isDefault = (activity as? MainActivity)?.isDefaultDialer() ?: false
+        tvDefaultDialerStatus?.text =
+            if (isDefault) "Đã là ứng dụng gọi mặc định ✓" else "Chưa đặt làm mặc định"
     }
 
     private fun refreshStatus(tv: TextView, tvIcon: TextView, card: View, on: Boolean, t: String) {

@@ -34,17 +34,18 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- 3-dot button overlay – không ăn không gian fragment -->
+    <!-- 3-dot button overlay – căn giữa theo chiều dọc với thanh tìm kiếm (48dp cao, marginTop 12dp) -->
     <ImageButton
         android:id="@+id/btnSettings"
         android:layout_width="44dp"
         android:layout_height="44dp"
         android:layout_gravity="top|end"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
-        android:background="@android:color/transparent"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/bg_key"
         android:src="@drawable/ic_more_vert"
-        android:alpha="0.6"
+        android:elevation="4dp"
+        android:alpha="0.87"
         android:contentDescription="Cài đặt" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -59,36 +59,47 @@ class CallLogFragment : Fragment() {
 
     private fun loadCallLog(): List<CallLogEntry> {
         val list = mutableListOf<CallLogEntry>()
-        val cursor = requireContext().contentResolver.query(
-            CallLog.Calls.CONTENT_URI,
-            arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
-                CallLog.Calls.DATE, CallLog.Calls.TYPE),
-            null, null, "${CallLog.Calls.DATE} DESC LIMIT 100"
-        ) ?: return list
-        cursor.use {
-            val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
-            val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
-            val iDate = it.getColumnIndex(CallLog.Calls.DATE)
-            val iType = it.getColumnIndex(CallLog.Calls.TYPE)
-            while (it.moveToNext()) {
-                list.add(CallLogEntry(
-                    name = it.getString(iName) ?: "",
-                    number = it.getString(iNum) ?: "",
-                    date = it.getLong(iDate),
-                    type = it.getInt(iType)
-                ))
+        try {
+            val cursor = requireContext().contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
+                    CallLog.Calls.DATE, CallLog.Calls.TYPE),
+                null, null, "${CallLog.Calls.DATE} DESC LIMIT 100"
+            ) ?: return list
+            cursor.use {
+                val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
+                val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
+                val iDate = it.getColumnIndex(CallLog.Calls.DATE)
+                val iType = it.getColumnIndex(CallLog.Calls.TYPE)
+                while (it.moveToNext()) {
+                    list.add(CallLogEntry(
+                        name = it.getString(iName) ?: "",
+                        number = it.getString(iNum) ?: "",
+                        date = it.getLong(iDate),
+                        type = it.getInt(iType)
+                    ))
+                }
             }
-        }
+        } catch (_: SecurityException) { }
         return list
     }
 
     private fun markMissedAsRead() {
-        val cv = ContentValues().apply { put(CallLog.Calls.NEW, 0) }
-        requireContext().contentResolver.update(
-            CallLog.Calls.CONTENT_URI, cv,
-            "${CallLog.Calls.TYPE} = ${CallLog.Calls.MISSED_TYPE} AND ${CallLog.Calls.NEW} = 1",
-            null
-        )
+        // WRITE_CALL_LOG là quyền bắt buộc riêng cho update(); nếu thiếu (hoặc bị hệ thống
+        // thu hồi) mà không kiểm tra trước, contentResolver.update() sẽ ném SecurityException
+        // và làm app crash ngay khi mở tab Nhật ký. Kiểm tra trước + try/catch phòng hờ.
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_CALL_LOG)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        try {
+            val cv = ContentValues().apply { put(CallLog.Calls.NEW, 0) }
+            requireContext().contentResolver.update(
+                CallLog.Calls.CONTENT_URI, cv,
+                "${CallLog.Calls.TYPE} = ${CallLog.Calls.MISSED_TYPE} AND ${CallLog.Calls.NEW} = 1",
+                null
+            )
+        } catch (_: SecurityException) {
+            // Một số ROM (Xiaomi/Huawei...) vẫn từ chối dù đã cấp quyền; bỏ qua an toàn.
+        }
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }
