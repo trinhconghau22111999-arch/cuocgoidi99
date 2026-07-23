@@ -34,9 +34,9 @@
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginStart="20dp" android:layout_marginTop="4dp"
         android:text="@string/recents_title"
-        android:textSize="34sp" android:textStyle="bold"
+        android:textSize="34sp"
         android:textColor="@color/text_primary"
-        android:fontFamily="sans-serif" />
+        android:fontFamily="sans-serif-light" />
 
     <!-- 2 tab: Tất cả / Cuộc gọi nhỡ -->
     <LinearLayout
