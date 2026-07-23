@@ -29,7 +29,7 @@ class CallLogFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         b.btnRecentsSettings.setOnClickListener {
-            android.widget.Toast.makeText(requireContext(), "Cài đặt đang được phát triển", android.widget.Toast.LENGTH_SHORT).show()
+            (activity as? MainActivity)?.openSettings()
         }
         b.btnRecentsSearch.setOnClickListener {
             android.widget.Toast.makeText(requireContext(), "Tìm kiếm đang được phát triển", android.widget.Toast.LENGTH_SHORT).show()
@@ -52,13 +52,14 @@ class CallLogFragment : Fragment() {
     private fun selectTab(missed: Boolean) {
         showMissedOnly = missed
         val accent = ContextCompat.getColor(requireContext(), R.color.accent_blue)
+        val bright = ContextCompat.getColor(requireContext(), R.color.text_primary)
         val secondary = ContextCompat.getColor(requireContext(), R.color.text_secondary)
         val transparent = ContextCompat.getColor(requireContext(), android.R.color.transparent)
-        b.tvTabAll.setTextColor(if (missed) secondary else accent)
+        b.tvTabAll.setTextColor(if (missed) secondary else bright)
         b.tvTabAll.setTypeface(null, if (missed) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
-        b.tvTabMissed.setTextColor(if (missed) accent else secondary)
+        b.tvTabMissed.setTextColor(if (missed) bright else secondary)
         b.tvTabMissed.setTypeface(null, if (missed) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
-        // Thanh gạch chân xanh dương luôn đi theo tab đang chọn
+        // Thanh gạch chân xanh dương luôn đi theo tab đang chọn (chữ chỉ sáng hơn, không đổi màu theo gạch chân)
         b.tabAllUnderline.setBackgroundColor(if (missed) transparent else accent)
         b.tabMissedUnderline.setBackgroundColor(if (missed) accent else transparent)
         renderList()
