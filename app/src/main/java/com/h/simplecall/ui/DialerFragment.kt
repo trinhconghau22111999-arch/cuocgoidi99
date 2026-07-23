@@ -66,6 +66,13 @@ class DialerFragment : Fragment() {
     private lateinit var suggestAdapter: ContactSuggestAdapter
     private var keypadVisible = true
     private var pendingNumberToAdd: String = ""
+    // Truy vấn CallLog/Contacts CHẠY NỀN: trước đây chạy thẳng trên main thread mỗi khi mở màn
+    // hình này (onViewCreated + onResume) và mỗi lần gõ số (searchSuggestions), gây lag/giật khi
+    // bật bàn phím lên và trong lúc gõ — cùng nhóm lỗi ANR đã sửa ở các màn hình khác.
+    private val bgExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    // "Phiên bản" mỗi lần gõ số, dùng để huỷ kết quả tra cứu cũ trả về trễ (gõ nhanh nhiều ký tự)
+    private var searchGeneration = 0
 
     private val pickContactLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.PickContact()
@@ -299,6 +306,32 @@ class DialerFragment : Fragment() {
             b.rvRecents.visibility = View.GONE
             return
         }
+        val appContext = requireContext().applicationContext
+        val isDualSim = callCapableAccounts().size >= 2
+        bgExecutor.execute {
+            val entries = queryRecents(appContext)
+            mainHandler.post {
+                if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
+                b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+                b.rvRecents.adapter = CallLogAdapter(
+                    entries,
+                    isDualSim = isDualSim,
+                    onCall = { (activity as? MainActivity)?.placeCall(it) },
+                    onShowHistory = { number ->
+                        val entry = entries.firstOrNull { it.number == number }
+                        val name = entry?.name ?: number
+                        requireActivity().supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
+                            .addToBackStack("history")
+                            .commit()
+                        (activity as? MainActivity)?.hideNav()
+                    }
+                )
+            }
+        }
+    }
+
+    private fun queryRecents(ctx: Context): List<CallLogEntry> {
         val entries = mutableListOf<CallLogEntry>()
         try {
             val projection = arrayOf(
@@ -310,10 +343,12 @@ class DialerFragment : Fragment() {
                 CallLog.Calls.CACHED_NUMBER_TYPE,
                 CallLog.Calls.CACHED_NUMBER_LABEL
             )
-            val cur = requireContext().contentResolver.query(
+            // Chỉ hiển thị gợi ý "gần đây" trong màn hình quay số nên KHÔNG cần tải toàn bộ lịch sử
+            // (có máy hàng nghìn cuộc gọi) — giới hạn 50 dòng mới nhất là đủ và tránh lag khi mở màn.
+            val cur = ctx.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 projection,
-                null, null, "${CallLog.Calls.DATE} DESC"
+                null, null, "${CallLog.Calls.DATE} DESC LIMIT 50"
             )
             cur?.use {
                 val iName   = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
@@ -329,7 +364,7 @@ class DialerFragment : Fragment() {
                     val simSlot: Int? = try {
                         val subId = acctId.toIntOrNull()
                         if (subId != null) {
-                            val sm = requireContext().getSystemService(SubscriptionManager::class.java)
+                            val sm = ctx.getSystemService(SubscriptionManager::class.java)
                             sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
                         } else null
                     } catch (_: Exception) { null }
@@ -354,37 +389,42 @@ class DialerFragment : Fragment() {
                 }
             }
         } catch (_: SecurityException) {}
-
-        b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
-        val isDualSim = callCapableAccounts().size >= 2
-        b.rvRecents.adapter = CallLogAdapter(
-            entries,
-            isDualSim = isDualSim,
-            onCall = { (activity as? MainActivity)?.placeCall(it) },
-            onShowHistory = { number ->
-                val entry = entries.firstOrNull { it.number == number }
-                val name = entry?.name ?: number
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
-                    .addToBackStack("history")
-                    .commit()
-                (activity as? MainActivity)?.hideNav()
-            }
-        )
+        return entries
     }
 
     private fun searchSuggestions(raw: String) {
         if (raw.length < 2) {
+            searchGeneration++ // huỷ mọi kết quả tra cứu cũ đang chạy nền, không áp dụng nữa
             b.rvSuggestions.visibility = View.GONE
             b.llNoMatchActions.visibility = View.GONE
             b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
             return
         }
         b.rvRecents.visibility = View.GONE
+        val myGeneration = ++searchGeneration
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            val list = queryContactSuggestions(appContext, raw)
+            mainHandler.post {
+                // Người dùng đã gõ thêm/xoá ký tự khác trong lúc chờ: bỏ qua kết quả trễ này
+                if (_b == null || myGeneration != searchGeneration) return@post
+                if (list.isEmpty()) {
+                    b.rvSuggestions.visibility = View.GONE
+                    b.llNoMatchActions.visibility = View.VISIBLE
+                } else {
+                    suggestAdapter.update(list, raw)
+                    b.rvSuggestions.visibility = View.VISIBLE
+                    b.llNoMatchActions.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun queryContactSuggestions(ctx: Context, raw: String): List<Contact> {
         val list = mutableListOf<Contact>()
         try {
             val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-            val cur: Cursor? = requireContext().contentResolver.query(uri,
+            val cur: Cursor? = ctx.contentResolver.query(uri,
                 arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER),
                 "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
@@ -397,15 +437,7 @@ class DialerFragment : Fragment() {
                 }
             }
         } catch (_: Exception) {}
-
-        if (list.isEmpty()) {
-            b.rvSuggestions.visibility = View.GONE
-            b.llNoMatchActions.visibility = View.VISIBLE
-        } else {
-            suggestAdapter.update(list, raw)
-            b.rvSuggestions.visibility = View.VISIBLE
-            b.llNoMatchActions.visibility = View.GONE
-        }
+        return list
     }
 
     private fun getLastCalledNumber(): String? {
@@ -438,6 +470,7 @@ class DialerFragment : Fragment() {
 
     override fun onDestroyView() {
         toneGen?.release(); toneGen = null
+        bgExecutor.shutdownNow()
         super.onDestroyView(); _b = null
     }
 }
