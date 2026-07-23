@@ -149,4 +149,14 @@ class ContactsAdapter(
 
     fun firstContactPosition(): Int = rows.indexOfFirst { it is Row.Item }.coerceAtLeast(0)
     fun lastPosition(): Int = (itemCount - 1).coerceAtLeast(0)
+
+    /** Chữ cái của nhóm đang hiển thị ở đầu danh sách hiện tại (dùng để tô sáng
+     *  chữ tương ứng trên thanh chỉ mục A-Z bên phải khi người dùng cuộn tay). */
+    fun letterAtOrBefore(position: Int): String? {
+        for (i in position downTo 0) {
+            val row = rows.getOrNull(i)
+            if (row is Row.Letter) return row.letter
+        }
+        return null
+    }
 }
