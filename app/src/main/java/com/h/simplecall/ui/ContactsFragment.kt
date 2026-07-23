@@ -72,12 +72,14 @@ class ContactsFragment : Fragment() {
         INDEX_LETTERS.forEach { letter ->
             val tv = TextView(requireContext()).apply {
                 text = letter
-                textSize = 10.5f
+                textSize = 9.5f
                 gravity = android.view.Gravity.CENTER
                 setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 layoutParams = android.widget.LinearLayout.LayoutParams(
-                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                 )
+                setPadding(0, 1, 0, 1)
                 setOnClickListener { jumpTo(letter) }
             }
             b.llAlphabetIndex.addView(tv)
