@@ -74,8 +74,8 @@ class CallLogAdapter(
                   else SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
         h.b.tvCallTime.text = fmt.format(Date(item.date))
 
-        h.b.btnCallBack.setOnClickListener { onCall(item.number) }
-        h.b.root.setOnClickListener { onShowHistory(item.number) }
+        h.b.root.setOnClickListener { onCall(item.number) }
+        h.b.btnCallBack.setOnClickListener { onShowHistory(item.number) }
         h.b.root.setOnLongClickListener { showContextMenu(ctx, item.number, display); true }
     }
 
