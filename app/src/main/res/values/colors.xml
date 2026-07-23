@@ -2,6 +2,8 @@
     <color name="primary">#1E8E3E</color>
     <color name="primary_dark">#137333</color>
     <color name="btn_call">#1E8E3E</color>
+    <color name="btn_call_sim1">#2FBF60</color>
+    <color name="btn_call_sim2">#146830</color>
     <color name="btn_decline">#EA4335</color>
     <color name="bg">#FFFFFF</color>
     <color name="bg_surface">#F1F3F4</color>
