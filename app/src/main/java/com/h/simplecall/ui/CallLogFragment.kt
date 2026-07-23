@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
+import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.databinding.FragmentCallLogBinding
 

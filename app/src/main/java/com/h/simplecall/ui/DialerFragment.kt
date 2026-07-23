@@ -363,7 +363,7 @@ class DialerFragment : Fragment() {
         val list = mutableListOf<Contact>()
         try {
             val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-            val cur: Cursor = requireContext().contentResolver.query(uri,
+            val cur: Cursor? = requireContext().contentResolver.query(uri,
                 arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                     ContactsContract.CommonDataKinds.Phone.NUMBER),
                 "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
