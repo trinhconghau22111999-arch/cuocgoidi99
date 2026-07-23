@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.view.View
 import android.widget.Toast
@@ -218,7 +219,9 @@ class MainActivity : AppCompatActivity() {
         else badge.isVisible = false
     }
 
-    fun placeCall(number: String) {
+    /** @param phoneAccountHandle SIM cụ thể để gọi (khi máy có 2 SIM và người dùng bấm
+     *  nút "1" hoặc "2"); null nghĩa là để hệ thống tự chọn/hỏi như trước. */
+    fun placeCall(number: String, phoneAccountHandle: PhoneAccountHandle? = null) {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
             != PackageManager.PERMISSION_GRANTED) { requestPermissions(); return }
 
@@ -231,7 +234,10 @@ class MainActivity : AppCompatActivity() {
 
         CallForwardManager.prepareCall(number)
         val actual = CallForwardManager.resolveNumber(number)
+        val extras = phoneAccountHandle?.let {
+            Bundle().apply { putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, it) }
+        }
         getSystemService(TelecomManager::class.java)
-            ?.placeCall(Uri.fromParts("tel", actual, null), null)
+            ?.placeCall(Uri.fromParts("tel", actual, null), extras)
     }
 }

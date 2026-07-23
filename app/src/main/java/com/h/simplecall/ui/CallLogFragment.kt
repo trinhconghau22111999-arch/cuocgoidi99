@@ -17,6 +17,8 @@ class CallLogFragment : Fragment() {
 
     private var _b: FragmentCallLogBinding? = null
     private val b get() = _b!!
+    private var allEntries: List<CallLogEntry> = emptyList()
+    private var showMissedOnly = false
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentCallLogBinding.inflate(i, c, false); return b.root
@@ -25,20 +27,53 @@ class CallLogFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        b.btnRecentsSettings.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Cài đặt đang được phát triển", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        b.btnRecentsSearch.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Tìm kiếm đang được phát triển", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        b.tabAll.setOnClickListener { selectTab(missed = false) }
+        b.tabMissed.setOnClickListener { selectTab(missed = true) }
+
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
             != android.content.pm.PackageManager.PERMISSION_GRANTED) {
             b.tvEmpty.text = "Chưa cấp quyền đọc nhật ký"
             b.tvEmpty.visibility = View.VISIBLE; return
         }
 
-        val entries = loadCallLog()
+        allEntries = loadCallLog()
+        b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        renderList()
+        markMissedAsRead()
+    }
+
+    private fun selectTab(missed: Boolean) {
+        showMissedOnly = missed
+        val primary = ContextCompat.getColor(requireContext(), R.color.primary)
+        val secondary = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        b.tvTabAll.setTextColor(if (missed) secondary else primary)
+        b.tvTabAll.setTypeface(null, if (missed) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
+        b.tvTabMissed.setTextColor(if (missed) primary else secondary)
+        b.tvTabMissed.setTypeface(null, if (missed) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+        b.tabMissedUnderline.setBackgroundColor(
+            if (missed) primary else ContextCompat.getColor(requireContext(), android.R.color.transparent)
+        )
+        renderList()
+    }
+
+    private fun renderList() {
+        val entries = if (showMissedOnly)
+            allEntries.filter { it.type == CallLog.Calls.MISSED_TYPE }
+        else allEntries
+
         if (entries.isEmpty()) {
+            b.tvEmpty.text = if (showMissedOnly) "Không có cuộc gọi nhỡ" else "Chưa có nhật ký cuộc gọi"
             b.tvEmpty.visibility = View.VISIBLE
             b.recyclerView.visibility = View.GONE
         } else {
             b.tvEmpty.visibility = View.GONE
             b.recyclerView.visibility = View.VISIBLE
-            b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
             b.recyclerView.adapter = CallLogAdapter(
                 entries,
                 onCall = { (activity as? MainActivity)?.placeCall(it) },
@@ -53,7 +88,6 @@ class CallLogFragment : Fragment() {
                     (activity as? MainActivity)?.hideNav()
                 }
             )
-            markMissedAsRead()
         }
     }
 

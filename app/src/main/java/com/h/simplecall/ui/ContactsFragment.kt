@@ -48,6 +48,15 @@ class ContactsFragment : Fragment() {
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
 
+        if (contacts.isNotEmpty()) {
+            b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
+            b.tvContactsCount.visibility = View.VISIBLE
+        }
+
+        b.btnContactsSettings.setOnClickListener {
+            Toast.makeText(requireContext(), "Cài đặt danh bạ đang được phát triển", Toast.LENGTH_SHORT).show()
+        }
+
         b.etSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) { adapter.filter(s.toString()) }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}

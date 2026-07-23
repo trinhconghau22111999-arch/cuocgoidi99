@@ -12,6 +12,8 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.CallLog
 import android.provider.ContactsContract
+import android.telecom.PhoneAccountHandle
+import android.telecom.TelecomManager
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -133,21 +135,9 @@ class DialerFragment : Fragment() {
             }
         })
 
-        // Nút gọi: gọi lại nếu rỗng
-        b.btnCall.setOnClickListener {
-            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
-            if (raw.isNotEmpty()) {
-                (activity as? MainActivity)?.placeCall(raw)
-            } else {
-                // Gọi lại số cuối cùng
-                val last = getLastCalledNumber()
-                if (last != null) {
-                    b.etNumber.setText(formatVN(last))
-                    b.etNumber.setSelection(b.etNumber.text.length)
-                    syncBackspace()
-                }
-            }
-        }
+        // Nút gọi: nếu máy có 2 SIM khả dụng, hiện pill chia đôi "1"/"2" giống trình quay số
+        // hệ thống; ngược lại giữ nút tròn đơn như cũ.
+        setupCallButtons()
 
         // Gọi video: tính năng chưa được hỗ trợ, thông báo cho người dùng biết thay vì im lặng.
         b.btnVideoCall.setOnClickListener {
@@ -243,6 +233,45 @@ class DialerFragment : Fragment() {
                     syncBackspace(); true
                 }
             }
+        }
+    }
+
+    /** Lấy danh sách tài khoản SIM có thể gọi (PhoneAccountHandle). Trả về rỗng nếu thiếu quyền
+     *  hoặc thiết bị chỉ có 1 SIM. */
+    private fun callCapableAccounts(): List<PhoneAccountHandle> {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_PHONE_STATE)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
+        return try {
+            val tm = requireContext().getSystemService(TelecomManager::class.java) ?: return emptyList()
+            tm.callCapablePhoneAccounts ?: emptyList()
+        } catch (_: SecurityException) { emptyList() }
+    }
+
+    private fun callWith(handle: PhoneAccountHandle?) {
+        val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+        if (raw.isNotEmpty()) {
+            (activity as? MainActivity)?.placeCall(raw, handle)
+        } else {
+            val last = getLastCalledNumber()
+            if (last != null) {
+                b.etNumber.setText(formatVN(last))
+                b.etNumber.setSelection(b.etNumber.text.length)
+                syncBackspace()
+            }
+        }
+    }
+
+    private fun setupCallButtons() {
+        val accounts = callCapableAccounts()
+        if (accounts.size >= 2) {
+            b.btnCall.visibility = View.GONE
+            b.llCallDual.visibility = View.VISIBLE
+            b.btnCallSim1.setOnClickListener { callWith(accounts[0]) }
+            b.btnCallSim2.setOnClickListener { callWith(accounts[1]) }
+        } else {
+            b.llCallDual.visibility = View.GONE
+            b.btnCall.visibility = View.VISIBLE
+            b.btnCall.setOnClickListener { callWith(accounts.firstOrNull()) }
         }
     }
 

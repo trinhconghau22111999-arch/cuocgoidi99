@@ -34,4 +34,11 @@
     <string name="add_to_existing_contact">Thêm vào liên hệ hiện có</string>
     <string name="send_sms">Gửi tin nhắn SMS</string>
     <string name="video_call_meet">Cuộc gọi video Meet</string>
+    <string name="contacts_title">Danh bạ</string>
+    <string name="recents_title">Gần đây</string>
+    <string name="contacts_count">%d liên hệ</string>
+    <string name="tab_all">Tất cả</string>
+    <string name="tab_missed">Cuộc gọi nhỡ</string>
+    <string name="settings">Cài đặt</string>
+    <string name="search">Tìm kiếm</string>
 </resources>

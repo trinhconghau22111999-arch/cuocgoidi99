@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -192,13 +193,65 @@
                 android:contentDescription="@string/video_call" />
         </FrameLayout>
 
-        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
+        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.6">
+            <!-- Nút gọi 1 SIM: mặc định hiển thị -->
             <ImageButton android:id="@+id/btnCall"
                 android:layout_width="64dp" android:layout_height="64dp"
                 android:layout_gravity="center"
                 android:background="@drawable/bg_call_circle"
                 android:src="@drawable/ic_call"
                 android:contentDescription="@string/call" />
+
+            <!-- Nút gọi 2 SIM: dạng pill xanh chia đôi "1" | "2", chỉ hiện khi máy có từ 2 SIM khả dụng -->
+            <LinearLayout
+                android:id="@+id/llCallDual"
+                android:layout_width="wrap_content" android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <FrameLayout android:id="@+id/btnCallSim1"
+                    android:layout_width="76dp" android:layout_height="match_parent"
+                    android:background="@drawable/bg_call_pill_left"
+                    android:clickable="true" android:focusable="true">
+                    <ImageView
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="14dp"
+                        android:src="@drawable/ic_call"
+                        app:tint="@color/white" />
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="20dp"
+                        android:text="1"
+                        android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/white" />
+                </FrameLayout>
+
+                <View android:layout_width="1dp" android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="#331B1B1B" />
+
+                <FrameLayout android:id="@+id/btnCallSim2"
+                    android:layout_width="76dp" android:layout_height="match_parent"
+                    android:background="@drawable/bg_call_pill_right"
+                    android:clickable="true" android:focusable="true">
+                    <ImageView
+                        android:layout_width="22dp" android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="14dp"
+                        android:src="@drawable/ic_call"
+                        app:tint="@color/white" />
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="20dp"
+                        android:text="2"
+                        android:textSize="13sp" android:textStyle="bold"
+                        android:textColor="@color/white" />
+                </FrameLayout>
+            </LinearLayout>
         </FrameLayout>
 
         <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
