@@ -137,7 +137,15 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Đã có đủ quyền từ trước (lần mở sau) -> permLauncher sẽ KHÔNG được gọi,
             // nên phải tự kích hoạt bước xin làm mặc định ở đây, nếu không nó sẽ không bao giờ chạy.
-            requestDefaultDialer()
+            //
+            // QUAN TRỌNG: KHÔNG gọi requestDefaultDialer() trực tiếp ở đây. Ở lần mở thứ 2 trở đi,
+            // nhánh này chạy trong onCreate() TRƯỚC khi Activity kịp vẽ xong khung hình đầu tiên.
+            // Từ Android 12+, splash screen (logo) chỉ biến mất khi khung hình đầu tiên được vẽ
+            // xong — nếu nhảy sang Activity khác (hộp thoại đặt-mặc-định) trước đó, hệ thống
+            // không bao giờ nhận tín hiệu "đã vẽ xong" và logo bị treo vĩnh viễn, đồng thời hộp
+            // thoại đặt-mặc-định cũng không hiện ra hoàn chỉnh được cho người dùng bấm.
+            // -> Post vào hàng đợi vẽ của View để đảm bảo first frame đã render xong trước.
+            binding.root.post { requestDefaultDialer() }
         }
     }
 
@@ -228,11 +236,6 @@ class MainActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
             != PackageManager.PERMISSION_GRANTED) { requestPermissions(); return }
 
-        // CHỈ app đang giữ vai trò "ứng dụng gọi điện mặc định" mới nhận được onCallAdded
-        // và được phép hiển thị màn hình "Đang gọi..." tuỳ chỉnh của chính nó. Nếu chưa được
-        // đặt làm mặc định, cuộc gọi vẫn kết nối bình thường nhưng ứng dụng gọi mặc định của
-        // máy (không phải app này) sẽ hiển thị màn hình gọi — đây là lý do phổ biến nhất khiến
-        // giao diện "Đang gọi" tuỳ chỉnh không hiện ra. Nhắc người dùng + mở lại hộp thoại đặt mặc định.
         if (!isDefaultDialer()) {
             Toast.makeText(this,
                 "Hãy đặt \"${getString(R.string.app_name)}\" làm ứng dụng gọi điện mặc định để dùng giao diện gọi riêng",
