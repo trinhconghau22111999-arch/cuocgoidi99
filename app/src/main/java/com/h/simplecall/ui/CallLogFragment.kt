@@ -64,7 +64,7 @@ class CallLogFragment : Fragment() {
                 CallLog.Calls.CONTENT_URI,
                 arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
                     CallLog.Calls.DATE, CallLog.Calls.TYPE),
-                null, null, "${CallLog.Calls.DATE} DESC LIMIT 100"
+                null, null, "${CallLog.Calls.DATE} DESC"
             ) ?: return list
             cursor.use {
                 val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
