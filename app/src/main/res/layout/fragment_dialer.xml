@@ -1,1 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
 
+    <!-- Ô nhập số điện thoại + nút xóa -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <EditText
+            android:id="@+id/etNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingEnd="48dp"
+            android:background="@null"
+            android:inputType="phone"
+            android:gravity="center"
+            android:textSize="32sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-light"
+            android:cursorVisible="true"
+            android:maxLines="1" />
+
+        <ImageButton
+            android:id="@+id/btnBackspace"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|end"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_backspace"
+            android:contentDescription="@string/cancel"
+            android:visibility="invisible" />
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/divider" />
+
+    <!-- Vùng nội dung linh hoạt: gợi ý liên hệ / danh sách gần đây / hành động khi không khớp -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvRecents"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/llNoMatchActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/rowCreateContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_settings_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_add"
+                    app:tint="@color/primary"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="24dp"
+                    android:text="@string/create_new_contact"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowAddToExisting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_settings_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_person"
+                    app:tint="@color/primary"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="24dp"
+                    android:text="@string/add_to_existing_contact"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowSendSms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_settings_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_dialog_email"
+                    app:tint="@color/primary"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="24dp"
+                    android:text="@string/send_sms"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowVideoMeet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_settings_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_video_call"
+                    app:tint="@color/primary"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="24dp"
+                    android:text="@string/video_call_meet"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Nút bật/tắt bàn phím số -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="4dp">
+
+        <ImageButton
+            android:id="@+id/btnKeypadToggle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_key"
+            android:src="@drawable/ic_dialpad"
+            android:contentDescription="@string/open_dialpad" />
+    </LinearLayout>
+
+    <!-- Bàn phím số -->
+    <GridLayout
+        android:id="@+id/keypad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:columnCount="3"
+        android:rowCount="4">
+
+        <Button android:tag="1" style="@style/KeyBtn" android:text="1" />
+        <Button android:tag="2" style="@style/KeyBtn" android:text="2" />
+        <Button android:tag="3" style="@style/KeyBtn" android:text="3" />
+        <Button android:tag="4" style="@style/KeyBtn" android:text="4" />
+        <Button android:tag="5" style="@style/KeyBtn" android:text="5" />
+        <Button android:tag="6" style="@style/KeyBtn" android:text="6" />
+        <Button android:tag="7" style="@style/KeyBtn" android:text="7" />
+        <Button android:tag="8" style="@style/KeyBtn" android:text="8" />
+        <Button android:tag="9" style="@style/KeyBtn" android:text="9" />
+        <Button android:tag="*" style="@style/KeyBtn" android:text="*" />
+        <Button android:tag="0" style="@style/KeyBtn" android:text="0" />
+        <Button android:tag="#" style="@style/KeyBtn" android:text="#" />
+    </GridLayout>
+
+    <!-- Hàng nút gọi: 1 SIM (btnCall) hoặc 2 SIM (llCallDual) + nút video -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp">
+
+        <ImageButton
+            android:id="@+id/btnCall"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_call_circle"
+            android:src="@drawable/ic_call"
+            android:contentDescription="@string/call"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/llCallDual"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnCallSim1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:minWidth="96dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:background="@drawable/bg_call_pill_left"
+                android:text="SIM 1"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#331E8E3E" />
+
+            <Button
+                android:id="@+id/btnCallSim2"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:minWidth="96dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:background="@drawable/bg_call_pill_right"
+                android:text="SIM 2"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"
+                android:stateListAnimator="@null" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/btnVideoCall"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/bg_video_call_btn"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="@string/video_call">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_video_call"
+                app:tint="@color/text_primary"
+                tools:ignore="MissingClass" />
+        </FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>
