@@ -32,6 +32,10 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+    /** Tab đang chọn ở bottom nav, dùng để biết có nên hiện lại fabDialpad hay không
+     *  khi quay lại từ backstack (vd. đóng màn Cài đặt/Bàn phím số). */
+    private var currentNavId: Int = R.id.nav_recents
+
     private val permissions: Array<String> = buildList {
         add(android.Manifest.permission.CALL_PHONE)
         add(android.Manifest.permission.READ_PHONE_STATE)
@@ -74,10 +78,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.bottomNav.setOnItemSelectedListener { item ->
+            currentNavId = item.itemId
             navigateTo(when (item.itemId) {
                 R.id.nav_contacts -> ContactsFragment()
                 else              -> CallLogFragment()
             })
+            // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
+            // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
+            binding.fabDialpad.visibility =
+                if (item.itemId == R.id.nav_contacts) View.GONE else View.VISIBLE
             if (item.itemId == R.id.nav_recents)
                 binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
             true
@@ -95,7 +104,8 @@ class MainActivity : AppCompatActivity() {
             val empty = supportFragmentManager.backStackEntryCount == 0
             binding.bottomNav.visibility   = if (empty) View.VISIBLE else View.GONE
             binding.btnSettings.visibility = if (empty) View.VISIBLE else View.GONE
-            binding.fabDialpad.visibility  = if (empty) View.VISIBLE else View.GONE
+            binding.fabDialpad.visibility  =
+                if (empty && currentNavId != R.id.nav_contacts) View.VISIBLE else View.GONE
         }
 
         if (savedInstanceState == null) {
