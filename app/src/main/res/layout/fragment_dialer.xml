@@ -25,6 +25,102 @@
         android:visibility="gone"
         android:background="@color/bg" />
 
+    <!-- Menu hành động khi số đang gõ KHÔNG khớp với liên hệ nào: tạo liên hệ mới,
+         thêm vào liên hệ có sẵn, gửi SMS, gọi video Meet. Ẩn mặc định. -->
+    <LinearLayout
+        android:id="@+id/llNoMatchActions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:background="@color/bg">
+
+        <LinearLayout
+            android:id="@+id/rowCreateContact"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true">
+            <ImageView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_add"
+                android:tint="@color/text_secondary" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/create_new_contact"
+                android:textSize="16sp" android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowAddToExisting"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true">
+            <ImageView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_person"
+                android:tint="@color/text_secondary" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/add_to_existing_contact"
+                android:textSize="16sp" android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowSendSms"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true">
+            <TextView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:gravity="center"
+                android:text="✉"
+                android:textSize="18sp"
+                android:textColor="@color/text_secondary" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/send_sms"
+                android:textSize="16sp" android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowVideoMeet"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true">
+            <TextView
+                android:layout_width="24dp" android:layout_height="24dp"
+                android:gravity="center"
+                android:text="🎥"
+                android:textSize="18sp"
+                android:textColor="@color/text_secondary" />
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:text="@string/video_call_meet"
+                android:textSize="16sp" android:textColor="@color/text_primary"
+                android:fontFamily="sans-serif" />
+        </LinearLayout>
+    </LinearLayout>
+
     <!-- Number display: nằm giáp và ngay phía trên bàn phím -->
     <FrameLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
