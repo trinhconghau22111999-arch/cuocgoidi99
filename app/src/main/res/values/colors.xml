@@ -1,112 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/bg">
-
-    <!-- Icon tìm kiếm + cài đặt (lục giác) góc trên bên phải -->
-    <FrameLayout
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:paddingTop="16dp" android:paddingEnd="20dp">
-        <LinearLayout
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:orientation="horizontal">
-            <ImageButton
-                android:id="@+id/btnRecentsSearch"
-                android:layout_width="40dp" android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:src="@android:drawable/ic_menu_search"
-                android:contentDescription="@string/search" />
-            <ImageButton
-                android:id="@+id/btnRecentsSettings"
-                android:layout_width="40dp" android:layout_height="40dp"
-                android:layout_marginStart="8dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_hexagon_settings"
-                android:contentDescription="@string/settings" />
-        </LinearLayout>
-    </FrameLayout>
-
-    <!-- Tiêu đề "Gần đây" -->
-    <TextView
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginStart="20dp" android:layout_marginTop="4dp"
-        android:text="@string/recents_title"
-        android:textSize="34sp"
-        android:textColor="@color/text_primary"
-        android:fontFamily="sans-serif-light" />
-
-    <!-- 2 tab: Tất cả / Cuộc gọi nhỡ -->
-    <LinearLayout
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="20dp" android:paddingEnd="20dp"
-        android:paddingTop="16dp">
-
-        <LinearLayout
-            android:id="@+id/tabAll"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:clickable="true" android:focusable="true">
-            <TextView
-                android:id="@+id/tvTabAll"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/tab_all"
-                android:textSize="16sp" android:textStyle="bold"
-                android:textColor="@color/primary"
-                android:fontFamily="sans-serif" />
-            <View
-                android:layout_width="match_parent" android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/primary" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tabMissed"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
-            android:orientation="vertical"
-            android:clickable="true" android:focusable="true">
-            <TextView
-                android:id="@+id/tvTabMissed"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/tab_missed"
-                android:textSize="16sp"
-                android:textColor="@color/text_secondary"
-                android:fontFamily="sans-serif" />
-            <View
-                android:id="@+id/tabMissedUnderline"
-                android:layout_width="match_parent" android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/transparent" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent" android:layout_height="0.5dp"
-        android:background="#332B2B2B" />
-
-    <FrameLayout
-        android:layout_width="match_parent" android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false" />
-
-        <TextView
-            android:id="@+id/tvEmpty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Chưa có nhật ký cuộc gọi"
-            android:textSize="15sp"
-            android:textColor="@color/text_secondary"
-            android:fontFamily="sans-serif"
-            android:visibility="gone" />
-    </FrameLayout>
-</LinearLayout>
+<resources>
+    <color name="primary">#1E8E3E</color>
+    <color name="primary_dark">#137333</color>
+    <color name="btn_call">#1E8E3E</color>
+    <color name="btn_decline">#EA4335</color>
+    <color name="bg">#FFFFFF</color>
+    <color name="bg_surface">#F1F3F4</color>
+    <color name="bg_row">#FFFFFF</color>
+    <color name="incall_bg">#202124</color>
+    <color name="incall_surface">#3C4043</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_primary">#202124</color>
+    <color name="text_secondary">#5F6368</color>
+    <color name="text_hint">#9AA0A6</color>
+    <color name="text_on_dark">#E8EAED</color>
+    <color name="divider">#DADCE0</color>
+    <color name="key_ripple">#1A1E8E3E</color>
+    <color name="key_bg">#F1F3F4</color>
+    <color name="btn_action_bg">#3C4043</color>
+    <color name="btn_action_active">#1E8E3E</color>
+    <color name="status_on">#1E8E3E</color>
+    <color name="status_off">#9AA0A6</color>
+    <color name="avatar_bg">#E6F4EA</color>
+    <color name="avatar_text">#137333</color>
+    <color name="missed_red">#EA4335</color>
+    <color name="blocked_bg">#FFF3E0</color>
+    <color name="blocked_text">#E65100</color>
+    <color name="av0">#E8F0FE</color><color name="av0t">#1A73E8</color>
+    <color name="av1">#FCE8E6</color><color name="av1t">#D93025</color>
+    <color name="av2">#FEF7E0</color><color name="av2t">#F29900</color>
+    <color name="av3">#E6F4EA</color><color name="av3t">#137333</color>
+    <color name="av4">#F3E8FD</color><color name="av4t">#A142F4</color>
+    <color name="av5">#FCE8E6</color><color name="av5t">#C5221F</color>
+</resources>
