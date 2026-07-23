@@ -28,7 +28,8 @@ class ContactSuggestAdapter(
     override fun onBindViewHolder(h: VH, pos: Int) {
         val c = items[pos]; val ctx = h.itemView.context
         val idx = Math.abs(c.name.hashCode()) % avatarBgs.size
-        h.b.avatarView.setBackgroundResource(avatarBgs[idx])
+        h.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+        h.b.avatarView.background.setTint(ctx.getColor(avatarBgs[idx]))
         h.b.tvInitial.text = c.name.take(1).uppercase()
         h.b.tvInitial.setTextColor(ctx.getColor(avatarTxts[idx]))
         h.b.tvName.text = c.name

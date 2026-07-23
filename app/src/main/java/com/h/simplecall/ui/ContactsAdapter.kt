@@ -38,7 +38,8 @@ class ContactsAdapter(
             h.b.ivContactPhoto.visibility = View.GONE
             h.b.avatarView.visibility = View.VISIBLE
             h.b.tvAvatar.visibility = View.VISIBLE
-            h.b.avatarView.setBackgroundResource(avatarBgs[idx])
+            h.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+            h.b.avatarView.background.setTint(ctx.getColor(avatarBgs[idx]))
             h.b.tvAvatar.text = c.name.take(1).uppercase()
             h.b.tvAvatar.setTextColor(ctx.getColor(avatarTxts[idx]))
         }

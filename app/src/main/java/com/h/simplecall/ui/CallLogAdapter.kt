@@ -38,7 +38,8 @@ class CallLogAdapter(
         val isBlocked = BlockedNumbersManager.isBlocked(item.number)
 
         val idx = Math.abs(display.hashCode()) % avatarBgs.size
-        h.b.avatarView.setBackgroundResource(avatarBgs[idx])
+        h.b.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+        h.b.avatarView.background.setTint(ctx.getColor(avatarBgs[idx]))
         h.b.tvInitial.text = display.take(1).uppercase()
         h.b.tvInitial.setTextColor(ctx.getColor(avatarTxts[idx]))
 

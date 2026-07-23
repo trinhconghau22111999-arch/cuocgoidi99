@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Gọi Điện</string>
-    <string name="tab_dialer">Bàn phím</string>
-    <string name="tab_log">Nhật ký</string>
+    <string name="tab_recents">Gần đây</string>
     <string name="tab_contacts">Danh bạ</string>
+    <string name="video_call">Gọi video</string>
+    <string name="open_dialpad">Bàn phím</string>
+    <string name="video_call_unsupported">Tính năng gọi video chưa được hỗ trợ</string>
     <string name="call">Gọi</string>
     <string name="answer">Trả lời</string>
     <string name="decline">Từ chối</string>

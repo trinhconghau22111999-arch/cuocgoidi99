@@ -72,23 +72,31 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             navigateTo(when (item.itemId) {
-                R.id.nav_log      -> CallLogFragment()
                 R.id.nav_contacts -> ContactsFragment()
-                else              -> DialerFragment()
+                else              -> CallLogFragment()
             })
-            if (item.itemId == R.id.nav_log)
-                binding.bottomNav.getBadge(R.id.nav_log)?.isVisible = false
+            if (item.itemId == R.id.nav_recents)
+                binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
             true
+        }
+
+        binding.fabDialpad.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, DialerFragment())
+                .addToBackStack("dialpad")
+                .commit()
+            hideNav()
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
             val empty = supportFragmentManager.backStackEntryCount == 0
             binding.bottomNav.visibility   = if (empty) View.VISIBLE else View.GONE
             binding.btnSettings.visibility = if (empty) View.VISIBLE else View.GONE
+            binding.fabDialpad.visibility  = if (empty) View.VISIBLE else View.GONE
         }
 
         if (savedInstanceState == null) {
-            navigateTo(DialerFragment())
+            navigateTo(CallLogFragment())
             handleIntent(intent)
         }
         updateMissedBadge()
@@ -100,8 +108,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent?) {
         val data = intent?.data ?: return
-        if (data.scheme == "tel")
-            navigateTo(DialerFragment.newInstanceWithNumber(data.schemeSpecificPart))
+        if (data.scheme == "tel") {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, DialerFragment.newInstanceWithNumber(data.schemeSpecificPart))
+                .addToBackStack("dialpad")
+                .commit()
+            hideNav()
+        }
     }
 
     fun navigateTo(f: Fragment) {
@@ -112,6 +125,7 @@ class MainActivity : AppCompatActivity() {
     fun hideNav() {
         binding.bottomNav.visibility   = View.GONE
         binding.btnSettings.visibility = View.GONE
+        binding.fabDialpad.visibility  = View.GONE
     }
 
     private fun requestPermissions() {
@@ -139,16 +153,49 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Thiết bị/ROM này không hỗ trợ vai trò ứng dụng gọi mặc định", Toast.LENGTH_LONG).show()
                 return
             }
-            if (!rm.isRoleHeld(RoleManager.ROLE_DIALER))
-                roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
+            if (!rm.isRoleHeld(RoleManager.ROLE_DIALER)) {
+                try {
+                    roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
+                } catch (_: Exception) {
+                    // Một số ROM (MIUI/EMUI/OneUI cũ...) chặn hoặc lỗi khi mở hộp thoại này
+                    // trực tiếp -> đưa người dùng sang màn hình "Ứng dụng mặc định" của hệ thống
+                    // để họ tự chọn thủ công, thay vì im lặng thất bại.
+                    openManualDefaultAppsSettings()
+                }
+            }
         } else {
             val tm = getSystemService(TelecomManager::class.java) ?: return
-            if (packageName != tm.defaultDialerPackage)
-                roleLauncher.launch(Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
-                    putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
-                })
+            if (packageName != tm.defaultDialerPackage) {
+                try {
+                    roleLauncher.launch(Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
+                        putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
+                    })
+                } catch (_: Exception) {
+                    openManualDefaultAppsSettings()
+                }
+            }
         }
         updateDefaultDialerStatus()
+    }
+
+    /** Mở màn hình cài đặt "Ứng dụng mặc định" của hệ thống làm phương án dự phòng. */
+    private fun openManualDefaultAppsSettings() {
+        val opened = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startActivity(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                true
+            } else false
+        } catch (_: Exception) { false }
+        if (!opened) {
+            try {
+                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", packageName, null)))
+            } catch (_: Exception) {
+                Toast.makeText(this,
+                    "Không thể mở cài đặt tự động. Vào Cài đặt > Ứng dụng > Ứng dụng mặc định để đặt thủ công.",
+                    Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     /** true nếu app này hiện đang là ứng dụng gọi điện mặc định. */
@@ -172,7 +219,7 @@ class MainActivity : AppCompatActivity() {
                 "${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
             null, null)
         val count = cur?.count ?: 0; cur?.close()
-        val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_log)
+        val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_recents)
         if (count > 0) { badge.isVisible = true; badge.number = count }
         else badge.isVisible = false
     }

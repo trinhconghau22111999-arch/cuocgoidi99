@@ -122,6 +122,18 @@ class DialerFragment : Fragment() {
             }
         }
 
+        // Gọi video: tính năng chưa được hỗ trợ, thông báo cho người dùng biết thay vì im lặng.
+        b.btnVideoCall.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(),
+                getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        // Ẩn/hiện bàn phím số để xem trọn danh sách gợi ý liên hệ khi cần.
+        b.btnKeypadToggle.setOnClickListener {
+            val showing = b.keypad.visibility == View.VISIBLE
+            b.keypad.visibility = if (showing) View.INVISIBLE else View.VISIBLE
+        }
+
         syncBackspace()
     }
 
@@ -140,7 +152,7 @@ class DialerFragment : Fragment() {
                 ss.setSpan(RelativeSizeSpan(0.38f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btn.text = ss; btn.setLines(2); btn.textSize = 24f
+                btn.text = ss; btn.setLines(2); btn.textSize = 27f
             }
 
             // Phím 1: voicemail icon text nhỏ
@@ -151,7 +163,7 @@ class DialerFragment : Fragment() {
                 ss.setSpan(RelativeSizeSpan(0.38f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btn.text = ss; btn.setLines(2); btn.textSize = 24f
+                btn.text = ss; btn.setLines(2); btn.textSize = 27f
             }
 
             btn.setOnClickListener {

@@ -5,12 +5,27 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- Number display -->
+    <!-- Suggestions list (ẩn mặc định) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSuggestions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="220dp"
+        android:visibility="gone"
+        android:background="@color/bg" />
+
+    <!-- Khoảng trống linh hoạt: đẩy toàn bộ khối (dòng số + bàn phím + nút gọi) xuống dưới -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Number display: nằm giáp và ngay phía trên bàn phím -->
     <FrameLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:minHeight="80dp"
+        android:minHeight="72dp"
         android:paddingStart="32dp" android:paddingEnd="4dp"
-        android:paddingTop="16dp" android:paddingBottom="4dp">
+        android:paddingTop="8dp" android:paddingBottom="4dp">
 
         <EditText
             android:id="@+id/etNumber"
@@ -19,7 +34,7 @@
             android:layout_marginEnd="52dp"
             android:background="@null"
             android:gravity="center"
-            android:textSize="40sp" android:textColor="@color/text_primary"
+            android:textSize="36sp" android:textColor="@color/text_primary"
             android:letterSpacing="0.03"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
@@ -36,29 +51,9 @@
             android:visibility="invisible" />
     </FrameLayout>
 
-    <!-- Suggestions list (ẩn mặc định) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSuggestions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="160dp"
-        android:visibility="gone"
-        android:background="@color/bg" />
-
-    <!-- Divider -->
-    <View android:layout_width="match_parent" android:layout_height="1dp"
-        android:background="@color/divider"
-        android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
-
-    <!-- Khoảng trống linh hoạt để đẩy bàn phím xuống phía dưới màn hình -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
     <!-- Keypad: dùng AppCompatButton (không phải <Button>) để tránh Material Components
          tự động tô nền bằng colorPrimary (đó là lý do phím bị xanh trước đây).
-         Kích thước cố định 64dp, không kéo giãn lấp đầy màn hình. -->
+         Kích thước 76dp (xem style KeyBtn), không kéo giãn lấp đầy màn hình. -->
     <GridLayout
         android:id="@+id/keypad"
         android:layout_width="wrap_content"
@@ -80,13 +75,39 @@
         <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:id="@+id/keyHash" android:text="#" android:tag="#" android:textSize="24sp"/>
     </GridLayout>
 
-    <!-- Call button -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="88dp"
-        android:gravity="center">
-        <ImageButton android:id="@+id/btnCall"
-            android:layout_width="64dp" android:layout_height="64dp"
-            android:background="@drawable/bg_call_circle"
-            android:src="@drawable/ic_call"
-            android:contentDescription="@string/call" />
+    <!-- Hàng nút dưới cùng: trái = gọi video, giữa = gọi, phải = bàn phím (cân đối 3 cột đều nhau) -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="96dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp" android:paddingBottom="8dp">
+
+        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
+            <ImageButton android:id="@+id/btnVideoCall"
+                android:layout_width="52dp" android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_key"
+                android:src="@drawable/ic_video_call"
+                android:tint="@color/text_secondary"
+                android:contentDescription="@string/video_call" />
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
+            <ImageButton android:id="@+id/btnCall"
+                android:layout_width="64dp" android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_call_circle"
+                android:src="@drawable/ic_call"
+                android:contentDescription="@string/call" />
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1">
+            <ImageButton android:id="@+id/btnKeypadToggle"
+                android:layout_width="52dp" android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_key"
+                android:src="@drawable/ic_dialpad"
+                android:tint="@color/text_secondary"
+                android:contentDescription="@string/open_dialpad" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>

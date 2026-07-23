@@ -154,7 +154,8 @@ class InCallActivity : AppCompatActivity() {
         } else {
             binding.ivContactPhoto.visibility = View.GONE
             val idx = Math.abs(displayName.hashCode()) % avatarBgs.size
-            binding.avatarView.setBackgroundResource(avatarBgs[idx])
+            binding.avatarView.setBackgroundResource(R.drawable.bg_avatar)
+            binding.avatarView.background.setTint(getColor(avatarBgs[idx]))
             binding.tvAvatarLetter.text = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
             binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
         }
