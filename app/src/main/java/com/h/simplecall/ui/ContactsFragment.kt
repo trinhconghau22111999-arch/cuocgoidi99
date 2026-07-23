@@ -1,5 +1,6 @@
 package com.h.simplecall.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.text.Editable
@@ -7,12 +8,22 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
+import com.h.simplecall.R
 import com.h.simplecall.data.Contact
 import com.h.simplecall.databinding.FragmentContactsBinding
+
+/** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
+ *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
+private val INDEX_LETTERS = listOf(
+    "★", "…", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
+    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "#"
+)
 
 class ContactsFragment : Fragment() {
 
@@ -26,15 +37,72 @@ class ContactsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val headers = listOf(
+            ContactHeader(R.drawable.ic_person, getString(R.string.my_info)) { openMyProfile() },
+            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
+        )
+
         val contacts = loadContacts()
-        adapter = ContactsAdapter(contacts) { (activity as? MainActivity)?.placeCall(it) }
+        adapter = ContactsAdapter(contacts, headers) { (activity as? MainActivity)?.placeCall(it) }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
+
         b.etSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) { adapter.filter(s.toString()) }
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b2: Int, c: Int) {}
         })
+
+        setupAlphabetIndex()
+        b.fabAddContact.setOnClickListener { openCreateContact() }
+    }
+
+    private fun setupAlphabetIndex() {
+        b.llAlphabetIndex.removeAllViews()
+        INDEX_LETTERS.forEach { letter ->
+            val tv = TextView(requireContext()).apply {
+                text = letter
+                textSize = 10.5f
+                gravity = android.view.Gravity.CENTER
+                setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
+                )
+                setOnClickListener { jumpTo(letter) }
+            }
+            b.llAlphabetIndex.addView(tv)
+        }
+    }
+
+    private fun jumpTo(letter: String) {
+        val lm = b.recyclerView.layoutManager as? LinearLayoutManager ?: return
+        val pos = when (letter) {
+            "★", "…" -> adapter.firstContactPosition()
+            "#" -> adapter.positionForLetter("#") ?: adapter.lastPosition()
+            else -> adapter.positionForLetter(letter)
+        }
+        if (pos != null && pos >= 0) lm.scrollToPositionWithOffset(pos, 0)
+    }
+
+    private fun openMyProfile() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, ContactsContract.Profile.CONTENT_URI))
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "Không thể mở thông tin của bạn", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openMyGroups() {
+        Toast.makeText(requireContext(), "Tính năng nhóm liên hệ đang được phát triển", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun openCreateContact() {
+        try {
+            startActivity(Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI))
+        } catch (_: Exception) {
+            Toast.makeText(requireContext(), "Không tìm thấy ứng dụng để tạo liên hệ", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun loadContacts(): List<Contact> {
