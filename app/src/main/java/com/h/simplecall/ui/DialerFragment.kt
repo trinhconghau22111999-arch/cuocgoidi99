@@ -14,6 +14,7 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.telephony.SubscriptionManager
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -323,12 +324,15 @@ class DialerFragment : Fragment() {
                 val iNumType = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_TYPE)
                 val iLabel  = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_LABEL)
                 while (it.moveToNext()) {
-                    // Xác định SIM slot từ account id (thường chứa "1" hoặc "2")
+                    // Xác định SIM slot qua SubscriptionManager – đáng tin hơn đoán chuỗi
                     val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
-                    val simSlot = when {
-                        acctId.contains("2") -> 1
-                        else -> 0
-                    }
+                    val simSlot: Int? = try {
+                        val subId = acctId.toIntOrNull()
+                        if (subId != null) {
+                            val sm = requireContext().getSystemService(SubscriptionManager::class.java)
+                            sm?.getSlotIndex(subId)?.takeIf { idx -> idx >= 0 }
+                        } else null
+                    } catch (_: Exception) { null }
                     // Loại đường dây
                     val numType = if (iNumType >= 0) it.getInt(iNumType) else 0
                     val label   = if (iLabel >= 0) it.getString(iLabel) ?: "" else ""
@@ -352,8 +356,10 @@ class DialerFragment : Fragment() {
         } catch (_: SecurityException) {}
 
         b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+        val isDualSim = callCapableAccounts().size >= 2
         b.rvRecents.adapter = CallLogAdapter(
             entries,
+            isDualSim = isDualSim,
             onCall = { (activity as? MainActivity)?.placeCall(it) },
             onShowHistory = { number ->
                 val entry = entries.firstOrNull { it.number == number }
