@@ -5,20 +5,25 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- Suggestions list (ẩn mặc định) -->
+    <!-- Mặc định: danh sách "Gần đây" (Nhật ký cuộc gọi thật trên máy).
+         Khi người dùng gõ số (>=2 chữ số) thì ẩn cái này, hiện rvSuggestions thay thế.
+         layout_weight=1 để chiếm hết khoảng trống còn lại; khi bàn phím bị ẩn (GONE)
+         danh sách này sẽ giãn ra chiếm luôn phần đó -> xem trọn danh sách. -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRecents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/bg" />
+
+    <!-- Gợi ý liên hệ khớp với số đang gõ (ẩn mặc định, thay thế rvRecents khi tìm kiếm) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSuggestions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="220dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:visibility="gone"
         android:background="@color/bg" />
-
-    <!-- Khoảng trống linh hoạt: đẩy toàn bộ khối (dòng số + bàn phím + nút gọi) xuống dưới -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
 
     <!-- Number display: nằm giáp và ngay phía trên bàn phím -->
     <FrameLayout
