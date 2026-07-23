@@ -21,8 +21,8 @@ import com.h.simplecall.databinding.FragmentContactsBinding
 /** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
  *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
 private val INDEX_LETTERS = listOf(
-    "★", "…", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
-    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "#"
+    "★", "#", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
+    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "…"
 )
 
 class ContactsFragment : Fragment() {
@@ -30,6 +30,11 @@ class ContactsFragment : Fragment() {
     private var _b: FragmentContactsBinding? = null
     private val b get() = _b!!
     private lateinit var adapter: ContactsAdapter
+
+    /** Map chữ cái -> TextView tương ứng trên thanh chỉ mục A-Z, để tô sáng nhanh
+     *  chữ đang ở đúng vị trí đang cuộn tới, không phải duyệt lại toàn bộ view. */
+    private val indexViews = mutableMapOf<String, TextView>()
+    private var activeIndexLetter: String? = null
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentContactsBinding.inflate(i, c, false); return b.root
@@ -54,7 +59,7 @@ class ContactsFragment : Fragment() {
         }
 
         b.btnContactsSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Cài đặt danh bạ đang được phát triển", Toast.LENGTH_SHORT).show()
+            (activity as? MainActivity)?.openSettings()
         }
 
         b.etSearch.addTextChangedListener(object : TextWatcher {
@@ -64,11 +69,22 @@ class ContactsFragment : Fragment() {
         })
 
         setupAlphabetIndex()
+        highlightIndexLetter(adapter.letterAtOrBefore(0))
         b.fabAddContact.setOnClickListener { openCreateContact() }
+
+        b.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
+                val lm = rv.layoutManager as? LinearLayoutManager ?: return
+                val firstVisible = lm.findFirstVisibleItemPosition()
+                if (firstVisible == androidx.recyclerview.widget.RecyclerView.NO_POSITION) return
+                highlightIndexLetter(adapter.letterAtOrBefore(firstVisible))
+            }
+        })
     }
 
     private fun setupAlphabetIndex() {
         b.llAlphabetIndex.removeAllViews()
+        indexViews.clear()
         INDEX_LETTERS.forEach { letter ->
             val tv = TextView(requireContext()).apply {
                 text = letter
@@ -82,7 +98,22 @@ class ContactsFragment : Fragment() {
                 setPadding(0, 1, 0, 1)
                 setOnClickListener { jumpTo(letter) }
             }
+            indexViews[letter] = tv
             b.llAlphabetIndex.addView(tv)
+        }
+    }
+
+    /** Tô sáng (vàng) chữ cái đang tương ứng với nhóm liên hệ đầu tiên đang hiển thị
+     *  trên màn hình; các chữ còn lại trở về màu bình thường. */
+    private fun highlightIndexLetter(letter: String?) {
+        if (letter == activeIndexLetter) return
+        activeIndexLetter = letter
+        val normalColor = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        val activeColor = ContextCompat.getColor(requireContext(), R.color.accent_yellow)
+        indexViews.forEach { (key, tv) ->
+            val isActive = key == letter
+            tv.setTextColor(if (isActive) activeColor else normalColor)
+            tv.setTypeface(null, if (isActive) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
         }
     }
 
@@ -93,7 +124,10 @@ class ContactsFragment : Fragment() {
             "#" -> adapter.positionForLetter("#") ?: adapter.lastPosition()
             else -> adapter.positionForLetter(letter)
         }
-        if (pos != null && pos >= 0) lm.scrollToPositionWithOffset(pos, 0)
+        if (pos != null && pos >= 0) {
+            lm.scrollToPositionWithOffset(pos, 0)
+            highlightIndexLetter(adapter.letterAtOrBefore(pos))
+        }
     }
 
     private fun openMyProfile() {
