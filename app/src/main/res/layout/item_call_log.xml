@@ -57,11 +57,11 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Thời gian cuộc gọi + nút gọi lại (info) -->
+    <!-- Thời gian cuộc gọi + nút gọi lại (info) - cùng 1 hàng, giờ nằm bên trái -->
     <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginStart="8dp">
 
         <TextView
@@ -69,12 +69,12 @@
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:textSize="12sp"
             android:textColor="@color/text_secondary"
+            android:layout_marginEnd="8dp"
             android:fontFamily="sans-serif" />
 
         <ImageButton
             android:id="@+id/btnCallBack"
             android:layout_width="32dp" android:layout_height="32dp"
-            android:layout_marginTop="4dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
             android:contentDescription="@string/call_history" />
