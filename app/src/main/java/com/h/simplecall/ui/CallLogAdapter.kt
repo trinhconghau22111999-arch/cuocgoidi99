@@ -61,13 +61,10 @@ class CallLogAdapter(
             ctx.getColor(if (item.type == CallLog.Calls.MISSED_TYPE) R.color.missed_red else R.color.text_primary)
         )
 
-        // Badge SIM: chỉ hiện khi máy thực sự có ≥2 SIM và entry có slot hợp lệ
-        if (isDualSim && item.simSlot != null) {
-            h.b.tvSimBadge.text = "SIM ${item.simSlot + 1}"
-            h.b.tvSimBadge.visibility = View.VISIBLE
-        } else {
-            h.b.tvSimBadge.visibility = View.GONE
-        }
+        // Badge SIM: luôn hiện số SIM đã dùng (1 hoặc 2)
+        val simNum = if (isDualSim && item.simSlot != null) item.simSlot + 1 else 1
+        h.b.tvSimBadge.text = simNum.toString()
+        h.b.tvSimBadge.visibility = View.VISIBLE
 
         // Loại đường dây
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
