@@ -367,6 +367,13 @@
                     android:layout_width="95dp" android:layout_height="match_parent"
                     android:background="@drawable/bg_call_pill_left"
                     android:clickable="true" android:focusable="true">
+                    <!-- Dải 5% chiều ngang sát mép phải, tô xanh đậm giống nút SIM2 để tạo
+                         chuyển màu nhẹ ở chỗ giáp 2 nút - phần còn lại (95%) giữ nguyên màu
+                         xanh gốc của nút SIM1. -->
+                    <View
+                        android:layout_width="5dp" android:layout_height="match_parent"
+                        android:layout_gravity="end"
+                        android:background="@color/btn_call_pill_right" />
                     <ImageView android:layout_width="22dp" android:layout_height="22dp"
                         android:layout_gravity="center" android:src="@drawable/ic_call" tools:ignore="MissingClass"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
