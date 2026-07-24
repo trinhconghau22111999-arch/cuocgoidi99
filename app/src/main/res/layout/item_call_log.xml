@@ -5,18 +5,19 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp"
+    android:paddingEnd="8dp"
     android:paddingTop="12dp"
     android:paddingBottom="12dp"
     android:background="@color/bg">
 
-    <!-- Icon gọi vào/ra/nhỡ: nhỏ lại 65% (44→28dp) -->
+    <!-- Icon gọi vào/ra/nhỡ: 28dp -->
     <ImageView
         android:id="@+id/ivType"
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:padding="2dp" />
 
+    <!-- Cột giữa: tên + sim/loại -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -34,7 +35,6 @@
             android:maxLines="1"
             android:ellipsize="end" />
 
-        <!-- Hàng dưới: [□1] Di động  hoặc  [□2] Việt Nam -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,7 +42,6 @@
             android:gravity="center_vertical"
             android:layout_marginTop="3dp">
 
-            <!-- SIM badge: ô vuông với số sim bên trong, luôn hiện -->
             <TextView
                 android:id="@+id/tvSimBadge"
                 android:layout_width="wrap_content"
@@ -61,19 +60,19 @@
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="@color/text_secondary"
                 android:fontFamily="sans-serif" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Cột phải: ngày/giờ trên + nút info to lên 150% -->
+    <!-- Cột phải: giờ + info CÙNG HÀNG ngang -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_marginStart="8dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginStart="4dp">
 
         <TextView
             android:id="@+id/tvCallTime"
@@ -81,15 +80,18 @@
             android:layout_height="wrap_content"
             android:textSize="13sp"
             android:textColor="@color/text_secondary"
-            android:fontFamily="sans-serif" />
+            android:fontFamily="sans-serif"
+            android:layout_marginEnd="4dp" />
 
-        <!-- ic_info lớn lên 150% (36→54dp) -->
+        <!-- info 150%: 27dp icon bên trong 54dp touch target -->
         <ImageButton
             android:id="@+id/btnCallBack"
-            android:layout_width="54dp"
-            android:layout_height="54dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
+            android:scaleType="fitCenter"
+            android:padding="6dp"
             android:contentDescription="@string/call_history" />
     </LinearLayout>
 </LinearLayout>
