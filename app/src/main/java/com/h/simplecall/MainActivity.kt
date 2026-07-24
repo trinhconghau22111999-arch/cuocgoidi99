@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         add(android.Manifest.permission.READ_CONTACTS)
         add(android.Manifest.permission.ANSWER_PHONE_CALLS)
         add(android.Manifest.permission.VIBRATE)
+        add(android.Manifest.permission.RECORD_AUDIO)
         // Thiếu quyền này trước đây khiến app không bao giờ xin phép hiển thị
         // thông báo cuộc gọi nhỡ trên Android 13+ (dù đã khai báo trong Manifest).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
