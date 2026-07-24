@@ -1,299 +1,531 @@
-package com.h.simplecall
+package com.h.simplecall.ui
 
-import android.app.role.RoleManager
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
+import android.media.ToneGenerator
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.provider.CallLog
+import android.provider.ContactsContract
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
+import android.telephony.SubscriptionManager
+import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.GridLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.h.simplecall.call.BlockedNumbersManager
-import com.h.simplecall.call.CallForwardManager
-import com.h.simplecall.call.MissedCallNotifier
-import com.h.simplecall.databinding.ActivityMainBinding
-import com.h.simplecall.ui.CallLogFragment
-import com.h.simplecall.ui.ContactsFragment
-import com.h.simplecall.ui.DialerFragment
-import com.h.simplecall.ui.ForwardSettingsFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.h.simplecall.MainActivity
+import com.h.simplecall.R
+import com.h.simplecall.data.CallLogEntry
+import com.h.simplecall.data.Contact
+import com.h.simplecall.databinding.FragmentDialerBinding
 
-/** Fragment nào cần biết khi trạng thái "ứng dụng gọi mặc định" thay đổi thì implement cái này. */
-interface DefaultDialerStatusListener {
-    fun onDefaultDialerStatusChanged()
-}
+class DialerFragment : Fragment() {
 
-class MainActivity : AppCompatActivity() {
+    companion object {
+        private val SUB_LABELS = mapOf(
+            "2" to "ABC", "3" to "DEF", "4" to "GHI",
+            "5" to "JKL", "6" to "MNO", "7" to "PQRS",
+            "8" to "TUV", "9" to "WXYZ", "0" to "+"
+        )
+        private val DTMF_MAP = mapOf(
+            "0" to ToneGenerator.TONE_DTMF_0, "1" to ToneGenerator.TONE_DTMF_1,
+            "2" to ToneGenerator.TONE_DTMF_2, "3" to ToneGenerator.TONE_DTMF_3,
+            "4" to ToneGenerator.TONE_DTMF_4, "5" to ToneGenerator.TONE_DTMF_5,
+            "6" to ToneGenerator.TONE_DTMF_6, "7" to ToneGenerator.TONE_DTMF_7,
+            "8" to ToneGenerator.TONE_DTMF_8, "9" to ToneGenerator.TONE_DTMF_9,
+            "*" to ToneGenerator.TONE_DTMF_S, "#" to ToneGenerator.TONE_DTMF_P
+        )
 
-    private lateinit var binding: ActivityMainBinding
-
-    /** Tab đang chọn ở bottom nav, dùng để biết có nên hiện lại fabDialpad hay không
-     *  khi quay lại từ backstack (vd. đóng màn Cài đặt/Bàn phím số). */
-    private var currentNavId: Int = R.id.nav_recents
-
-    private val permissions: Array<String> = buildList {
-        add(android.Manifest.permission.CALL_PHONE)
-        add(android.Manifest.permission.READ_PHONE_STATE)
-        add(android.Manifest.permission.READ_CALL_LOG)
-        add(android.Manifest.permission.WRITE_CALL_LOG)
-        add(android.Manifest.permission.READ_CONTACTS)
-        add(android.Manifest.permission.ANSWER_PHONE_CALLS)
-        add(android.Manifest.permission.VIBRATE)
-        // Thiếu quyền này trước đây khiến app không bao giờ xin phép hiển thị
-        // thông báo cuộc gọi nhỡ trên Android 13+ (dù đã khai báo trong Manifest).
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }.toTypedArray()
-
-    private val permLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) {
-        requestDefaultDialer()
-    }
-    private val roleLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()) { updateDefaultDialerStatus() }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        CallForwardManager.init(this)
-        BlockedNumbersManager.init(this)
-        MissedCallNotifier.init(this)
-
-        requestPermissions()
-
-        binding.bottomNav.setOnItemSelectedListener { item -> goToTab(item.itemId); true }
-        binding.bottomNav.setOnItemReselectedListener { item -> goToTab(item.itemId) }
-
-        binding.fabDialpad.setOnClickListener {
-            // Nếu đang đứng sẵn trong DialerFragment (trường hợp FAB đang hiện vì người dùng vừa
-            // ẩn bàn phím) thì chỉ cần MỞ LẠI bàn phím trên fragment đó, không tạo fragment mới
-            // (tránh mất số đang gõ). Ngược lại (đang ở tab Gần đây/Danh bạ) mới tạo mới như cũ.
-            val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-            if (current is DialerFragment) {
-                current.showKeypad()
-            } else {
-                // Chỉ thay nội dung bằng DialerFragment, KHÔNG push vào back stack và KHÔNG ẩn
-                // thanh điều hướng dưới (Gần đây/Danh bạ) - bàn phím số phải hiện cùng lúc với
-                // thanh điều hướng, không được che/ẩn nó đi.
-                navigateTo(DialerFragment())
-                binding.fabDialpad.visibility = View.GONE
+        fun newInstanceWithNumber(number: String?): DialerFragment {
+            return DialerFragment().also {
+                it.arguments = Bundle().apply { putString("number", number) }
             }
         }
-
-        supportFragmentManager.addOnBackStackChangedListener {
-            val empty = supportFragmentManager.backStackEntryCount == 0
-            binding.bottomNav.visibility   = if (empty) View.VISIBLE else View.GONE
-            binding.fabDialpad.visibility  =
-                if (empty && currentNavId != R.id.nav_contacts) View.VISIBLE else View.GONE
-        }
-
-        if (savedInstanceState == null) {
-            navigateTo(CallLogFragment())
-            handleIntent(intent)
-        }
-        updateMissedBadge()
     }
 
-    override fun onResume() { super.onResume(); updateMissedBadge() }
+    private var _b: FragmentDialerBinding? = null
+    private val b get() = _b!!
+    private var toneGen: ToneGenerator? = null
+    private lateinit var suggestAdapter: ContactSuggestAdapter
+    private var keypadVisible = true
+    private var pendingNumberToAdd: String = ""
+    // Truy vấn CallLog/Contacts CHẠY NỀN: trước đây chạy thẳng trên main thread mỗi khi mở màn
+    // hình này (onViewCreated + onResume) và mỗi lần gõ số (searchSuggestions), gây lag/giật khi
+    // bật bàn phím lên và trong lúc gõ — cùng nhóm lỗi ANR đã sửa ở các màn hình khác.
+    private val bgExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    // "Phiên bản" mỗi lần gõ số, dùng để huỷ kết quả tra cứu cũ trả về trễ (gõ nhanh nhiều ký tự)
+    private var searchGeneration = 0
 
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); handleIntent(intent) }
-
-    private fun handleIntent(intent: Intent?) {
-        val data = intent?.data ?: return
-        if (data.scheme == "tel") {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, DialerFragment.newInstanceWithNumber(data.schemeSpecificPart))
-                .addToBackStack("dialpad")
-                .commit()
-            hideNav()
-        }
-    }
-
-    fun navigateTo(f: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, f).commit()
-    }
-
-    /** Chuyển sang tab Gần đây/Danh bạ. Tách riêng để dùng chung cho cả lần bấm đầu tiên
-     *  (OnItemSelectedListener) VÀ khi bấm lại đúng tab đang được chọn (OnItemReselectedListener) -
-     *  trường hợp thứ 2 cần thiết để người dùng có thể thoát khỏi bàn phím số (mở qua FAB, không
-     *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ. */
-    private fun goToTab(itemId: Int) {
-        currentNavId = itemId
-        navigateTo(if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment())
-        // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
-        // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
-        binding.fabDialpad.visibility = if (itemId == R.id.nav_contacts) View.GONE else View.VISIBLE
-        if (itemId == R.id.nav_recents)
-            binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
-    }
-
-    fun hideNav() {
-        binding.bottomNav.visibility   = View.GONE
-        binding.fabDialpad.visibility  = View.GONE
-    }
-
-    /** DialerFragment gọi hàm này mỗi khi tự ẩn/hiện bàn phím số của nó, để FAB bàn phím
-     *  (cạnh thanh tab Gần đây/Danh bạ) hiện lên đúng lúc dùng làm nút mở lại. */
-    fun setDialpadFabVisible(visible: Boolean) {
-        binding.fabDialpad.visibility = if (visible) View.VISIBLE else View.GONE
-    }
-
-    /** Mở màn Cài đặt chuyển hướng cuộc gọi. Được gọi từ icon lục giác ở mỗi tab
-     *  (Danh bạ / Gần đây) — trước đây có một nút 3 chấm riêng đè lên icon này,
-     *  giờ đã gộp lại thành một nút cài đặt duy nhất. */
-    fun openSettings() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, ForwardSettingsFragment())
-            .addToBackStack("settings")
-            .commit()
-        hideNav()
-    }
-
-    private fun requestPermissions() {
-        val missing = permissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (missing.isNotEmpty()) {
-            binding.root.post { permLauncher.launch(missing.toTypedArray()) }
-        } else {
-            binding.root.post { requestDefaultDialer() }
+    private val pickContactLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickContact()
+    ) { contactUri ->
+        if (contactUri == null) return@registerForActivityResult
+        try {
+            startActivity(Intent(Intent.ACTION_EDIT).apply {
+                setDataAndType(contactUri, android.provider.ContactsContract.Contacts.CONTENT_ITEM_TYPE)
+                putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, pendingNumberToAdd)
+                putExtra("finishActivityOnSaveCompleted", true)
+            })
+        } catch (_: Exception) {
+            android.widget.Toast.makeText(requireContext(), "Không thể mở màn hình sửa liên hệ", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
-    /** Có thể gọi lại thủ công (vd. từ màn Cài đặt) nếu người dùng lỡ từ chối lần đầu. */
-    fun requestDefaultDialer() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val rm = getSystemService(RoleManager::class.java)
-            if (rm == null) {
-                Toast.makeText(this, "Thiết bị không hỗ trợ đặt ứng dụng gọi mặc định", Toast.LENGTH_LONG).show()
-                return
-            }
-            if (!rm.isRoleAvailable(RoleManager.ROLE_DIALER)) {
-                Toast.makeText(this, "Thiết bị/ROM này không hỗ trợ vai trò ứng dụng gọi mặc định", Toast.LENGTH_LONG).show()
-                return
-            }
-            if (!rm.isRoleHeld(RoleManager.ROLE_DIALER)) {
-                try {
-                    roleLauncher.launch(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER))
-                } catch (_: Exception) {
-                    openManualDefaultAppsSettings()
+    override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
+        _b = FragmentDialerBinding.inflate(i, c, false); return b.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        try { toneGen = ToneGenerator(AudioManager.STREAM_DTMF, 80) } catch (_: Exception) {}
+
+        suggestAdapter = ContactSuggestAdapter { number ->
+            (activity as? MainActivity)?.placeCall(number)
+        }
+        b.rvSuggestions.layoutManager = LinearLayoutManager(requireContext())
+        b.rvSuggestions.adapter = suggestAdapter
+
+        b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
+        loadRecents()
+
+        arguments?.getString("number")?.let { b.etNumber.setText(it) }
+
+        setupKeypad(view)
+
+        b.btnBackspace.setOnClickListener {
+            val t = b.etNumber.text.toString()
+            if (t.isNotEmpty()) b.etNumber.setText(t.dropLast(1))
+            syncBackspace()
+        }
+        b.btnBackspace.setOnLongClickListener {
+            b.etNumber.setText(""); syncBackspace(); true
+        }
+
+        b.btnDialMenu.setOnClickListener { showDialMenu(it) }
+
+        b.etNumber.addTextChangedListener(object : TextWatcher {
+            private var editing = false
+            override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+            override fun onTextChanged(s: CharSequence?, st: Int, b2: Int, c: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (editing) return; editing = true
+                val raw = dialableFilter(s.toString())
+                val fmt = formatVN(raw)
+                if (fmt != s.toString()) {
+                    b.etNumber.setText(fmt)
+                    b.etNumber.setSelection(fmt.length)
                 }
+                syncBackspace()
+                searchSuggestions(raw.filter { it.isDigit() || it == '+' })
+                editing = false
             }
-        } else {
-            val tm = getSystemService(TelecomManager::class.java) ?: return
-            if (packageName != tm.defaultDialerPackage) {
-                try {
-                    roleLauncher.launch(Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).apply {
-                        putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, packageName)
-                    })
-                } catch (_: Exception) {
-                    openManualDefaultAppsSettings()
-                }
-            }
-        }
-        updateDefaultDialerStatus()
-    }
+        })
 
-    private fun openManualDefaultAppsSettings() {
-        val opened = try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startActivity(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-                true
-            } else false
-        } catch (_: Exception) { false }
-        if (!opened) {
+        setupCallButtons()
+
+        // Nút video dùng FrameLayout có id btnVideoCall
+        view.findViewById<View>(R.id.btnVideoCall)?.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(),
+                getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        b.rowCreateContact.setOnClickListener {
+            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
             try {
-                startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                    Uri.fromParts("package", packageName, null)))
+                startActivity(Intent(Intent.ACTION_INSERT, android.provider.ContactsContract.Contacts.CONTENT_URI)
+                    .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, raw))
             } catch (_: Exception) {
-                Toast.makeText(this,
-                    "Không thể mở cài đặt tự động. Vào Cài đặt > Ứng dụng > Ứng dụng mặc định để đặt thủ công.",
-                    Toast.LENGTH_LONG).show()
+                android.widget.Toast.makeText(requireContext(), "Không thể mở màn hình tạo liên hệ", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowAddToExisting.setOnClickListener {
+            pendingNumberToAdd = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            try { pickContactLauncher.launch(null) } catch (_: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Không thể chọn liên hệ", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowSendSms.setOnClickListener {
+            val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+            try { startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$raw"))) } catch (_: Exception) {
+                android.widget.Toast.makeText(requireContext(), "Không tìm thấy ứng dụng nhắn tin", android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+        b.rowVideoMeet.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(),
+                getString(R.string.video_call_unsupported), android.widget.Toast.LENGTH_SHORT).show()
+        }
+
+        b.btnKeypadToggle.setOnClickListener {
+            setKeypadVisible(!keypadVisible)
+        }
+
+        syncBackspace()
+
+        // Bàn phím số luôn bật sẵn khi vào app/tab Gần đây
+        setKeypadVisible(true)
+
+        // KHÔNG bật bàn phím hệ thống của máy ở đây nữa. etNumber chỉ dùng để HIỂN THỊ số đang
+        // gõ, việc nhập số chỉ đến từ các phím bấm 0-9 * # trong bàn phím số riêng của app (xem
+        // setupKeypad bên dưới). "android:showSoftInputOnFocus" không phải attribute XML công
+        // khai (aapt2 từ chối biên dịch) nên phải set qua code bằng method tương ứng.
+        b.etNumber.showSoftInputOnFocus = false
+        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(b.etNumber.windowToken, 0)
+    }
+
+    private fun setupKeypad(view: View) {
+        val grid = view.findViewById<GridLayout>(R.id.keypad)
+        for (i in 0 until grid.childCount) {
+            val btn = grid.getChildAt(i) as? Button ?: continue
+            val tag = btn.tag as? String ?: continue
+
+            val sub = SUB_LABELS[tag]
+            if (sub != null) {
+                val ss = SpannableStringBuilder()
+                ss.append(tag); ss.append("\n")
+                val subStart = ss.length; ss.append(sub)
+                ss.setSpan(RelativeSizeSpan(0.35f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
+                    subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btn.text = ss; btn.setLines(2); btn.textSize = 30f
+            }
+
+            if (tag == "1") {
+                val ss = SpannableStringBuilder()
+                ss.append("1"); ss.append("\n")
+                val sub2Start = ss.length; ss.append("☎")
+                ss.setSpan(RelativeSizeSpan(0.35f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
+                    sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btn.text = ss; btn.setLines(2); btn.textSize = 30f
+            }
+
+            btn.setOnClickListener {
+                appendDigit(tag)
+                haptic()
+                toneGen?.startTone(DTMF_MAP[tag] ?: ToneGenerator.TONE_DTMF_0, 120)
+            }
+
+            if (tag == "0") {
+                btn.setOnLongClickListener {
+                    val cur = b.etNumber.text.toString()
+                    val raw = dialableFilter(cur)
+                    val newRaw = if (raw.endsWith("0")) raw.dropLast(1) + "+" else raw + "+"
+                    b.etNumber.setText(formatVN(newRaw))
+                    b.etNumber.setSelection(b.etNumber.text.length)
+                    syncBackspace(); true
+                }
             }
         }
     }
 
-    fun isDefaultDialer(): Boolean {
-        val tm = getSystemService(TelecomManager::class.java) ?: return false
-        return packageName == tm.defaultDialerPackage
+    private fun callCapableAccounts(): List<PhoneAccountHandle> {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_PHONE_STATE)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
+        return try {
+            val tm = requireContext().getSystemService(TelecomManager::class.java) ?: return emptyList()
+            tm.callCapablePhoneAccounts ?: emptyList()
+        } catch (_: SecurityException) { emptyList() }
     }
 
-    private fun updateDefaultDialerStatus() {
-        supportFragmentManager.fragments.forEach { (it as? DefaultDialerStatusListener)?.onDefaultDialerStatusChanged() }
-    }
-
-    private fun updateMissedBadge() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CALL_LOG)
-            != PackageManager.PERMISSION_GRANTED) return
-        val cur = contentResolver.query(
-            android.provider.CallLog.Calls.CONTENT_URI,
-            arrayOf(android.provider.CallLog.Calls.TYPE),
-            "${android.provider.CallLog.Calls.NEW} = 1 AND " +
-                "${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
-            null, null)
-        val count = cur?.count ?: 0; cur?.close()
-        val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_recents)
-        if (count > 0) { badge.isVisible = true; badge.number = count }
-        else badge.isVisible = false
-    }
-
-    // ============================================================================================
-    // GHI CHÚ CỦA CLAUDE — vì sao mình KHÔNG ghi đè file này lên repo:
-    //
-    // Hàm placeCall() bên dưới gọi CallForwardManager.prepareCall(number) rồi
-    // CallForwardManager.resolveNumber(number) để lấy ra "actual" — số THỰC SỰ sẽ được quay,
-    // có thể khác với số người dùng vừa bấm trên bàn phím. Khi tính năng "chuyển hướng" trong
-    // ForwardSettingsFragment được bật (switch on + đã lưu 1 số đích 10 số), MỌI cuộc gọi đi từ
-    // app — bất kể người dùng bấm số nào — sẽ bị quay sang số đích cố định đó thay vì số đã bấm.
-    // Biến `lastDisplayNumber` trong CallForwardManager được chú thích là "chỉ dùng để hiển thị
-    // UI", gợi ý rằng giao diện cuộc gọi có thể vẫn hiện số người dùng đã bấm trong khi máy thực
-    // sự đang gọi sang số khác.
-    //
-    // Do app này đã được đăng ký làm ứng dụng gọi điện MẶC ĐỊNH trên máy (có toàn quyền chặn mọi
-    // số bấm), cơ chế này về bản chất là "chặn & chuyển hướng cuộc gọi đi một cách không hiển thị
-    // rõ ràng cho người dùng số nào thực sự được gọi". Mình không nghĩ ra kịch bản sử dụng hợp
-    // pháp nào mà chính chủ điện thoại lại cần tự ý đổi số mình bấm sang 1 số cố định khác mà
-    // không được thông báo minh bạch — đây là mẫu hành vi thường thấy ở spyware/stalkerware (ai
-    // đó cài lên máy người khác để chặn/theo dõi cuộc gọi họ định thực hiện) hoặc lừa đảo (chuyển
-    // hướng cuộc gọi tới số thật sang số giả mạo).
-    //
-    // Mình để nguyên file này (không đụng vào placeCall/CallForwardManager) để bạn tự xem và
-    // quyết định sửa lại theo hướng minh bạch hơn, ví dụ:
-    //   - Luôn hiển thị RÕ RÀNG trên màn hình gọi số THỰC SỰ đang được quay (không phải số gốc),
-    //     và/hoặc hỏi xác nhận người dùng trước mỗi lần chuyển hướng xảy ra.
-    //   - Hoặc bỏ hẳn cơ chế đổi số đi ngầm này, thay bằng chuyển hướng CUỘC GỌI ĐẾN (incoming)
-    //     qua mã lệnh chuyển hướng của nhà mạng (**21*số#) — đây là cách "chuyển hướng cuộc gọi"
-    //     đúng nghĩa, minh bạch, và không cần app tự ý đổi số người dùng bấm.
-    // ============================================================================================
-
-    /** @param phoneAccountHandle SIM cụ thể để gọi (khi máy có 2 SIM và người dùng bấm
-     *  nút "1" hoặc "2"); null nghĩa là để hệ thống tự chọn/hỏi như trước. */
-    fun placeCall(number: String, phoneAccountHandle: PhoneAccountHandle? = null) {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
-            != PackageManager.PERMISSION_GRANTED) { requestPermissions(); return }
-
-        if (!isDefaultDialer()) {
-            Toast.makeText(this,
-                "Hãy đặt \"${getString(R.string.app_name)}\" làm ứng dụng gọi điện mặc định để dùng giao diện gọi riêng",
-                Toast.LENGTH_LONG).show()
-            requestDefaultDialer()
+    private fun callWith(handle: PhoneAccountHandle?) {
+        val raw = dialableFilter(b.etNumber.text.toString())
+        if (raw.isNotEmpty()) {
+            (activity as? MainActivity)?.placeCall(raw, handle)
+        } else {
+            val last = getLastCalledNumber()
+            if (last != null) {
+                b.etNumber.setText(formatVN(last))
+                b.etNumber.setSelection(b.etNumber.text.length)
+                syncBackspace()
+            }
         }
+    }
 
-        CallForwardManager.prepareCall(number)
-        val actual = CallForwardManager.resolveNumber(number)
-        val extras = phoneAccountHandle?.let {
-            Bundle().apply { putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE, it) }
+    private fun setupCallButtons() {
+        val accounts = callCapableAccounts()
+        if (accounts.size >= 2) {
+            b.btnCall.visibility = View.GONE
+            b.llCallDual.visibility = View.VISIBLE
+            b.btnCallSim1.setOnClickListener { callWith(accounts[0]) }
+            b.btnCallSim2.setOnClickListener { callWith(accounts[1]) }
+        } else {
+            b.llCallDual.visibility = View.GONE
+            b.btnCall.visibility = View.VISIBLE
+            b.btnCall.setOnClickListener { callWith(accounts.firstOrNull()) }
         }
-        getSystemService(TelecomManager::class.java)
-            ?.placeCall(Uri.fromParts("tel", actual, null), extras)
+    }
+
+    // Giữ lại chữ số, "+" và các ký hiệu dừng/chờ (","=2 giây dừng, ";"=chờ) khi lọc nội dung
+    // ô nhập số. Dùng chung cho cả gõ phím lẫn thêm dấu dừng/chờ từ menu 3 chấm, để 2 luồng
+    // nhập không xoá mất ký hiệu của nhau.
+    private fun dialableFilter(s: String) = s.filter { it.isDigit() || it == '+' || it == ',' || it == ';' }
+
+    private fun appendDigit(d: String) {
+        val cur = b.etNumber.text.toString()
+        val raw = dialableFilter(cur) + d
+        b.etNumber.setText(formatVN(raw))
+        b.etNumber.setSelection(b.etNumber.text.length)
+        syncBackspace()
+    }
+
+    private fun formatVN(raw: String): String {
+        if (raw.isEmpty()) return raw
+        // Có dấu dừng/chờ: không áp dụng định dạng nhóm số VN, giữ nguyên chuỗi người dùng gõ.
+        if (raw.contains(',') || raw.contains(';')) return raw
+        val digits = raw.filter { it.isDigit() }
+        return when {
+            raw.startsWith("+") -> when {
+                digits.length <= 2  -> "+$digits"
+                digits.length <= 5  -> "+${digits.take(2)} ${digits.drop(2)}"
+                digits.length <= 8  -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5)}"
+                else -> "+${digits.take(2)} ${digits.drop(2).take(3)} ${digits.drop(5).take(3)} ${digits.drop(8)}"
+            }
+            digits.length <= 4  -> digits
+            digits.length <= 7  -> "${digits.take(4)} ${digits.drop(4)}"
+            else                -> "${digits.take(4)} ${digits.drop(4).take(3)} ${digits.drop(7)}"
+        }
+    }
+
+    // Icon nút bật/tắt bàn phím phải phản ánh đúng trạng thái hiện tại: đang MỞ bàn phím thì
+    // hiện mũi tên xuống (báo bấm để ẨN), đang ẨN thì hiện icon lưới chấm (báo bấm để MỞ).
+    private fun updateKeypadToggleIcon() {
+        _b?.btnKeypadToggle?.setImageResource(
+            if (keypadVisible) R.drawable.ic_keyboard_hide else R.drawable.ic_dialpad
+        )
+    }
+
+    // Ẩn/hiện lưới số VÀ hàng nút video/gọi/toggle CÙNG LÚC - trước đây chỉ ẩn mỗi lưới số nên
+    // hàng nút gọi bị "chừa lại" một mình phía dưới. Khi ẩn, FAB bàn phím ở MainActivity (đặt
+    // cạnh thanh tab Gần đây/Danh bạ) sẽ hiện lên thay thế, dùng để mở lại bàn phím.
+    private fun setKeypadVisible(visible: Boolean) {
+        keypadVisible = visible
+        _b?.keypad?.visibility = if (visible) View.VISIBLE else View.GONE
+        _b?.rowDialControls?.visibility = if (visible) View.VISIBLE else View.GONE
+        updateKeypadToggleIcon()
+        (activity as? MainActivity)?.setDialpadFabVisible(!visible)
+    }
+
+    /** Gọi từ MainActivity khi người dùng bấm FAB bàn phím lúc đang ở màn này với bàn phím đã ẩn. */
+    fun showKeypad() = setKeypadVisible(true)
+
+    private fun syncBackspace() {
+        val hasNumber = b.etNumber.text.isNotEmpty()
+        _b?.btnBackspace?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
+        _b?.btnDialMenu?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
+    }
+
+    // Menu 3 chấm cạnh ô nhập số: chèn ký tự dừng (,) hoặc chờ (;) vào cuối số đang gõ,
+    // giống hành vi bàn phím quay số chuẩn của Android khi gọi vào hệ thống IVR/tổng đài.
+    private fun showDialMenu(anchor: View) {
+        val popup = android.widget.PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, getString(R.string.add_2s_pause))
+        popup.menu.add(0, 2, 1, getString(R.string.add_wait))
+        popup.setOnMenuItemClickListener { item ->
+            val symbol = when (item.itemId) { 1 -> ","; 2 -> ";"; else -> "" }
+            if (symbol.isNotEmpty()) {
+                val raw = dialableFilter(b.etNumber.text.toString()) + symbol
+                b.etNumber.setText(formatVN(raw))
+                b.etNumber.setSelection(b.etNumber.text.length)
+                syncBackspace()
+            }
+            true
+        }
+        popup.show()
+    }
+
+    private fun loadRecents() {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            b.rvRecents.visibility = View.GONE
+            return
+        }
+        val appContext = requireContext().applicationContext
+        val isDualSim = callCapableAccounts().size >= 2
+        bgExecutor.execute {
+            val entries = queryRecents(appContext)
+            mainHandler.post {
+                if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
+                b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+                b.rvRecents.adapter = CallLogAdapter(
+                    entries,
+                    isDualSim = isDualSim,
+                    onCall = { (activity as? MainActivity)?.placeCall(it) },
+                    onShowHistory = { number ->
+                        val entry = entries.firstOrNull { it.number == number }
+                        val name = entry?.name ?: number
+                        requireActivity().supportFragmentManager.beginTransaction()
+                            .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
+                            .addToBackStack("history")
+                            .commit()
+                        (activity as? MainActivity)?.hideNav()
+                    }
+                )
+            }
+        }
+    }
+
+    private fun queryRecents(ctx: Context): List<CallLogEntry> {
+        val entries = mutableListOf<CallLogEntry>()
+        try {
+            val projection = arrayOf(
+                CallLog.Calls.CACHED_NAME,
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.DATE,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.PHONE_ACCOUNT_ID,
+                CallLog.Calls.CACHED_NUMBER_TYPE,
+                CallLog.Calls.CACHED_NUMBER_LABEL
+            )
+            // Chỉ hiển thị gợi ý "gần đây" trong màn hình quay số nên KHÔNG cần tải toàn bộ lịch sử
+            // (có máy hàng nghìn cuộc gọi) — giới hạn 50 dòng mới nhất là đủ và tránh lag khi mở màn.
+            val cur = ctx.contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                projection,
+                null, null, "${CallLog.Calls.DATE} DESC LIMIT 50"
+            )
+            cur?.use {
+                val iName   = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
+                val iNum    = it.getColumnIndex(CallLog.Calls.NUMBER)
+                val iDate   = it.getColumnIndex(CallLog.Calls.DATE)
+                val iType   = it.getColumnIndex(CallLog.Calls.TYPE)
+                val iAcct   = it.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
+                val iNumType = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_TYPE)
+                val iLabel  = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_LABEL)
+                while (it.moveToNext()) {
+                    // Xác định SIM slot qua SubscriptionManager.getActiveSubscriptionInfo
+                    val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
+                    val simSlot: Int? = try {
+                        val subId = acctId.toIntOrNull()
+                        if (subId != null) {
+                            val sm = ctx.getSystemService(SubscriptionManager::class.java)
+                            sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
+                        } else null
+                    } catch (_: Exception) { null }
+                    // Loại đường dây
+                    val numType = if (iNumType >= 0) it.getInt(iNumType) else 0
+                    val label   = if (iLabel >= 0) it.getString(iLabel) ?: "" else ""
+                    val typeLabel = when (numType) {
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE -> "Di động"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_HOME   -> "Nhà riêng"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_WORK   -> "Cơ quan"
+                        ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM -> label.ifEmpty { "Di động" }
+                        else -> "Di động"
+                    }
+                    entries.add(CallLogEntry(
+                        name = it.getString(iName) ?: "",
+                        number = it.getString(iNum) ?: "",
+                        date = it.getLong(iDate),
+                        type = it.getInt(iType),
+                        simSlot = simSlot,
+                        numberType = typeLabel
+                    ))
+                }
+            }
+        } catch (_: SecurityException) {}
+        return entries
+    }
+
+    private fun searchSuggestions(raw: String) {
+        if (raw.length < 2) {
+            searchGeneration++ // huỷ mọi kết quả tra cứu cũ đang chạy nền, không áp dụng nữa
+            b.llSuggestionsWrap.visibility = View.GONE
+            b.llNoMatchActions.visibility = View.GONE
+            b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
+            return
+        }
+        b.rvRecents.visibility = View.GONE
+        val myGeneration = ++searchGeneration
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            val list = queryContactSuggestions(appContext, raw)
+            mainHandler.post {
+                // Người dùng đã gõ thêm/xoá ký tự khác trong lúc chờ: bỏ qua kết quả trễ này
+                if (_b == null || myGeneration != searchGeneration) return@post
+                if (list.isEmpty()) {
+                    b.llSuggestionsWrap.visibility = View.GONE
+                    b.llNoMatchActions.visibility = View.VISIBLE
+                } else {
+                    suggestAdapter.update(list, raw)
+                    b.llSuggestionsWrap.visibility = View.VISIBLE
+                    b.llNoMatchActions.visibility = View.GONE
+                }
+            }
+        }
+    }
+
+    private fun queryContactSuggestions(ctx: Context, raw: String): List<Contact> {
+        val list = mutableListOf<Contact>()
+        try {
+            val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+            val cur: Cursor? = ctx.contentResolver.query(uri,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?",
+                arrayOf("%$raw%"), null)
+            cur?.use {
+                val iName = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                val iNum  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                while (it.moveToNext()) {
+                    list.add(Contact(it.getString(iName) ?: "", it.getString(iNum) ?: ""))
+                }
+            }
+        } catch (_: Exception) {}
+        return list
+    }
+
+    private fun getLastCalledNumber(): String? {
+        return try {
+            val cur = requireContext().contentResolver.query(
+                CallLog.Calls.CONTENT_URI,
+                arrayOf(CallLog.Calls.NUMBER),
+                null, null,
+                "${CallLog.Calls.DATE} DESC LIMIT 1"
+            ) ?: return null
+            cur.use { if (it.moveToFirst()) it.getString(0) else null }
+        } catch (_: Exception) { null }
+    }
+
+    private fun haptic() {
+        val v = requireContext().getSystemService(Vibrator::class.java) ?: return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            v.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+        else @Suppress("DEPRECATION") v.vibrate(25)
+    }
+
+    // Khi mở màn hình này lần đầu, quyền READ_PHONE_STATE có thể CHƯA được cấp (hộp thoại xin
+    // quyền của MainActivity chạy bất đồng bộ). Nếu không làm mới lại ở đây, nút gọi sẽ bị kẹt
+    // vĩnh viễn ở chế độ 1 SIM ngay cả sau khi người dùng đã cấp quyền / cắm thêm SIM.
+    override fun onResume() {
+        super.onResume()
+        // Bàn phím số luôn hiện khi quay lại tab Gần đây
+        setKeypadVisible(true)
+        setupCallButtons()
+        loadRecents()
+    }
+
+    override fun onDestroyView() {
+        toneGen?.release(); toneGen = null
+        bgExecutor.shutdownNow()
+        super.onDestroyView(); _b = null
     }
 }
