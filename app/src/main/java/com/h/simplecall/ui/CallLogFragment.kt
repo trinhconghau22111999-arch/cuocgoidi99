@@ -1,11 +1,9 @@
 package com.h.simplecall.ui
 
-import android.content.ContentValues
 import android.content.Context
 import android.os.Bundle
 import android.provider.CallLog
 import android.telecom.TelecomManager
-import android.telephony.SubscriptionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
+import com.h.simplecall.data.local.AppDatabase
+import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentCallLogBinding
 
 class CallLogFragment : Fragment() {
@@ -46,12 +46,6 @@ class CallLogFragment : Fragment() {
         }
         b.tabAll.setOnClickListener { selectTab(missed = false) }
         b.tabMissed.setOnClickListener { selectTab(missed = true) }
-
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            b.tvEmpty.text = "Chưa cấp quyền đọc nhật ký"
-            b.tvEmpty.visibility = View.VISIBLE; return
-        }
 
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -123,65 +117,19 @@ class CallLogFragment : Fragment() {
         }
     }
 
-    private fun loadCallLog(ctx: Context): List<CallLogEntry> {
-        val list = mutableListOf<CallLogEntry>()
-        try {
-            val cursor = ctx.contentResolver.query(
-                CallLog.Calls.CONTENT_URI,
-                arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
-                    CallLog.Calls.DATE, CallLog.Calls.TYPE, CallLog.Calls.PHONE_ACCOUNT_ID),
-                null, null, "${CallLog.Calls.DATE} DESC"
-            ) ?: return list
-            cursor.use {
-                val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
-                val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
-                val iDate = it.getColumnIndex(CallLog.Calls.DATE)
-                val iType = it.getColumnIndex(CallLog.Calls.TYPE)
-                val iAcct = it.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
-                while (it.moveToNext()) {
-                    val name = it.getString(iName) ?: ""
-                    // Số đã lưu trong danh bạ (có CACHED_NAME) hiện "Di động";
-                    // số lạ chưa lưu hiện quốc gia (giống danh bạ điện thoại thật).
-                    val numberType = if (name.isNotEmpty()) "Di động" else "Việt Nam"
-                    // Xác định SIM slot qua SubscriptionManager, giống DialerFragment, để khung
-                    // số SIM cũng hiện đúng ở tab Gần đây chính (trước đây luôn bị bỏ trống).
-                    val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
-                    val simSlot: Int? = try {
-                        val subId = acctId.toIntOrNull()
-                        if (subId != null) {
-                            val sm = ctx.getSystemService(SubscriptionManager::class.java)
-                            sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
-                        } else null
-                    } catch (_: Exception) { null }
-                    list.add(CallLogEntry(
-                        name = name,
-                        number = it.getString(iNum) ?: "",
-                        date = it.getLong(iDate),
-                        type = it.getInt(iType),
-                        simSlot = simSlot,
-                        numberType = numberType
-                    ))
-                }
-            }
-        } catch (_: SecurityException) { }
-        return list
-    }
+    /** Đọc TOÀN BỘ lịch sử từ DB nội bộ của app (không đụng tới CallLog provider hệ thống nữa).
+     *  Số của mỗi dòng chính là số ĐÃ ĐƯỢC HIỂN THỊ TRÊN MÀN HÌNH GỌI tại thời điểm gọi
+     *  (do CallHistoryManager ghi lại), không phải số nguyên bản do hệ thống tự log. */
+    private fun loadCallLog(ctx: Context): List<CallLogEntry> =
+        AppDatabase.getInstance(ctx).callHistoryDao().getAll().map { it.toCallLogEntry() }
 
+    /** Đánh dấu các cuộc gọi nhỡ là "đã xem" trong DB nội bộ - thay cho việc cập nhật cờ
+     *  CallLog.Calls.NEW của hệ thống trước đây. */
     private fun markMissedAsRead() {
-        // WRITE_CALL_LOG là quyền bắt buộc riêng cho update(); nếu thiếu (hoặc bị hệ thống
-        // thu hồi) mà không kiểm tra trước, contentResolver.update() sẽ ném SecurityException
-        // và làm app crash ngay khi mở tab Nhật ký. Kiểm tra trước + try/catch phòng hờ.
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.WRITE_CALL_LOG)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED) return
-        try {
-            val cv = ContentValues().apply { put(CallLog.Calls.NEW, 0) }
-            requireContext().contentResolver.update(
-                CallLog.Calls.CONTENT_URI, cv,
-                "${CallLog.Calls.TYPE} = ${CallLog.Calls.MISSED_TYPE} AND ${CallLog.Calls.NEW} = 1",
-                null
-            )
-        } catch (_: SecurityException) {
-            // Một số ROM (Xiaomi/Huawei...) vẫn từ chối dù đã cấp quyền; bỏ qua an toàn.
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            AppDatabase.getInstance(appContext).callHistoryDao()
+                .markMissedAsRead(CallLog.Calls.MISSED_TYPE)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.h.simplecall.call
 
+import android.os.Build
 import android.telecom.Call
 import android.telecom.VideoProfile
 
@@ -40,6 +41,24 @@ object CallManager {
 
     fun callerName(call: Call?): String =
         call?.details?.callerDisplayName ?: ""
+
+    /** Cuộc gọi này là gọi ĐI hay gọi ĐẾN. Dùng chung cho UI (InCallActivity) và lịch sử. */
+    fun isOutgoingCall(call: Call, state: Int): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            call.details?.callDirection == Call.Details.DIRECTION_OUTGOING
+        else
+            state != Call.STATE_RINGING
+
+    /**
+     * SỐ ĐƯỢC HIỂN THỊ TRÊN MÀN HÌNH GỌI tại thời điểm hiện tại. Đây là "nguồn sự thật" duy
+     * nhất cho số hiển thị — InCallActivity dùng để render UI, CallHistoryManager dùng để ghi
+     * lịch sử, đảm bảo 2 bên LUÔN khớp nhau kể cả khi có chuyển hướng cuộc gọi (số thật sự kết
+     * nối qua CallForwardManager có thể khác số người dùng thấy trên màn hình).
+     */
+    fun resolveDisplayNumber(call: Call, isOutgoing: Boolean): String =
+        if (isOutgoing && CallForwardManager.lastDisplayNumber.isNotEmpty())
+            CallForwardManager.lastDisplayNumber
+        else callerNumber(call)
 
     private val callback = object : Call.Callback() {
         override fun onStateChanged(call: Call, state: Int) = notifyListeners(state)

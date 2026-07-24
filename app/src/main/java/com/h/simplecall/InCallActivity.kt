@@ -20,7 +20,6 @@ import android.widget.GridLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.h.simplecall.call.CallForwardManager
 import com.h.simplecall.call.CallManager
 import com.h.simplecall.databinding.ActivityInCallBinding
 
@@ -241,16 +240,12 @@ class InCallActivity : AppCompatActivity() {
         // có thể hiển thị nhầm số của lần chuyển hướng trước đó thay vì số người gọi đến.
         if (call !== trackedCall) {
             trackedCall = call
-            isOutgoingCall =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                    call.details?.callDirection == Call.Details.DIRECTION_OUTGOING
-                else
-                    state != Call.STATE_RINGING
+            isOutgoingCall = CallManager.isOutgoingCall(call, state)
         }
 
-        val number = if (isOutgoingCall && CallForwardManager.lastDisplayNumber.isNotEmpty())
-            CallForwardManager.lastDisplayNumber
-        else CallManager.callerNumber(call)
+        // Số hiển thị trên màn hình gọi - CŨNG LÀ số sẽ được lưu vào lịch sử cuộc gọi
+        // (xem CallManager.resolveDisplayNumber + CallHistoryManager).
+        val number = CallManager.resolveDisplayNumber(call, isOutgoingCall)
 
         // Tra cứu tên + ảnh trong danh bạ CHẠY NỀN (contentResolver.query có thể chậm,
         // không được gọi trên main thread vì sẽ gây treo/ANR). Kết quả được cache theo số

@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
+import com.h.simplecall.data.local.AppDatabase
+import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentCallHistoryBinding
 import com.h.simplecall.databinding.ItemCallHistoryEntryBinding
 import java.text.SimpleDateFormat
@@ -34,6 +36,11 @@ class CallHistoryFragment : Fragment() {
 
     private var _b: FragmentCallHistoryBinding? = null
     private val b get() = _b!!
+    private var currentEntries: List<CallLogEntry> = emptyList()
+
+    // Room không cho phép query trên main thread -> luôn đọc/ghi DB lịch sử ở nền.
+    private val bgExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentCallHistoryBinding.inflate(i, c, false); return b.root
@@ -91,9 +98,20 @@ class CallHistoryFragment : Fragment() {
         b.rowCallSummary.setOnClickListener { /* TODO: tóm tắt cuộc gọi (AI) khi có */ }
         b.rowCallRecording.setOnClickListener { /* TODO: bản ghi âm cuộc gọi khi có */ }
 
-        val entries = loadHistory(number)
-        b.btnClearLog.setOnClickListener { clearHistory(number, entries) }
-        renderEntries(entries)
+        b.btnClearLog.setOnClickListener { clearHistory(number) }
+        loadHistoryAsync(number)
+    }
+
+    private fun loadHistoryAsync(number: String) {
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            val entries = loadHistory(appContext, number)
+            mainHandler.post {
+                if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
+                currentEntries = entries
+                renderEntries(entries)
+            }
+        }
     }
 
     private fun openSms(number: String) {
@@ -211,48 +229,31 @@ class CallHistoryFragment : Fragment() {
         }
     }
 
-    private fun clearHistory(number: String, entries: List<CallLogEntry>) {
-        // Xóa nhật ký cuộc gọi của riêng số này khỏi CallLog hệ thống.
+    /** Xoá nhật ký cuộc gọi của riêng số này khỏi DB nội bộ của app (không đụng CallLog hệ
+     *  thống nữa). So khớp theo phần số (bỏ ký tự không phải chữ số) để bắt cả các biến thể
+     *  định dạng khác nhau của cùng 1 số, giống hành vi cũ. */
+    private fun clearHistory(number: String) {
         val clean = number.filter { it.isDigit() }
-        runCatching {
-            requireContext().contentResolver.delete(
-                CallLog.Calls.CONTENT_URI,
-                "${CallLog.Calls.NUMBER} LIKE ?",
-                arrayOf("%$clean%")
-            )
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            AppDatabase.getInstance(appContext).callHistoryDao().deleteByNumber("%$clean%")
         }
+        currentEntries = emptyList()
         b.llHistoryEntries.removeAllViews()
     }
 
-    private fun loadHistory(number: String): List<CallLogEntry> {
-        val list = mutableListOf<CallLogEntry>()
+    /** Đọc lịch sử của riêng 1 số từ DB nội bộ - số đã lưu trong đó LUÔN LÀ số hiển thị trên
+     *  màn hình gọi tại thời điểm gọi (xem CallHistoryManager), không phải số CallLog hệ thống
+     *  tự ghi. PHẢI gọi ở nền (bgExecutor) vì Room chặn query trên main thread. */
+    private fun loadHistory(ctx: android.content.Context, number: String): List<CallLogEntry> {
         val clean = number.filter { it.isDigit() }
-        val cursor = requireContext().contentResolver.query(
-            CallLog.Calls.CONTENT_URI,
-            arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
-                CallLog.Calls.DATE, CallLog.Calls.TYPE, CallLog.Calls.DURATION),
-            "${CallLog.Calls.NUMBER} LIKE ?",
-            arrayOf("%$clean%"),
-            "${CallLog.Calls.DATE} DESC"
-        ) ?: return list
-        cursor.use {
-            val iName = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
-            val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
-            val iDate = it.getColumnIndex(CallLog.Calls.DATE)
-            val iType = it.getColumnIndex(CallLog.Calls.TYPE)
-            val iDur  = it.getColumnIndex(CallLog.Calls.DURATION)
-            while (it.moveToNext()) {
-                list.add(CallLogEntry(
-                    name = it.getString(iName) ?: "",
-                    number = it.getString(iNum) ?: "",
-                    date = it.getLong(iDate),
-                    type = it.getInt(iType),
-                    duration = if (iDur >= 0) it.getLong(iDur) else 0
-                ))
-            }
-        }
-        return list
+        return AppDatabase.getInstance(ctx).callHistoryDao()
+            .getByNumber("%$clean%")
+            .map { it.toCallLogEntry() }
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _b = null }
+    override fun onDestroyView() {
+        bgExecutor.shutdownNow()
+        super.onDestroyView(); _b = null
+    }
 }

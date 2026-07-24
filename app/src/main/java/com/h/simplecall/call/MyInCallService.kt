@@ -17,6 +17,7 @@ class MyInCallService : InCallService() {
         instance = this
         MissedCallNotifier.init(this)
         BlockedNumbersManager.init(this)
+        CallHistoryManager.init(this)
     }
 
     override fun onDestroy() { instance = null; super.onDestroy() }

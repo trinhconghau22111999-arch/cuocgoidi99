@@ -14,7 +14,6 @@ import android.provider.CallLog
 import android.provider.ContactsContract
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
-import android.telephony.SubscriptionManager
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -35,6 +34,8 @@ import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.Contact
+import com.h.simplecall.data.local.AppDatabase
+import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentDialerBinding
 
 class DialerFragment : Fragment() {
@@ -427,66 +428,12 @@ class DialerFragment : Fragment() {
         renderRecents(callCapableAccounts().size >= 2)
     }
 
-    private fun queryRecents(ctx: Context): List<CallLogEntry> {
-        val entries = mutableListOf<CallLogEntry>()
-        try {
-            val projection = arrayOf(
-                CallLog.Calls.CACHED_NAME,
-                CallLog.Calls.NUMBER,
-                CallLog.Calls.DATE,
-                CallLog.Calls.TYPE,
-                CallLog.Calls.PHONE_ACCOUNT_ID,
-                CallLog.Calls.CACHED_NUMBER_TYPE,
-                CallLog.Calls.CACHED_NUMBER_LABEL
-            )
-            // Chỉ hiển thị gợi ý "gần đây" trong màn hình quay số nên KHÔNG cần tải toàn bộ lịch sử
-            // (có máy hàng nghìn cuộc gọi) — giới hạn 50 dòng mới nhất là đủ và tránh lag khi mở màn.
-            val cur = ctx.contentResolver.query(
-                CallLog.Calls.CONTENT_URI,
-                projection,
-                null, null, "${CallLog.Calls.DATE} DESC LIMIT 50"
-            )
-            cur?.use {
-                val iName   = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
-                val iNum    = it.getColumnIndex(CallLog.Calls.NUMBER)
-                val iDate   = it.getColumnIndex(CallLog.Calls.DATE)
-                val iType   = it.getColumnIndex(CallLog.Calls.TYPE)
-                val iAcct   = it.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
-                val iNumType = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_TYPE)
-                val iLabel  = it.getColumnIndex(CallLog.Calls.CACHED_NUMBER_LABEL)
-                while (it.moveToNext()) {
-                    // Xác định SIM slot qua SubscriptionManager.getActiveSubscriptionInfo
-                    val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
-                    val simSlot: Int? = try {
-                        val subId = acctId.toIntOrNull()
-                        if (subId != null) {
-                            val sm = ctx.getSystemService(SubscriptionManager::class.java)
-                            sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
-                        } else null
-                    } catch (_: Exception) { null }
-                    // Loại đường dây
-                    val numType = if (iNumType >= 0) it.getInt(iNumType) else 0
-                    val label   = if (iLabel >= 0) it.getString(iLabel) ?: "" else ""
-                    val typeLabel = when (numType) {
-                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE -> "Di động"
-                        ContactsContract.CommonDataKinds.Phone.TYPE_HOME   -> "Nhà riêng"
-                        ContactsContract.CommonDataKinds.Phone.TYPE_WORK   -> "Cơ quan"
-                        ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM -> label.ifEmpty { "Di động" }
-                        else -> "Di động"
-                    }
-                    entries.add(CallLogEntry(
-                        name = it.getString(iName) ?: "",
-                        number = it.getString(iNum) ?: "",
-                        date = it.getLong(iDate),
-                        type = it.getInt(iType),
-                        simSlot = simSlot,
-                        numberType = typeLabel
-                    ))
-                }
-            }
-        } catch (_: SecurityException) {}
-        return entries
-    }
+    /** Chỉ hiển thị gợi ý "gần đây" trong màn hình quay số nên KHÔNG cần tải toàn bộ lịch sử
+     *  (có máy hàng nghìn cuộc gọi) — giới hạn 50 dòng mới nhất là đủ và tránh lag khi mở màn.
+     *  Đọc từ DB nội bộ của app (Room) - số của mỗi dòng LÀ số đã hiển thị trên màn hình gọi
+     *  tại thời điểm gọi, không phải số CallLog hệ thống tự ghi. */
+    private fun queryRecents(ctx: Context): List<CallLogEntry> =
+        AppDatabase.getInstance(ctx).callHistoryDao().getRecent(50).map { it.toCallLogEntry() }
 
     private fun searchSuggestions(raw: String) {
         // Header "Gần đây" (tiêu đề + tab) LUÔN nằm cố định trên cùng, KHÔNG bị bàn phím che -
@@ -539,17 +486,9 @@ class DialerFragment : Fragment() {
         return list
     }
 
-    private fun getLastCalledNumber(): String? {
-        return try {
-            val cur = requireContext().contentResolver.query(
-                CallLog.Calls.CONTENT_URI,
-                arrayOf(CallLog.Calls.NUMBER),
-                null, null,
-                "${CallLog.Calls.DATE} DESC LIMIT 1"
-            ) ?: return null
-            cur.use { if (it.moveToFirst()) it.getString(0) else null }
-        } catch (_: Exception) { null }
-    }
+    /** allRecentEntries đã được tải sẵn ở nền (bgExecutor) và sắp theo DATE DESC, nên số gọi
+     *  gần nhất chính là phần tử đầu tiên - không cần query Room lần nữa trên main thread. */
+    private fun getLastCalledNumber(): String? = allRecentEntries.firstOrNull()?.number
 
     private fun haptic() {
         val v = requireContext().getSystemService(Vibrator::class.java) ?: return
