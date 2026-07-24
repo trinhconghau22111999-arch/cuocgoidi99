@@ -144,5 +144,10 @@ class CallLogFragment : Fragment() {
         }
     }
 
+    /** MainActivity gọi khi DialerFragment gõ số – ẩn header "Gần đây" + tab */
+    fun setHeaderVisible(visible: Boolean) {
+        _b?.llCallLogHeader?.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
     override fun onDestroyView() { super.onDestroyView(); _b = null }
 }
