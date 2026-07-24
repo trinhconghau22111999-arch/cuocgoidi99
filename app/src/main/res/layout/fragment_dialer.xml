@@ -177,7 +177,7 @@
             android:clickable="true" android:focusable="true"
             android:paddingStart="20dp" android:paddingEnd="20dp"
             android:paddingTop="14dp" android:paddingBottom="14dp">
-            <ImageView android:layout_width="30dp" android:layout_height="30dp"
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
                 android:src="@drawable/ic_add" app:tint="@color/white" tools:ignore="MissingClass"/>
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:layout_marginStart="18dp"
@@ -209,7 +209,7 @@
             android:clickable="true" android:focusable="true"
             android:paddingStart="20dp" android:paddingEnd="20dp"
             android:paddingTop="14dp" android:paddingBottom="14dp">
-            <ImageView android:layout_width="20dp" android:layout_height="20dp"
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
                 android:src="@android:drawable/ic_dialog_email" app:tint="@color/white" tools:ignore="MissingClass"/>
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:layout_marginStart="24dp"
@@ -318,7 +318,7 @@
             <Button android:tag="7" style="@style/KeyBtn" android:text="7" android:layout_columnWeight="1" />
             <Button android:tag="8" style="@style/KeyBtn" android:text="8" android:layout_columnWeight="1" />
             <Button android:tag="9" style="@style/KeyBtn" android:text="9" android:layout_columnWeight="1" />
-            <Button android:tag="*" style="@style/KeyBtn" android:text="*" android:layout_columnWeight="1" android:textSize="24sp" />
+            <Button android:tag="*" style="@style/KeyBtn" android:text="*" android:layout_columnWeight="1" />
             <Button android:tag="0" style="@style/KeyBtn" android:text="0" android:layout_columnWeight="1" />
             <Button android:tag="#" style="@style/KeyBtn" android:text="#" android:layout_columnWeight="1" />
         </GridLayout>
@@ -404,7 +404,7 @@
             <ImageButton
                 android:id="@+id/btnKeypadToggle"
                 android:layout_width="55dp" android:layout_height="55dp"
-                android:background="@android:color/transparent"
+                android:background="@drawable/bg_key_bright"
                 android:src="@drawable/ic_dialpad"
                 android:tint="@color/text_secondary"
                 android:contentDescription="@string/open_dialpad" />
