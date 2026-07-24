@@ -83,7 +83,7 @@ class CallLogAdapter(
         h.b.tvCallTime.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
         // ── Icon info: luôn xám đậm ──
-        h.b.btnCallBack.setColorFilter(ContextCompat.getColor(ctx, R.color.call_log_muted))
+        h.b.btnCallBack.setColorFilter(ContextCompat.getColor(ctx, R.color.text_primary))
 
         h.b.root.setOnClickListener { onCall(item.number) }
         h.b.btnCallBack.setOnClickListener { onShowHistory(item.number) }
