@@ -79,6 +79,11 @@ class MainActivity : AppCompatActivity() {
         // mọi phiên bản thư viện Material, không phụ thuộc việc XML có được áp dụng đúng hay không.
         binding.bottomNav.itemIconTintList = null
 
+        binding.fabAddContact.setOnClickListener {
+            val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (frag is com.h.simplecall.ui.ContactsFragment) frag.openCreateContactPublic()
+        }
+
         binding.fabDialpad.setOnClickListener {
             // Nếu đang đứng sẵn trong DialerFragment (trường hợp FAB đang hiện vì người dùng vừa
             // ẩn bàn phím) thì chỉ cần MỞ LẠI bàn phím trên fragment đó, không tạo fragment mới
@@ -146,7 +151,13 @@ class MainActivity : AppCompatActivity() {
         navigateTo(if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment())
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
-        binding.fabDialpad.visibility = if (itemId == R.id.nav_contacts) View.GONE else View.VISIBLE
+        if (itemId == R.id.nav_contacts) {
+            binding.fabDialpad.visibility = View.GONE
+            binding.fabAddContact.visibility = View.VISIBLE
+        } else {
+            binding.fabDialpad.visibility = View.VISIBLE
+            binding.fabAddContact.visibility = View.GONE
+        }
         if (itemId == R.id.nav_recents)
             binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
     }
