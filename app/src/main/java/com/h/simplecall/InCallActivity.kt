@@ -1,6 +1,10 @@
 package com.h.simplecall
 
+import android.Manifest
 import android.content.ContentUris
+import android.content.pm.PackageManager
+import android.media.MediaRecorder
+import android.media.audiofx.NoiseSuppressor
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -9,10 +13,13 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.ContactsContract
 import android.telecom.Call
+import android.telephony.SubscriptionManager
 import android.view.View
 import android.widget.Button
 import android.widget.GridLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.h.simplecall.call.CallForwardManager
 import com.h.simplecall.call.CallManager
 import com.h.simplecall.databinding.ActivityInCallBinding
@@ -23,6 +30,12 @@ class InCallActivity : AppCompatActivity() {
     private var isMuted   = false
     private var isSpeaker = false
     private var dtmfVisible = false
+    private var isHeld = false
+    private var isRecording = false
+    private var isClarityOn = false
+    private var recorder: MediaRecorder? = null
+    private var recordingFile: java.io.File? = null
+    private var noiseSuppressor: NoiseSuppressor? = null
 
     private val timerHandler = Handler(Looper.getMainLooper())
     private var callStartMs = 0L
@@ -94,6 +107,57 @@ class InCallActivity : AppCompatActivity() {
             }
         }
 
+        // Giữ máy: dùng đúng API Telecom (call.hold()/unhold()), không phải giả lập UI
+        binding.btnHold.setOnClickListener {
+            isHeld = !isHeld
+            if (isHeld) CallManager.currentCall?.hold() else CallManager.currentCall?.unhold()
+            binding.btnHold.setBackgroundResource(
+                if (isHeld) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.tvHoldLabel.text = getString(if (isHeld) R.string.unhold_call else R.string.hold_call)
+        }
+
+        binding.btnRecord.setOnClickListener {
+            if (isRecording) stopRecording() else startRecording()
+        }
+
+        // "Gọi rõ ràng": khử tiếng ồn bằng AudioEffect chuẩn của Android (NoiseSuppressor).
+        // LƯU Ý: đây không phải công nghệ tăng cường giọng nói độc quyền như máy Samsung thật -
+        // hiệu quả tuỳ thuộc chip xử lý âm thanh của từng máy, và trên nhiều thiết bị hầu như
+        // không có tác dụng rõ rệt với đường tiếng của cuộc gọi (đường tiếng cuộc gọi thường đi
+        // qua phần cứng modem, ứng dụng thường không can thiệp trực tiếp được).
+        binding.btnClarity.setOnClickListener {
+            isClarityOn = !isClarityOn
+            try {
+                if (isClarityOn) {
+                    if (NoiseSuppressor.isAvailable()) {
+                        noiseSuppressor = NoiseSuppressor.create(0)
+                        noiseSuppressor?.enabled = true
+                    } else {
+                        Toast.makeText(this, "Máy không hỗ trợ khử tiếng ồn", Toast.LENGTH_SHORT).show()
+                        isClarityOn = false
+                    }
+                } else {
+                    noiseSuppressor?.release(); noiseSuppressor = null
+                }
+            } catch (_: Exception) {
+                Toast.makeText(this, "Máy không hỗ trợ khử tiếng ồn", Toast.LENGTH_SHORT).show()
+                isClarityOn = false
+            }
+            binding.btnClarity.setBackgroundResource(
+                if (isClarityOn) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+        }
+
+        // "Thêm cuộc gọi" (ghép cuộc gọi thứ 2/hội nghị) và "Thêm" (tuỳ chọn khác) chưa được
+        // xây dựng đầy đủ - app hiện chỉ quản lý 1 cuộc gọi tại một thời điểm (CallManager chỉ
+        // giữ currentCall duy nhất), nên chưa thể ghép/giữ nhiều cuộc gọi cùng lúc một cách an
+        // toàn. Thông báo rõ cho người dùng thay vì giả vờ hoạt động.
+        binding.btnAddCall.setOnClickListener {
+            Toast.makeText(this, getString(R.string.feature_coming_soon), Toast.LENGTH_SHORT).show()
+        }
+        binding.btnMore.setOnClickListener {
+            Toast.makeText(this, getString(R.string.feature_coming_soon), Toast.LENGTH_SHORT).show()
+        }
+
         CallManager.addListener(listener)
         updateUi(CallManager.currentCall, CallManager.currentCall?.state ?: Call.STATE_NEW)
     }
@@ -102,7 +166,58 @@ class InCallActivity : AppCompatActivity() {
         timerHandler.removeCallbacks(timerRunnable)
         CallManager.removeListener(listener)
         contactLookupExecutor.shutdownNow()
+        if (isRecording) stopRecording()
+        try { noiseSuppressor?.release() } catch (_: Exception) {}
         super.onDestroy()
+    }
+
+    private fun startRecording() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+            != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.recording_failed), Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            val dir = java.io.File(getExternalFilesDir(null), "CallRecordings").apply { mkdirs() }
+            val file = java.io.File(dir, "call_${System.currentTimeMillis()}.m4a")
+            val rec = MediaRecorder()
+            // VOICE_CALL ghi được cả 2 chiều tiếng trên một số máy, nhưng nhiều hãng/ROM
+            // (đặc biệt Android 10 trở lên) CHẶN nguồn ghi âm này vì lý do riêng tư của người
+            // gọi tới. Nếu không dùng được, thử lại bằng MIC (chỉ ghi được giọng người dùng).
+            try {
+                rec.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL)
+            } catch (_: Exception) {
+                rec.setAudioSource(MediaRecorder.AudioSource.MIC)
+            }
+            rec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            rec.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            rec.setOutputFile(file.absolutePath)
+            rec.prepare()
+            rec.start()
+            recorder = rec
+            recordingFile = file
+            isRecording = true
+            binding.btnRecord.setBackgroundResource(R.drawable.bg_action_circle_active)
+            binding.tvRecordLabel.text = getString(R.string.stop_recording)
+        } catch (e: Exception) {
+            // Rất nhiều máy (đặc biệt Samsung/Xiaomi các đời mới) chặn hẳn việc ghi âm cuộc
+            // gọi ở tầng hệ thống bất kể quyền đã cấp - báo rõ cho người dùng thay vì im lặng.
+            Toast.makeText(this, getString(R.string.recording_failed), Toast.LENGTH_LONG).show()
+            try { recorder?.release() } catch (_: Exception) {}
+            recorder = null; isRecording = false
+        }
+    }
+
+    private fun stopRecording() {
+        try { recorder?.stop() } catch (_: Exception) {}
+        try { recorder?.release() } catch (_: Exception) {}
+        recorder = null
+        isRecording = false
+        binding.btnRecord.setBackgroundResource(R.drawable.bg_action_circle)
+        binding.tvRecordLabel.text = getString(R.string.start_recording)
+        recordingFile?.let {
+            Toast.makeText(this, "${getString(R.string.recording_saved)}: ${it.name}", Toast.LENGTH_LONG).show()
+        }
     }
 
     private var trackedCall: Call? = null
@@ -162,29 +277,66 @@ class InCallActivity : AppCompatActivity() {
         binding.incomingControls.visibility = if (isRinging) View.VISIBLE else View.GONE
         binding.activeControls.visibility   = if (isRinging) View.GONE   else View.VISIBLE
 
+        if (call !== trackedCall || binding.llSimLine.tag != call) {
+            binding.llSimLine.tag = call
+            renderSimLine(call)
+        }
+
         when (state) {
             Call.STATE_RINGING -> {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = getString(R.string.incoming_call)
+                binding.tvHdBadge.visibility = View.GONE
             }
             Call.STATE_DIALING, Call.STATE_CONNECTING -> {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang gọi..."
+                binding.tvHdBadge.visibility = View.GONE
             }
             Call.STATE_ACTIVE -> {
+                isHeld = false
+                binding.btnHold.setBackgroundResource(R.drawable.bg_action_circle)
+                binding.tvHoldLabel.text = getString(R.string.hold_call)
+                binding.tvHdBadge.visibility = View.VISIBLE
                 if (callStartMs == 0L) {
                     callStartMs = System.currentTimeMillis()
                     timerHandler.post(timerRunnable)
                 }
             }
             Call.STATE_HOLDING -> {
+                isHeld = true
+                binding.btnHold.setBackgroundResource(R.drawable.bg_action_circle_active)
+                binding.tvHoldLabel.text = getString(R.string.unhold_call)
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang giữ máy"
+                binding.tvHdBadge.visibility = View.GONE
             }
             Call.STATE_DISCONNECTING -> {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang kết thúc..."
             }
+        }
+    }
+
+    /** Hiện dòng "[số SIM] Tên nhà mạng/quốc gia" giống trình quay số hệ thống, dựa vào
+     *  PhoneAccountHandle của cuộc gọi. Máy 1 SIM hoặc không tra được thì ẩn dòng này đi. */
+    private fun renderSimLine(call: Call) {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) { binding.llSimLine.visibility = View.GONE; return }
+            val subId = call.details?.accountHandle?.id?.toIntOrNull()
+            val info = if (subId != null)
+                getSystemService(SubscriptionManager::class.java)?.getActiveSubscriptionInfo(subId)
+            else null
+            if (info != null) {
+                binding.llSimLine.visibility = View.VISIBLE
+                binding.tvSimBadge.text = (info.simSlotIndex + 1).toString()
+                binding.tvCarrier.text = info.carrierName?.toString()?.takeIf { it.isNotBlank() } ?: "Việt Nam"
+            } else {
+                binding.llSimLine.visibility = View.GONE
+            }
+        } catch (_: Exception) {
+            binding.llSimLine.visibility = View.GONE
         }
     }
 
