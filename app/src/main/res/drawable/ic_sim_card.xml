@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon hình thẻ SIM (rounded rectangle với góc trên-phải bị cắt vát), dùng để hiện
+     cạnh số SIM (1/2) đang gọi trong màn hình InCall. Bị thiếu file này gây lỗi build:
+     "resource drawable/ic_sim_card not found" ở activity_in_call.xml. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M17,2H7C5.9,2 5,2.9 5,4v16c0,1.1 0.9,2 2,2h10c1.1,0 2,-0.9 2,-2V6l-4,-4zM17,20H7V4h9v3h3v13z"/>
+</vector>
