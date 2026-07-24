@@ -165,6 +165,13 @@
         </LinearLayout>
     </FrameLayout>
 
+    <!-- Viền ngăn cách: nằm PHÍA TRÊN ô nhập số (tách khỏi vùng nội dung/gợi ý phía trên),
+         KHÔNG còn nằm giữa ô nhập số và bàn phím như trước nữa. -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
     <!-- Ô nhập số điện thoại + nút xóa: nằm NGAY TRÊN bàn phím số (không phải trên cùng màn hình).
          showSoftInputOnFocus=false + inputType=none để tuyệt đối không bao giờ bật bàn phím
          hệ thống của máy lên - chỉ nhập được qua bàn phím số riêng của app bên dưới. -->
@@ -192,7 +199,7 @@
 
         <ImageButton
             android:id="@+id/btnBackspace"
-            android:layout_width="40dp"
+            android:layout_width="52dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
@@ -200,13 +207,6 @@
             android:contentDescription="@string/cancel"
             android:visibility="invisible" />
     </FrameLayout>
-
-    <!-- Viền trên của bàn phím, hiển thị rõ để tách khỏi ô nhập số phía trên -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/divider" />
 
     <!-- Bàn phím số: dàn đều 3 cột từ mép trái sang mép phải. Cho phép nhập cả * và #. -->
     <GridLayout
