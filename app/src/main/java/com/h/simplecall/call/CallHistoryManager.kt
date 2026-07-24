@@ -38,6 +38,10 @@ object CallHistoryManager {
         initialized = true
         appContext = context.applicationContext
         CallManager.addListener(::onCallEvent)
+
+        // Di trú lịch sử cũ từ CallLog hệ thống sang Room - chỉ chạy 1 lần, ở nền.
+        val ctx = appContext!!
+        bgExecutor.execute { CallHistoryMigration.runIfNeeded(ctx) }
     }
 
     private fun dao() = AppDatabase.getInstance(appContext!!).callHistoryDao()

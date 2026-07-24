@@ -16,8 +16,14 @@ interface CallHistoryDao {
     @Insert
     fun insert(entry: CallHistoryEntity): Long
 
+    @Insert
+    fun insertAll(entries: List<CallHistoryEntity>)
+
     @Update
     fun update(entry: CallHistoryEntity)
+
+    @Query("SELECT COUNT(*) FROM call_history")
+    fun count(): Int
 
     @Query("SELECT * FROM call_history WHERE id = :id LIMIT 1")
     fun getById(id: Long): CallHistoryEntity?
