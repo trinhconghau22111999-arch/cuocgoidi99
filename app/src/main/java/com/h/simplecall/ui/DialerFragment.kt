@@ -20,6 +20,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.text.style.ForegroundColorSpan
+import android.text.style.ImageSpan
 import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -219,12 +220,18 @@ class DialerFragment : Fragment() {
             }
 
             if (tag == "1") {
+                // Nhãn phụ dưới phím 1 (hộp thư thoại) PHẢI là hình mắt kính: 2 vòng tròn nối
+                // bằng 1 thanh cầu ngang - KHÔNG phải ký tự vô cực/số 8 nằm ngang. Vẽ bằng vector
+                // riêng (ic_key1_glasses) rồi chèn vào bằng ImageSpan thay vì gõ ký tự văn bản,
+                // để chắc chắn đúng hình dạng thay vì tuỳ theo font hiển thị ký tự thế nào.
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
-                val sub2Start = ss.length; ss.append("∞")
-                ss.setSpan(RelativeSizeSpan(0.35f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-                ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
-                    sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                val sub2Start = ss.length; ss.append(" ")
+                ContextCompat.getDrawable(requireContext(), R.drawable.ic_key1_glasses)?.let { d ->
+                    d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BASELINE),
+                        sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
             }
 
