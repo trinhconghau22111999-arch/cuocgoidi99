@@ -1,8 +1,11 @@
 package com.h.simplecall.ui
 
 import android.content.ContentValues
+import android.content.Context
 import android.os.Bundle
 import android.provider.CallLog
+import android.telecom.TelecomManager
+import android.telephony.SubscriptionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +22,14 @@ class CallLogFragment : Fragment() {
     private var _b: FragmentCallLogBinding? = null
     private val b get() = _b!!
     private var allEntries: List<CallLogEntry> = emptyList()
+    private var isDualSim: Boolean = false
     private var showMissedOnly = false
+
+    // Truy vấn CallLog CHẠY NỀN: trước đây chạy thẳng trên main thread mỗi khi mở tab này, và
+    // vì không còn giới hạn LIMIT (đọc TOÀN BỘ lịch sử) nên máy có lịch sử cuộc gọi dài (hàng
+    // nghìn dòng) dễ bị đơ/ANR lúc mở tab. Cùng nhóm lỗi đã sửa ở DialerFragment.
+    private val bgExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentCallLogBinding.inflate(i, c, false); return b.root
@@ -43,10 +53,28 @@ class CallLogFragment : Fragment() {
             b.tvEmpty.visibility = View.VISIBLE; return
         }
 
-        allEntries = loadCallLog()
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        renderList()
-        markMissedAsRead()
+
+        isDualSim = callCapableAccountCount() >= 2
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            val loaded = loadCallLog(appContext)
+            mainHandler.post {
+                if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
+                allEntries = loaded
+                renderList()
+                markMissedAsRead()
+            }
+        }
+    }
+
+    private fun callCapableAccountCount(): Int {
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_PHONE_STATE)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED) return 0
+        return try {
+            requireContext().getSystemService(TelecomManager::class.java)
+                ?.callCapablePhoneAccounts?.size ?: 0
+        } catch (_: SecurityException) { 0 }
     }
 
     private fun selectTab(missed: Boolean) {
@@ -79,6 +107,7 @@ class CallLogFragment : Fragment() {
             b.recyclerView.visibility = View.VISIBLE
             b.recyclerView.adapter = CallLogAdapter(
                 entries,
+                isDualSim = isDualSim,
                 onCall = { (activity as? MainActivity)?.placeCall(it) },
                 onShowHistory = { number ->
                     val entry = entries.firstOrNull { it.number == number }
@@ -94,13 +123,13 @@ class CallLogFragment : Fragment() {
         }
     }
 
-    private fun loadCallLog(): List<CallLogEntry> {
+    private fun loadCallLog(ctx: Context): List<CallLogEntry> {
         val list = mutableListOf<CallLogEntry>()
         try {
-            val cursor = requireContext().contentResolver.query(
+            val cursor = ctx.contentResolver.query(
                 CallLog.Calls.CONTENT_URI,
                 arrayOf(CallLog.Calls.CACHED_NAME, CallLog.Calls.NUMBER,
-                    CallLog.Calls.DATE, CallLog.Calls.TYPE),
+                    CallLog.Calls.DATE, CallLog.Calls.TYPE, CallLog.Calls.PHONE_ACCOUNT_ID),
                 null, null, "${CallLog.Calls.DATE} DESC"
             ) ?: return list
             cursor.use {
@@ -108,16 +137,28 @@ class CallLogFragment : Fragment() {
                 val iNum  = it.getColumnIndex(CallLog.Calls.NUMBER)
                 val iDate = it.getColumnIndex(CallLog.Calls.DATE)
                 val iType = it.getColumnIndex(CallLog.Calls.TYPE)
+                val iAcct = it.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)
                 while (it.moveToNext()) {
                     val name = it.getString(iName) ?: ""
                     // Số đã lưu trong danh bạ (có CACHED_NAME) hiện "Di động";
                     // số lạ chưa lưu hiện quốc gia (giống danh bạ điện thoại thật).
                     val numberType = if (name.isNotEmpty()) "Di động" else "Việt Nam"
+                    // Xác định SIM slot qua SubscriptionManager, giống DialerFragment, để khung
+                    // số SIM cũng hiện đúng ở tab Gần đây chính (trước đây luôn bị bỏ trống).
+                    val acctId = if (iAcct >= 0) it.getString(iAcct) ?: "" else ""
+                    val simSlot: Int? = try {
+                        val subId = acctId.toIntOrNull()
+                        if (subId != null) {
+                            val sm = ctx.getSystemService(SubscriptionManager::class.java)
+                            sm?.getActiveSubscriptionInfo(subId)?.simSlotIndex?.takeIf { idx -> idx >= 0 }
+                        } else null
+                    } catch (_: Exception) { null }
                     list.add(CallLogEntry(
                         name = name,
                         number = it.getString(iNum) ?: "",
                         date = it.getLong(iDate),
                         type = it.getInt(iType),
+                        simSlot = simSlot,
                         numberType = numberType
                     ))
                 }
@@ -149,5 +190,8 @@ class CallLogFragment : Fragment() {
         _b?.llCallLogHeader?.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _b = null }
+    override fun onDestroyView() {
+        bgExecutor.shutdownNow()
+        super.onDestroyView(); _b = null
+    }
 }
