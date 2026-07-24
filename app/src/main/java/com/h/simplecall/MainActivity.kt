@@ -71,6 +71,12 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNav.setOnItemSelectedListener { item -> goToTab(item.itemId); true }
         binding.bottomNav.setOnItemReselectedListener { item -> goToTab(item.itemId) }
+        // Ép tắt tint icon bằng code (không chỉ dựa vào app:itemIconTint="@null" trong XML) -
+        // đây chính là nguyên nhân icon "Gần đây" khi được chọn bị tô ĐÈ thành xanh LÁ (trùng
+        // colorPrimary của theme) thay vì giữ đúng màu xanh DƯƠNG + kim đồng hồ trắng đã vẽ sẵn
+        // trong ic_tab_recents_blue. Gọi thẳng setItemIconTintList(null) đảm bảo tắt tint trên
+        // mọi phiên bản thư viện Material, không phụ thuộc việc XML có được áp dụng đúng hay không.
+        binding.bottomNav.itemIconTintList = null
 
         binding.fabDialpad.setOnClickListener {
             // Nếu đang đứng sẵn trong DialerFragment (trường hợp FAB đang hiện vì người dùng vừa
