@@ -214,7 +214,9 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                ss.setSpan(RelativeSizeSpan(0.35f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                // Phím 0: dấu "+" to gấp 3 (1.05f), các phím khác 0.35f
+                val subSize = if (tag == "0") 1.05f else 0.35f
+                ss.setSpan(RelativeSizeSpan(subSize), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
