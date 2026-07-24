@@ -214,24 +214,24 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                // Phím 0: dấu "+" to gấp 3 (1.05f), các phím khác 0.35f
-                val subSize = if (tag == "0") 1.05f else 0.35f
-                ss.setSpan(RelativeSizeSpan(subSize), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ss.setSpan(RelativeSizeSpan(0.35f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
             }
 
             if (tag == "1") {
-                // Nhãn phụ dưới phím 1 (hộp thư thoại) PHẢI là hình mắt kính: 2 vòng tròn nối
-                // bằng 1 thanh cầu ngang - KHÔNG phải ký tự vô cực/số 8 nằm ngang. Vẽ bằng vector
-                // riêng (ic_key1_glasses) rồi chèn vào bằng ImageSpan thay vì gõ ký tự văn bản,
-                // để chắc chắn đúng hình dạng thay vì tuỳ theo font hiển thị ký tự thế nào.
+                // Kính lúp dưới phím 1: dùng RelativeSizeSpan như các phím khác để đồng nhất
+                // khoảng cách và độ lớn với sub label của 2, 3, 4...
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
-                val sub2Start = ss.length; ss.append(" ")
+                val sub2Start = ss.length; ss.append("  ")  // 2 space để icon có chỗ
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_key1_glasses)?.let { d ->
-                    d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+                    // Bounds cố định: rộng ~2× cao, cao = 0.35 × textSize(30sp) × density
+                    val density = resources.displayMetrics.density
+                    val h = (30f * 0.35f * density).toInt()
+                    val w = (h * 2.2f).toInt()
+                    d.setBounds(0, 0, w, h)
                     ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BASELINE),
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
