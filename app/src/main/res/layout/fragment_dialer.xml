@@ -1,17 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  FrameLayout gốc: rvRecents chiếm toàn bộ màn hình.
-  Keypad nổi đè lên phía dưới (gravity=bottom), KHÔNG đẩy recents lên.
-  Khi gõ số: header call_log ẩn, chỉ còn gợi ý liên hệ + số đang gõ.
+  Root LinearLayout dọc: llDialerHeader (tiêu đề "Gần đây" + tab) LUÔN nằm cố định TRÊN CÙNG,
+  không bị bàn phím che - đúng yêu cầu "trang gần đây chỉ bị che phần dưới, phần trên còn
+  nguyên vẹn". Khi gõ số (raw không rỗng) thì ẩn hẳn header này đi (xem searchSuggestions()),
+  nhường chỗ cho tiêu đề "Tất cả liên hệ" (tvSuggestionsHeader) phía trong frameContent.
+
+  frameContent (weight=1): y hệt cấu trúc overlay cũ - rvRecents chiếm toàn bộ, keypad nổi
+  đè lên phía dưới (gravity=bottom), KHÔNG đẩy recents lên. Khi gõ số: chỉ ẩn llDialerHeader,
+  còn phần khớp/không khớp liên hệ vẫn xử lý y như trước.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- ── TẦNG 1: Danh sách gần đây, chiếm toàn màn hình ── -->
+    <!-- ── Header cố định: tiêu đề "Gần đây" + tab Tất cả/Cuộc gọi nhỡ + icon tìm kiếm/cài đặt.
+         Ẩn hẳn khi người dùng bắt đầu gõ số (xem DialerFragment.searchSuggestions()). ── -->
+    <LinearLayout
+        android:id="@+id/llDialerHeader"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:paddingTop="16dp" android:paddingEnd="20dp">
+            <LinearLayout
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/btnDialerSearch"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_search"
+                    android:contentDescription="@string/search" />
+                <ImageButton
+                    android:id="@+id/btnDialerSettings"
+                    android:layout_width="40dp" android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_hexagon_settings"
+                    android:contentDescription="@string/settings" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="28dp" android:layout_marginTop="4dp"
+            android:text="@string/recents_title"
+            android:textSize="34sp"
+            android:textColor="@color/text_primary"
+            android:fontFamily="sans-serif-medium" />
+
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="16dp">
+
+            <FrameLayout
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/tabAll"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:clickable="true" android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabAll"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/tab_all"
+                        android:textSize="16sp" android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:fontFamily="sans-serif" />
+                    <View
+                        android:id="@+id/tabAllUnderline"
+                        android:layout_width="match_parent" android:layout_height="2dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@color/accent_blue" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <LinearLayout
+                    android:id="@+id/tabMissed"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:clickable="true" android:focusable="true">
+                    <TextView
+                        android:id="@+id/tvTabMissed"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/tab_missed"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_secondary"
+                        android:fontFamily="sans-serif" />
+                    <View
+                        android:id="@+id/tabMissedUnderline"
+                        android:layout_width="match_parent" android:layout_height="2dp"
+                        android:layout_marginTop="6dp"
+                        android:background="@android:color/transparent" />
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent" android:layout_height="0.5dp"
+            android:background="#332B2B2B" />
+    </LinearLayout>
+
+    <!-- ── Vùng nội dung + bàn phím nổi, chiếm hết phần còn lại phía dưới header ── -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+    <!-- ── TẦNG 1: Danh sách gần đây, chiếm toàn bộ khung này ── -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRecents"
         android:layout_width="match_parent"
@@ -288,4 +399,5 @@
         </FrameLayout>
     </LinearLayout>
 
-</FrameLayout>
+    </FrameLayout>
+</LinearLayout>

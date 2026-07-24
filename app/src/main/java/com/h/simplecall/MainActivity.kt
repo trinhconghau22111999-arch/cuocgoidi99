@@ -149,14 +149,6 @@ class MainActivity : AppCompatActivity() {
         binding.fabDialpad.visibility  = View.GONE
     }
 
-    /** DialerFragment gọi hàm này mỗi khi tự ẩn/hiện bàn phím số của nó, để FAB bàn phím
-     *  (cạnh thanh tab Gần đây/Danh bạ) hiện lên đúng lúc dùng làm nút mở lại. */
-    /** DialerFragment gọi khi gõ số để ẩn header "Gần đây" của CallLogFragment */
-    fun setCallLogHeaderVisible(visible: Boolean) {
-        val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-        if (frag is CallLogFragment) frag.setHeaderVisible(visible)
-    }
-
     fun setDialpadFabVisible(visible: Boolean) {
         binding.fabDialpad.visibility = if (visible) View.VISIBLE else View.GONE
     }

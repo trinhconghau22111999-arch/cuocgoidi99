@@ -66,6 +66,8 @@ class DialerFragment : Fragment() {
     private lateinit var suggestAdapter: ContactSuggestAdapter
     private var keypadVisible = true
     private var pendingNumberToAdd: String = ""
+    private var allRecentEntries: List<CallLogEntry> = emptyList()
+    private var showMissedOnly = false
     // Truy vấn CallLog/Contacts CHẠY NỀN: trước đây chạy thẳng trên main thread mỗi khi mở màn
     // hình này (onViewCreated + onResume) và mỗi lần gõ số (searchSuggestions), gây lag/giật khi
     // bật bàn phím lên và trong lúc gõ — cùng nhóm lỗi ANR đã sửa ở các màn hình khác.
@@ -106,6 +108,13 @@ class DialerFragment : Fragment() {
 
         b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
         loadRecents()
+
+        b.btnDialerSettings.setOnClickListener { (activity as? MainActivity)?.openSettings() }
+        b.btnDialerSearch.setOnClickListener {
+            android.widget.Toast.makeText(requireContext(), "Tìm kiếm đang được phát triển", android.widget.Toast.LENGTH_SHORT).show()
+        }
+        b.tabAll.setOnClickListener { selectTab(missed = false) }
+        b.tabMissed.setOnClickListener { selectTab(missed = true) }
 
         arguments?.getString("number")?.let { b.etNumber.setText(it) }
 
@@ -367,23 +376,48 @@ class DialerFragment : Fragment() {
             val entries = queryRecents(appContext)
             mainHandler.post {
                 if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
-                b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
-                b.rvRecents.adapter = CallLogAdapter(
-                    entries,
-                    isDualSim = isDualSim,
-                    onCall = { (activity as? MainActivity)?.placeCall(it) },
-                    onShowHistory = { number ->
-                        val entry = entries.firstOrNull { it.number == number }
-                        val name = entry?.name ?: number
-                        requireActivity().supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
-                            .addToBackStack("history")
-                            .commit()
-                        (activity as? MainActivity)?.hideNav()
-                    }
-                )
+                allRecentEntries = entries
+                renderRecents(isDualSim)
             }
         }
+    }
+
+    /** Áp bộ lọc tab (Tất cả/Cuộc gọi nhỡ) đang chọn lên allRecentEntries rồi bơm vào adapter.
+     *  Dùng chung cho lần tải đầu tiên VÀ mỗi khi người dùng đổi tab. */
+    private fun renderRecents(isDualSim: Boolean) {
+        val entries = if (showMissedOnly)
+            allRecentEntries.filter { it.type == CallLog.Calls.MISSED_TYPE }
+        else allRecentEntries
+        b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+        b.rvRecents.adapter = CallLogAdapter(
+            entries,
+            isDualSim = isDualSim,
+            onCall = { (activity as? MainActivity)?.placeCall(it) },
+            onShowHistory = { number ->
+                val entry = entries.firstOrNull { it.number == number }
+                val name = entry?.name ?: number
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, CallHistoryFragment.newInstance(number, name))
+                    .addToBackStack("history")
+                    .commit()
+                (activity as? MainActivity)?.hideNav()
+            }
+        )
+    }
+
+    private fun selectTab(missed: Boolean) {
+        showMissedOnly = missed
+        val accent = ContextCompat.getColor(requireContext(), R.color.accent_blue)
+        val bright = ContextCompat.getColor(requireContext(), R.color.text_primary)
+        val secondary = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        val transparent = ContextCompat.getColor(requireContext(), android.R.color.transparent)
+        b.tvTabAll.setTextColor(if (missed) secondary else bright)
+        b.tvTabAll.setTypeface(null, if (missed) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
+        b.tvTabMissed.setTextColor(if (missed) bright else secondary)
+        b.tvTabMissed.setTypeface(null, if (missed) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+        b.tabAllUnderline.setBackgroundColor(if (missed) transparent else accent)
+        b.tabMissedUnderline.setBackgroundColor(if (missed) accent else transparent)
+        renderRecents(callCapableAccounts().size >= 2)
     }
 
     private fun queryRecents(ctx: Context): List<CallLogEntry> {
@@ -448,8 +482,9 @@ class DialerFragment : Fragment() {
     }
 
     private fun searchSuggestions(raw: String) {
-        // Khi có số: ẩn header "Gần đây" của CallLogFragment (chỉ giữ list + số đang gõ)
-        (activity as? MainActivity)?.setCallLogHeaderVisible(raw.isEmpty())
+        // Header "Gần đây" (tiêu đề + tab) LUÔN nằm cố định trên cùng, KHÔNG bị bàn phím che -
+        // chỉ ẩn hẳn khi người dùng bắt đầu gõ số, nhường chỗ cho "Tất cả liên hệ" bên dưới.
+        b.llDialerHeader.visibility = if (raw.isEmpty()) View.VISIBLE else View.GONE
         if (raw.length < 2) {
             searchGeneration++
             b.llSuggestionsWrap.visibility = View.GONE
