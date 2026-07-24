@@ -340,7 +340,7 @@
                 android:background="@android:color/transparent"
                 android:clickable="true" android:focusable="true"
                 android:contentDescription="@string/video_call">
-                <ImageView android:layout_width="26dp" android:layout_height="26dp"
+                <ImageView android:layout_width="31dp" android:layout_height="31dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_video_call_outline"
                     tools:ignore="MissingClass"/>
@@ -367,11 +367,11 @@
                     android:layout_width="95dp" android:layout_height="match_parent"
                     android:background="@drawable/bg_call_pill_left"
                     android:clickable="true" android:focusable="true">
-                    <!-- Dải 5% chiều ngang sát mép phải, tô xanh đậm giống nút SIM2 để tạo
-                         chuyển màu nhẹ ở chỗ giáp 2 nút - phần còn lại (95%) giữ nguyên màu
+                    <!-- Dải 15% chiều ngang sát mép phải, tô xanh đậm giống nút SIM2 để tạo
+                         chuyển màu ở chỗ giáp 2 nút - phần còn lại (85%) giữ nguyên màu
                          xanh gốc của nút SIM1. -->
                     <View
-                        android:layout_width="5dp" android:layout_height="match_parent"
+                        android:layout_width="14dp" android:layout_height="match_parent"
                         android:layout_gravity="end"
                         android:background="@color/btn_call_pill_right" />
                     <ImageView android:layout_width="22dp" android:layout_height="22dp"
@@ -398,7 +398,7 @@
 
             <ImageButton
                 android:id="@+id/btnKeypadToggle"
-                android:layout_width="40dp" android:layout_height="40dp"
+                android:layout_width="48dp" android:layout_height="48dp"
                 android:layout_gravity="center_vertical|end"
                 android:background="@drawable/bg_key"
                 android:src="@drawable/ic_dialpad"
