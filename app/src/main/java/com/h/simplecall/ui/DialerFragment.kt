@@ -332,6 +332,8 @@ class DialerFragment : Fragment() {
         val hasNumber = b.etNumber.text.isNotEmpty()
         _b?.btnBackspace?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
         _b?.btnDialMenu?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
+        // Ẩn ô nhập số khi chưa gõ gì, hiện lên khi có số
+        _b?.frameNumber?.visibility = if (hasNumber) View.VISIBLE else View.GONE
     }
 
     // Menu 3 chấm cạnh ô nhập số: chèn ký tự dừng (,) hoặc chờ (;) vào cuối số đang gõ,
