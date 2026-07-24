@@ -51,14 +51,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView android:id="@+id/tvCallStatus"
+    <!-- Dòng SIM + quốc gia (vd "[2] Việt Nam") - chỉ hiện khi biết SIM đang dùng để gọi -->
+    <LinearLayout android:id="@+id/llSimLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
         android:layout_marginTop="6dp"
-        android:textColor="#9AA0A6" android:textSize="14sp"
-        android:fontFamily="sans-serif"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+        <TextView android:id="@+id/tvSimBadge"
+            android:layout_width="18dp" android:layout_height="18dp"
+            android:gravity="center" android:text="2"
+            android:textSize="11sp" android:textColor="#9AA0A6"
+            android:background="@drawable/bg_sim_badge" />
+        <TextView android:id="@+id/tvCarrier"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:textColor="#9AA0A6" android:textSize="14sp"
+            android:fontFamily="sans-serif" android:text="Việt Nam" />
+    </LinearLayout>
+
+    <!-- Badge HD + trạng thái/giờ gọi, gộp chung 1 hàng để tránh constraint vòng lặp -->
+    <LinearLayout android:id="@+id/llStatusLine"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginTop="6dp"
+        app:layout_constraintTop_toBottomOf="@id/llSimLine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView android:id="@+id/tvHdBadge"
+            android:layout_width="wrap_content" android:layout_height="18dp"
+            android:paddingStart="4dp" android:paddingEnd="4dp"
+            android:gravity="center" android:text="HD"
+            android:textSize="10sp" android:textColor="#9AA0A6"
+            android:background="@drawable/bg_sim_badge"
+            android:layout_marginEnd="6dp"
+            android:visibility="gone" />
+
+        <TextView android:id="@+id/tvCallStatus"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="#9AA0A6" android:textSize="14sp"
+            android:fontFamily="sans-serif" />
+    </LinearLayout>
 
     <!-- INCOMING controls -->
     <LinearLayout android:id="@+id/incomingControls"
@@ -105,10 +141,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Row 1: Mute | Speaker | DTMF -->
+        <!-- Row 1: Ghi âm | Tắt mic | Giữ -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnRecord"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_mic"
+                    android:contentDescription="@string/start_recording"/>
+                <TextView android:id="@+id/tvRecordLabel"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/start_recording" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
@@ -125,26 +174,57 @@
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                <ImageButton android:id="@+id/btnSpeaker"
+                <ImageButton android:id="@+id/btnHold"
                     android:layout_width="56dp" android:layout_height="56dp"
                     android:background="@drawable/bg_action_circle"
-                    android:src="@drawable/ic_volume_up"
-                    android:contentDescription="@string/speaker"/>
-                <TextView android:id="@+id/tvSpeakerLabel"
+                    android:src="@drawable/ic_call_hold"
+                    android:contentDescription="@string/hold_call"/>
+                <TextView android:id="@+id/tvHoldLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Row 2: Gọi rõ ràng | Thêm cuộc gọi | Thêm -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnClarity"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_call_clarity"
+                    android:contentDescription="@string/call_clarity"/>
+                <TextView android:id="@+id/tvClarityLabel"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                <ImageButton android:id="@+id/btnDtmf"
+                <ImageButton android:id="@+id/btnAddCall"
                     android:layout_width="56dp" android:layout_height="56dp"
                     android:background="@drawable/bg_action_circle"
-                    android:src="@drawable/ic_dialpad"
-                    android:contentDescription="Bàn phím"/>
+                    android:src="@drawable/ic_add"
+                    android:contentDescription="@string/add_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnMore"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_expand_more"
+                    android:contentDescription="@string/more_options"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
@@ -170,17 +250,46 @@
             <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="#" android:tag="#" android:textColor="@color/text_on_dark"/>
         </GridLayout>
 
-        <!-- End call -->
+        <!-- Bottom row: Loa ngoài | Kết thúc | Bàn phím -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:gravity="center" android:orientation="vertical">
-            <ImageButton android:id="@+id/btnEndCall"
-                android:layout_width="72dp" android:layout_height="72dp"
-                android:background="@drawable/bg_decline_circle"
-                android:src="@drawable/ic_call_end"
-                android:contentDescription="@string/end_call"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="13sp"
-                android:layout_marginTop="10dp" android:fontFamily="sans-serif"/>
+            android:orientation="horizontal" android:gravity="center">
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnSpeaker"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_volume_up"
+                    android:contentDescription="@string/speaker"/>
+                <TextView android:id="@+id/tvSpeakerLabel"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnEndCall"
+                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:background="@drawable/bg_decline_circle"
+                    android:src="@drawable/ic_call_end"
+                    android:contentDescription="@string/end_call"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="13sp"
+                    android:layout_marginTop="10dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                <ImageButton android:id="@+id/btnDtmf"
+                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:background="@drawable/bg_action_circle"
+                    android:src="@drawable/ic_dialpad"
+                    android:contentDescription="Bàn phím"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
