@@ -125,10 +125,15 @@ class CallHistoryFragment : Fragment() {
         )
         rb.ivEntryType.setImageResource(iconRes)
 
+        // Giờ:phút của cuộc gọi
+        val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val timeStr = timeFmt.format(Date(item.date))
+
+        // Status: "HH:mm Chưa kết nối" hoặc "HH:mm (13giây)"
         rb.tvEntryStatus.text = when {
-            isMissed -> getString(R.string.call_status_missed)
-            item.duration <= 0 -> getString(R.string.call_status_not_connected)
-            else -> formatDuration(item.duration)
+            isMissed -> "$timeStr  ${getString(R.string.call_status_missed)}"
+            item.duration <= 0 -> "$timeStr  ${getString(R.string.call_status_not_connected)}"
+            else -> "$timeStr  (${formatDuration(item.duration)})"
         }
 
         val today = Calendar.getInstance().apply {
@@ -136,7 +141,7 @@ class CallHistoryFragment : Fragment() {
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
-        val fmt = if (cal.after(today)) SimpleDateFormat("d/M", Locale.getDefault())
+        val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
                   else SimpleDateFormat("d/M", Locale.getDefault())
         rb.tvEntryDate.text = fmt.format(Date(item.date))
 
