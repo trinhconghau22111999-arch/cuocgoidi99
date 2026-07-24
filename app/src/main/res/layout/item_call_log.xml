@@ -83,11 +83,11 @@
             android:fontFamily="sans-serif"
             android:layout_marginEnd="4dp" />
 
-        <!-- info 150%: 27dp icon bên trong 54dp touch target -->
+        <!-- info 2/3 kích thước: 32dp -->
         <ImageButton
             android:id="@+id/btnCallBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
             android:scaleType="fitCenter"
