@@ -96,8 +96,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
-            navigateTo(CallLogFragment())
-            handleIntent(intent)
+            val data = intent?.data
+            if (data?.scheme == "tel") {
+                // Mở app qua liên kết "tel:" (vd. từ ứng dụng khác) - ưu tiên xử lý số đó
+                handleIntent(intent)
+            } else {
+                // Mặc định mở app: vào thẳng màn "Gần đây" ĐÃ MỞ SẴN bàn phím số (DialerFragment
+                // tự hiện danh sách gần đây phía trên bàn phím), không cần bấm FAB mới có bàn phím.
+                navigateTo(DialerFragment())
+                binding.fabDialpad.visibility = View.GONE
+            }
         }
         updateMissedBadge()
     }
