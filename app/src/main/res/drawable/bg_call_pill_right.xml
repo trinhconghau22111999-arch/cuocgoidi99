@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- SIM2 lấn qua khỏi SIM1 một khúc để thể hiện đây là SIM chính, nên bo tròn đủ 4 góc
+     (thành viên nang thuốc/pill hoàn chỉnh) thay vì chỉ bo góc phải như trước - phần bo
+     tròn bên trái sẽ là cạnh "lấn" đè lên nền SIM1. -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="#33FFFFFF">
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@color/btn_call_pill_right" />
-            <corners
-                android:topLeftRadius="0dp" android:bottomLeftRadius="0dp"
-                android:topRightRadius="28dp" android:bottomRightRadius="28dp" />
+            <corners android:radius="25dp" />
         </shape>
     </item>
 </ripple>
