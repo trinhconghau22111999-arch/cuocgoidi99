@@ -319,8 +319,8 @@ class DialerFragment : Fragment() {
     // cạnh thanh tab Gần đây/Danh bạ) sẽ hiện lên thay thế, dùng để mở lại bàn phím.
     private fun setKeypadVisible(visible: Boolean) {
         keypadVisible = visible
-        _b?.keypad?.visibility = if (visible) View.VISIBLE else View.GONE
-        _b?.rowDialControls?.visibility = if (visible) View.VISIBLE else View.GONE
+        // panelKeypad bao gồm etNumber + keypad + rowDialControls, nổi overlay gravity=bottom
+        _b?.panelKeypad?.visibility = if (visible) View.VISIBLE else View.GONE
         updateKeypadToggleIcon()
         (activity as? MainActivity)?.setDialpadFabVisible(!visible)
     }
@@ -446,8 +446,10 @@ class DialerFragment : Fragment() {
     }
 
     private fun searchSuggestions(raw: String) {
+        // Khi có số: ẩn header "Gần đây" của CallLogFragment (chỉ giữ list + số đang gõ)
+        (activity as? MainActivity)?.setCallLogHeaderVisible(raw.isEmpty())
         if (raw.length < 2) {
-            searchGeneration++ // huỷ mọi kết quả tra cứu cũ đang chạy nền, không áp dụng nữa
+            searchGeneration++
             b.llSuggestionsWrap.visibility = View.GONE
             b.llNoMatchActions.visibility = View.GONE
             b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
