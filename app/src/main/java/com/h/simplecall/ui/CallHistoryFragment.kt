@@ -140,20 +140,36 @@ class CallHistoryFragment : Fragment() {
         )
         rb.ivEntryType.setImageResource(iconRes)
 
+        // Giờ:phút bắt đầu cuộc gọi
+        val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val timeStr = timeFmt.format(Date(item.date))
+
+        // Format status theo hình mẫu
         rb.tvEntryStatus.text = when {
-            isMissed -> getString(R.string.call_status_missed)
-            item.duration <= 0 -> getString(R.string.call_status_not_connected)
-            else -> formatDuration(item.duration)
+            isMissed -> {
+                // Nhỡ: đổ chuông = duration nếu > 0, không thì 0
+                val ring = item.duration
+                if (ring > 0) "$timeStr  (Đổ chuông trong ${ring}giây)"
+                else "$timeStr  (Đổ chuông trong 1 giây)"
+            }
+            item.duration <= 0 -> "$timeStr  Chưa được kết nối"
+            else -> "$timeStr  (${formatDurationVi(item.duration)})"
         }
+
+        // Màu đỏ cho nhỡ
+        rb.tvEntryStatus.setTextColor(
+            requireContext().getColor(if (isMissed) R.color.missed_red else R.color.text_secondary)
+        )
 
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
-        val fmt = if (cal.after(today)) SimpleDateFormat("d/M", Locale.getDefault())
-                  else SimpleDateFormat("d/M", Locale.getDefault())
-        rb.tvEntryDate.text = fmt.format(Date(item.date))
+        rb.tvEntryDate.text = if (cal.after(today))
+            SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(item.date))
+        else
+            SimpleDateFormat("d/M", Locale.getDefault()).format(Date(item.date))
 
         rb.root.setOnClickListener { (activity as? MainActivity)?.placeCall(item.number) }
     }
@@ -162,6 +178,16 @@ class CallHistoryFragment : Fragment() {
         val m = seconds / 60
         val s = seconds % 60
         return String.format(Locale.getDefault(), "%d:%02d", m, s)
+    }
+
+    private fun formatDurationVi(seconds: Long): String {
+        val m = seconds / 60
+        val s = seconds % 60
+        return when {
+            m > 0 && s > 0 -> "${m}phút ${s}giây"
+            m > 0 -> "${m}phút"
+            else -> "${s}giây"
+        }
     }
 
     private fun clearHistory(number: String, entries: List<CallLogEntry>) {
