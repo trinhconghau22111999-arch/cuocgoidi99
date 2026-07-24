@@ -98,17 +98,6 @@
             android:orientation="vertical"
             android:gravity="center_horizontal" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_add"
-            app:tint="@color/fab_icon"
-            app:backgroundTint="@color/fab_bg"
-            app:fabSize="normal"
-            android:contentDescription="@string/add_contact" />
+
     </FrameLayout>
 </LinearLayout>
