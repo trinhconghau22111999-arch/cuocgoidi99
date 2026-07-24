@@ -48,8 +48,7 @@ class ContactsFragment : Fragment() {
 
         val headers = listOf(
             ContactHeader(R.drawable.ic_person, getString(R.string.my_info)) { openMyProfile() },
-            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() },
-            ContactHeader(R.drawable.ic_star, getString(R.string.starred_contacts)) { openStarredContacts() }
+            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
         )
 
         // Khởi tạo adapter rỗng ngay – tránh crash khi cuộn trước khi load xong
@@ -167,7 +166,8 @@ class ContactsFragment : Fragment() {
     private fun jumpTo(letter: String) {
         val lm = b.recyclerView.layoutManager as? LinearLayoutManager ?: return
         val pos = when (letter) {
-            "★", "…" -> adapter.firstContactPosition()
+            "★" -> adapter.positionForLetter("★") ?: adapter.firstContactPosition()
+            "…" -> adapter.firstContactPosition()
             "#" -> adapter.positionForLetter("#") ?: adapter.lastPosition()
             else -> adapter.positionForLetter(letter)
         }
@@ -187,14 +187,6 @@ class ContactsFragment : Fragment() {
 
     private fun openMyGroups() {
         Toast.makeText(requireContext(), "Tính năng nhóm liên hệ đang được phát triển", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun openStarredContacts() {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, StarredContactsFragment())
-            .addToBackStack("starred")
-            .commit()
-        (activity as? MainActivity)?.hideNav()
     }
 
     private fun openCreateContact() {

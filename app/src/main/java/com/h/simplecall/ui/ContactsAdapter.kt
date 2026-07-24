@@ -57,6 +57,19 @@ class ContactsAdapter(
     private fun buildRows(): List<Row> {
         val list = mutableListOf<Row>()
         if (query.isEmpty()) headers.forEach { list.add(Row.Static(it)) }
+
+        // Nhóm "★" (đã đánh dấu sao): bung trực tiếp ngay trong danh sách như 1 nhóm chữ cái
+        // bình thường - không còn là 1 dòng bấm-để-điều-hướng-sang-màn-khác nữa. Các liên hệ
+        // này vẫn xuất hiện thêm 1 lần nữa ở đúng nhóm chữ cái A-Z của chúng bên dưới (giống
+        // cách danh bạ hệ thống hiển thị mục Yêu thích/Favorites).
+        if (query.isEmpty()) {
+            val starred = filtered.filter { it.starred }
+            if (starred.isNotEmpty()) {
+                list.add(Row.Letter("★"))
+                starred.forEachIndexed { i, c -> list.add(Row.Item(c, i % avatarBgs.size)) }
+            }
+        }
+
         var lastLetter: String? = null
         filtered.forEachIndexed { i, c ->
             if (query.isEmpty()) {
