@@ -32,7 +32,7 @@
     <!-- Tiêu đề "Gần đây" -->
     <TextView
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginStart="20dp" android:layout_marginTop="4dp"
+        android:layout_marginStart="28dp" android:layout_marginTop="4dp"
         android:text="@string/recents_title"
         android:textSize="34sp"
         android:textColor="@color/text_primary"
@@ -61,8 +61,10 @@
                 android:fontFamily="sans-serif" />
             <View
                 android:id="@+id/tabAllUnderline"
-                android:layout_width="match_parent" android:layout_height="2dp"
+                android:layout_width="wrap_content" android:layout_height="2dp"
                 android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:minWidth="40dp"
                 android:background="@color/accent_blue" />
         </LinearLayout>
 
@@ -83,8 +85,10 @@
                 android:fontFamily="sans-serif" />
             <View
                 android:id="@+id/tabMissedUnderline"
-                android:layout_width="match_parent" android:layout_height="2dp"
+                android:layout_width="wrap_content" android:layout_height="2dp"
                 android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:minWidth="40dp"
                 android:background="@android:color/transparent" />
         </LinearLayout>
     </LinearLayout>
