@@ -26,7 +26,7 @@
             android:background="@color/bg"
             app:menu="@menu/bottom_nav"
             app:itemIconTint="@color/nav_icon_selector"
-            app:itemActiveIndicatorColor="@color/accent_blue"
+            app:itemActiveIndicatorStyle="@style/BottomNavActiveIndicator"
             app:itemTextColor="@color/nav_selector"
             app:itemTextAppearanceActive="@style/BottomNavLabel"
             app:itemTextAppearanceInactive="@style/BottomNavLabel"
