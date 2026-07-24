@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Thu nhỏ icon Danh bạ còn 75% kích thước gốc: viền vào mỗi cạnh 12.5%
+     (1 - 0.75 = 0.25, chia đều 2 bên = 12.5% mỗi bên) để hình thu nhỏ nhưng
+     vẫn nằm giữa đúng vị trí ô icon trên thanh điều hướng. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_tab_contacts"
+    android:insetLeft="12.5%"
+    android:insetTop="12.5%"
+    android:insetRight="12.5%"
+    android:insetBottom="12.5%" />
