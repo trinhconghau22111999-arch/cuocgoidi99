@@ -139,13 +139,15 @@
             android:layout_height="1dp"
             android:background="@color/divider" />
 
-        <!-- Ô nhập số -->
+        <!-- Ô nhập số: ẩn khi chưa gõ số -->
         <FrameLayout
+            android:id="@+id/frameNumber"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingStart="20dp"
-            android:paddingEnd="20dp">
+            android:paddingEnd="20dp"
+            android:visibility="gone">
 
             <ImageButton
                 android:id="@+id/btnDialMenu"
@@ -244,14 +246,14 @@
 
             <LinearLayout
                 android:id="@+id/llCallDual"
-                android:layout_width="wrap_content" android:layout_height="56dp"
+                android:layout_width="wrap_content" android:layout_height="50dp"
                 android:layout_gravity="center"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
                 <FrameLayout
                     android:id="@+id/btnCallSim1"
-                    android:layout_width="76dp" android:layout_height="match_parent"
+                    android:layout_width="95dp" android:layout_height="match_parent"
                     android:background="@drawable/bg_call_pill_left"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:layout_width="22dp" android:layout_height="22dp"
@@ -264,7 +266,7 @@
 
                 <FrameLayout
                     android:id="@+id/btnCallSim2"
-                    android:layout_width="76dp" android:layout_height="match_parent"
+                    android:layout_width="95dp" android:layout_height="match_parent"
                     android:background="@drawable/bg_call_pill_right"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:layout_width="22dp" android:layout_height="22dp"
