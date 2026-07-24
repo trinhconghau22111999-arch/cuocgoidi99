@@ -21,12 +21,33 @@
             android:clipToPadding="false"
             android:visibility="visible" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvSuggestions"
+        <LinearLayout
+            android:id="@+id/llSuggestionsWrap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvSuggestionsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/all_contacts"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:fontFamily="sans-serif"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSuggestions"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/llNoMatchActions"
@@ -50,8 +71,8 @@
                 android:paddingBottom="14dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:src="@drawable/ic_add"
                     app:tint="@color/white"
                     tools:ignore="MissingClass" />
@@ -60,7 +81,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="24dp"
+                    android:layout_marginStart="18dp"
                     android:text="@string/create_new_contact"
                     android:textSize="16sp"
                     android:textColor="@color/text_primary"
@@ -187,7 +208,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingEnd="48dp"
+            android:paddingStart="48dp"
+            android:paddingEnd="62dp"
             android:background="@null"
             android:inputType="none"
             android:gravity="center"
@@ -198,8 +220,19 @@
             android:maxLines="1" />
 
         <ImageButton
+            android:id="@+id/btnDialMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical|start"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="@string/dialpad_options"
+            android:visibility="invisible" />
+
+        <!-- Nút xoá: mở rộng thêm 20% chiều rộng (52dp -> 62dp) so với trước để dễ bấm hơn -->
+        <ImageButton
             android:id="@+id/btnBackspace"
-            android:layout_width="52dp"
+            android:layout_width="62dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical|end"
             android:background="@android:color/transparent"
@@ -271,7 +304,9 @@
             android:contentDescription="@string/call"
             android:visibility="visible" />
 
-        <!-- Nút gọi 2 SIM: 1 viên thuốc liền mạch, 2 nửa liền kề nhau, không viền/đường kẻ ở giữa -->
+        <!-- Nút gọi 2 SIM: 1 viên thuốc liền mạch, 2 nửa liền kề nhau, không viền/đường kẻ ở giữa.
+             Mỗi nửa là icon ống nghe + số SIM nhỏ đặt như huy hiệu ở góc trên-phải icon
+             (khớp ảnh mẫu), thay vì icon + chữ số cỡ lớn nằm cạnh nhau như trước. -->
         <LinearLayout
             android:id="@+id/llCallDual"
             android:layout_width="wrap_content"
@@ -280,39 +315,61 @@
             android:orientation="horizontal"
             android:visibility="gone">
 
-            <Button
+            <FrameLayout
                 android:id="@+id/btnCallSim1"
                 android:layout_width="76dp"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_call_pill_left"
-                android:text="1"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:stateListAnimator="@null"
-                android:drawableStart="@drawable/ic_call"
-                android:drawablePadding="8dp"
-                android:paddingStart="14dp"
-                android:gravity="center" />
+                android:clickable="true"
+                android:focusable="true">
 
-            <Button
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_call"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:translationX="9dp"
+                    android:translationY="-9dp"
+                    android:text="1"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif-medium" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/btnCallSim2"
                 android:layout_width="76dp"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_call_pill_right"
-                android:text="2"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:textAllCaps="false"
-                android:fontFamily="sans-serif-medium"
-                android:stateListAnimator="@null"
-                android:drawableStart="@drawable/ic_call"
-                android:drawablePadding="8dp"
-                android:paddingStart="14dp"
-                android:gravity="center" />
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_call"
+                    tools:ignore="MissingClass" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:translationX="9dp"
+                    android:translationY="-9dp"
+                    android:text="2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/white"
+                    android:fontFamily="sans-serif-medium" />
+            </FrameLayout>
         </LinearLayout>
 
         <ImageButton

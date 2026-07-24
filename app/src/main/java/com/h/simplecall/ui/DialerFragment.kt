@@ -120,20 +120,22 @@ class DialerFragment : Fragment() {
             b.etNumber.setText(""); syncBackspace(); true
         }
 
+        b.btnDialMenu.setOnClickListener { showDialMenu(it) }
+
         b.etNumber.addTextChangedListener(object : TextWatcher {
             private var editing = false
             override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
             override fun onTextChanged(s: CharSequence?, st: Int, b2: Int, c: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 if (editing) return; editing = true
-                val raw = s.toString().filter { it.isDigit() || it == '+' }
+                val raw = dialableFilter(s.toString())
                 val fmt = formatVN(raw)
                 if (fmt != s.toString()) {
                     b.etNumber.setText(fmt)
                     b.etNumber.setSelection(fmt.length)
                 }
                 syncBackspace()
-                searchSuggestions(raw)
+                searchSuggestions(raw.filter { it.isDigit() || it == '+' })
                 editing = false
             }
         })
@@ -175,6 +177,7 @@ class DialerFragment : Fragment() {
         b.btnKeypadToggle.setOnClickListener {
             keypadVisible = !keypadVisible
             b.keypad.visibility = if (keypadVisible) View.VISIBLE else View.GONE
+            updateKeypadToggleIcon()
         }
 
         syncBackspace()
@@ -182,6 +185,7 @@ class DialerFragment : Fragment() {
         // Bàn phím số luôn bật sẵn khi vào app/tab Gần đây
         keypadVisible = true
         b.keypad.visibility = android.view.View.VISIBLE
+        updateKeypadToggleIcon()
 
         // KHÔNG bật bàn phím hệ thống của máy ở đây nữa. etNumber chỉ dùng để HIỂN THỊ số đang
         // gõ, việc nhập số chỉ đến từ các phím bấm 0-9 * # trong bàn phím số riêng của app (xem
@@ -228,7 +232,7 @@ class DialerFragment : Fragment() {
             if (tag == "0") {
                 btn.setOnLongClickListener {
                     val cur = b.etNumber.text.toString()
-                    val raw = cur.filter { it.isDigit() || it == '+' }
+                    val raw = dialableFilter(cur)
                     val newRaw = if (raw.endsWith("0")) raw.dropLast(1) + "+" else raw + "+"
                     b.etNumber.setText(formatVN(newRaw))
                     b.etNumber.setSelection(b.etNumber.text.length)
@@ -248,7 +252,7 @@ class DialerFragment : Fragment() {
     }
 
     private fun callWith(handle: PhoneAccountHandle?) {
-        val raw = b.etNumber.text.toString().filter { it.isDigit() || it == '+' }
+        val raw = dialableFilter(b.etNumber.text.toString())
         if (raw.isNotEmpty()) {
             (activity as? MainActivity)?.placeCall(raw, handle)
         } else {
@@ -275,9 +279,14 @@ class DialerFragment : Fragment() {
         }
     }
 
+    // Giữ lại chữ số, "+" và các ký hiệu dừng/chờ (","=2 giây dừng, ";"=chờ) khi lọc nội dung
+    // ô nhập số. Dùng chung cho cả gõ phím lẫn thêm dấu dừng/chờ từ menu 3 chấm, để 2 luồng
+    // nhập không xoá mất ký hiệu của nhau.
+    private fun dialableFilter(s: String) = s.filter { it.isDigit() || it == '+' || it == ',' || it == ';' }
+
     private fun appendDigit(d: String) {
         val cur = b.etNumber.text.toString()
-        val raw = cur.filter { it.isDigit() || it == '+' } + d
+        val raw = dialableFilter(cur) + d
         b.etNumber.setText(formatVN(raw))
         b.etNumber.setSelection(b.etNumber.text.length)
         syncBackspace()
@@ -285,6 +294,8 @@ class DialerFragment : Fragment() {
 
     private fun formatVN(raw: String): String {
         if (raw.isEmpty()) return raw
+        // Có dấu dừng/chờ: không áp dụng định dạng nhóm số VN, giữ nguyên chuỗi người dùng gõ.
+        if (raw.contains(',') || raw.contains(';')) return raw
         val digits = raw.filter { it.isDigit() }
         return when {
             raw.startsWith("+") -> when {
@@ -299,9 +310,37 @@ class DialerFragment : Fragment() {
         }
     }
 
+    // Icon nút bật/tắt bàn phím phải phản ánh đúng trạng thái hiện tại: đang MỞ bàn phím thì
+    // hiện mũi tên xuống (báo bấm để ẨN), đang ẨN thì hiện icon lưới chấm (báo bấm để MỞ).
+    private fun updateKeypadToggleIcon() {
+        _b?.btnKeypadToggle?.setImageResource(
+            if (keypadVisible) R.drawable.ic_keyboard_hide else R.drawable.ic_dialpad
+        )
+    }
+
     private fun syncBackspace() {
-        _b?.btnBackspace?.visibility =
-            if (b.etNumber.text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+        val hasNumber = b.etNumber.text.isNotEmpty()
+        _b?.btnBackspace?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
+        _b?.btnDialMenu?.visibility = if (hasNumber) View.VISIBLE else View.INVISIBLE
+    }
+
+    // Menu 3 chấm cạnh ô nhập số: chèn ký tự dừng (,) hoặc chờ (;) vào cuối số đang gõ,
+    // giống hành vi bàn phím quay số chuẩn của Android khi gọi vào hệ thống IVR/tổng đài.
+    private fun showDialMenu(anchor: View) {
+        val popup = android.widget.PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, getString(R.string.add_2s_pause))
+        popup.menu.add(0, 2, 1, getString(R.string.add_wait))
+        popup.setOnMenuItemClickListener { item ->
+            val symbol = when (item.itemId) { 1 -> ","; 2 -> ";"; else -> "" }
+            if (symbol.isNotEmpty()) {
+                val raw = dialableFilter(b.etNumber.text.toString()) + symbol
+                b.etNumber.setText(formatVN(raw))
+                b.etNumber.setSelection(b.etNumber.text.length)
+                syncBackspace()
+            }
+            true
+        }
+        popup.show()
     }
 
     private fun loadRecents() {
@@ -399,7 +438,7 @@ class DialerFragment : Fragment() {
     private fun searchSuggestions(raw: String) {
         if (raw.length < 2) {
             searchGeneration++ // huỷ mọi kết quả tra cứu cũ đang chạy nền, không áp dụng nữa
-            b.rvSuggestions.visibility = View.GONE
+            b.llSuggestionsWrap.visibility = View.GONE
             b.llNoMatchActions.visibility = View.GONE
             b.rvRecents.visibility = if ((b.rvRecents.adapter?.itemCount ?: 0) > 0) View.VISIBLE else View.GONE
             return
@@ -413,11 +452,11 @@ class DialerFragment : Fragment() {
                 // Người dùng đã gõ thêm/xoá ký tự khác trong lúc chờ: bỏ qua kết quả trễ này
                 if (_b == null || myGeneration != searchGeneration) return@post
                 if (list.isEmpty()) {
-                    b.rvSuggestions.visibility = View.GONE
+                    b.llSuggestionsWrap.visibility = View.GONE
                     b.llNoMatchActions.visibility = View.VISIBLE
                 } else {
                     suggestAdapter.update(list, raw)
-                    b.rvSuggestions.visibility = View.VISIBLE
+                    b.llSuggestionsWrap.visibility = View.VISIBLE
                     b.llNoMatchActions.visibility = View.GONE
                 }
             }
@@ -471,6 +510,7 @@ class DialerFragment : Fragment() {
         // Bàn phím số luôn hiện khi quay lại tab Gần đây
         keypadVisible = true
         _b?.keypad?.visibility = android.view.View.VISIBLE
+        updateKeypadToggleIcon()
         setupCallButtons()
         loadRecents()
     }

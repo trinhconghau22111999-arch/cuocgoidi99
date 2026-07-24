@@ -7,6 +7,10 @@
     <string name="tab_contacts">Danh bạ</string>
     <string name="video_call">Gọi video</string>
     <string name="open_dialpad">Bàn phím</string>
+    <string name="dialpad_options">Tùy chọn quay số</string>
+    <string name="add_2s_pause">Thêm 2 giây dừng</string>
+    <string name="add_wait">Thêm chờ</string>
+    <string name="all_contacts">Tất cả liên hệ</string>
     <string name="video_call_unsupported">Tính năng gọi video chưa được hỗ trợ</string>
     <string name="call">Gọi</string>
     <string name="answer">Trả lời</string>
