@@ -318,7 +318,7 @@
             <Button android:tag="7" style="@style/KeyBtn" android:text="7" android:layout_columnWeight="1" />
             <Button android:tag="8" style="@style/KeyBtn" android:text="8" android:layout_columnWeight="1" />
             <Button android:tag="9" style="@style/KeyBtn" android:text="9" android:layout_columnWeight="1" />
-            <Button android:tag="*" style="@style/KeyBtn" android:text="*" android:layout_columnWeight="1" />
+            <Button android:tag="*" style="@style/KeyBtn" android:text="*" android:layout_columnWeight="1" android:textSize="24sp" />
             <Button android:tag="0" style="@style/KeyBtn" android:text="0" android:layout_columnWeight="1" />
             <Button android:tag="#" style="@style/KeyBtn" android:text="#" android:layout_columnWeight="1" />
         </GridLayout>
@@ -404,7 +404,7 @@
             <ImageButton
                 android:id="@+id/btnKeypadToggle"
                 android:layout_width="55dp" android:layout_height="55dp"
-                android:background="@drawable/bg_key_bright"
+                android:background="@android:color/transparent"
                 android:src="@drawable/ic_dialpad"
                 android:tint="@color/text_secondary"
                 android:contentDescription="@string/open_dialpad" />
