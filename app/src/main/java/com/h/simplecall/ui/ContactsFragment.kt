@@ -233,7 +233,11 @@ class ContactsFragment : Fragment() {
                 ))
             }
         }
-        return list
+        // DISPLAY_NAME ASC (SQL) xếp ký tự/số TRƯỚC chữ cái theo bảng mã Unicode, nên các liên
+        // hệ thuộc nhóm "#" (tên bắt đầu bằng số/ký hiệu) bị đẩy lên ĐẦU danh sách — không khớp
+        // với cột chỉ mục A-Z bên phải (đã xếp "#" ở CUỐI). Sắp xếp lại: đẩy nhóm "#" xuống cuối,
+        // dùng sortedBy (stable) nên thứ tự A-Z bên trong mỗi nhóm vẫn giữ nguyên như cũ.
+        return list.sortedBy { if (firstLetterKey(it.name) == "#") 1 else 0 }
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }
