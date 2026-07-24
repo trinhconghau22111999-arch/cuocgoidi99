@@ -46,4 +46,12 @@
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- Màu "viên thuốc" active-indicator của tab đang chọn ở bottom nav. Trước đây bị gán nhầm
+         qua app:itemActiveIndicatorColor trực tiếp trên BottomNavigationView - attribute đó
+         KHÔNG tồn tại trong NavigationBarView (chỉ có itemActiveIndicatorStyle trỏ tới 1 style,
+         màu thật sự nằm trong style đó qua android:color) nên aapt2 báo lỗi linking, build fail. -->
+    <style name="BottomNavActiveIndicator">
+        <item name="android:color">@color/accent_blue</item>
+    </style>
+
 </resources>
