@@ -189,6 +189,8 @@ class ContactsFragment : Fragment() {
         Toast.makeText(requireContext(), "Tính năng nhóm liên hệ đang được phát triển", Toast.LENGTH_SHORT).show()
     }
 
+    fun openCreateContactPublic() = openCreateContact()
+
     private fun openCreateContact() {
         try {
             startActivity(Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI))
