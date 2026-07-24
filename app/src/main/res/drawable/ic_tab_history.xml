@@ -2,6 +2,10 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Vòng tròn đặc -->
     <path android:fillColor="#FF000000"
-        android:pathData="M13,3C8.03,3 4,7.03 4,12H1l3.89,3.89 0.07,0.14L9,12H6c0-3.87 3.13-7 7-7s7,3.13 7,7-3.13,7-7,7c-1.93,0-3.68-0.79-4.94-2.06L6.62,18.38C8.27,20.01 10.52,21 13,21c4.97,0 9-4.03 9-9S17.97,3 13,3zM12,8v5l4.28,2.54 0.72-1.21-3.5-2.08V8H12z"/>
+        android:pathData="M12,2C6.477,2 2,6.477 2,12C2,17.523 6.477,22 12,22C17.523,22 22,17.523 22,12C22,6.477 17.523,2 12,2Z"/>
+    <!-- Kim phút: 12→3 giờ (đứng lên trên rồi sang phải) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M12,7 L12,12 L16,12 L16,13.5 L10.5,13.5 L10.5,7 Z"/>
 </vector>
