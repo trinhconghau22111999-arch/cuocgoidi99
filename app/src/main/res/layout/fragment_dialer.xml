@@ -248,27 +248,17 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:layout_gravity="center_vertical|start"
-            android:background="@drawable/bg_video_call_btn"
+            android:background="@android:color/transparent"
             android:clickable="true"
             android:focusable="true"
             android:contentDescription="@string/video_call">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_video_call"
-                app:tint="@color/text_primary"
+                android:src="@drawable/ic_video_call_outline"
                 tools:ignore="MissingClass" />
-
-            <!-- Chấm trắng nhỏ góc trên-trái, giống icon quay video trên máy thật -->
-            <View
-                android:layout_width="7dp"
-                android:layout_height="7dp"
-                android:layout_gravity="top|start"
-                android:layout_marginTop="6dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_white_dot" />
         </FrameLayout>
 
         <ImageButton
