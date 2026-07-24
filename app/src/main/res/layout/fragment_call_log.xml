@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:background="@color/bg">
 
-    <!-- Icon tìm kiếm + cài đặt (lục giác) góc trên bên phải -->
+    <!-- Icon tìm kiếm + cài đặt góc trên phải -->
     <FrameLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:paddingTop="16dp" android:paddingEnd="20dp">
@@ -38,17 +38,19 @@
         android:textColor="@color/text_primary"
         android:fontFamily="sans-serif-medium" />
 
-    <!-- 2 tab: Tất cả / Cuộc gọi nhỡ -->
+    <!-- 2 tab canh đều: Tất cả | Cuộc gọi nhỡ -->
     <LinearLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="20dp" android:paddingEnd="20dp"
         android:paddingTop="16dp">
 
+        <!-- Tab Tất cả: chiếm 50% -->
         <LinearLayout
             android:id="@+id/tabAll"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
+            android:gravity="center_horizontal"
             android:clickable="true" android:focusable="true">
             <TextView
                 android:id="@+id/tvTabAll"
@@ -64,11 +66,13 @@
                 android:background="@color/accent_blue" />
         </LinearLayout>
 
+        <!-- Tab Cuộc gọi nhỡ: chiếm 50% -->
         <LinearLayout
             android:id="@+id/tabMissed"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical"
+            android:gravity="center_horizontal"
             android:clickable="true" android:focusable="true">
             <TextView
                 android:id="@+id/tvTabMissed"
