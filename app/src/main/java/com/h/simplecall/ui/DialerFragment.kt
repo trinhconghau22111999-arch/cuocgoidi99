@@ -221,7 +221,7 @@ class DialerFragment : Fragment() {
             if (tag == "1") {
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
-                val sub2Start = ss.length; ss.append("QO")
+                val sub2Start = ss.length; ss.append("∞")
                 ss.setSpan(RelativeSizeSpan(0.35f), sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
