@@ -38,19 +38,18 @@
         android:textColor="@color/text_primary"
         android:fontFamily="sans-serif-medium" />
 
-    <!-- 2 tab canh đều: Tất cả | Cuộc gọi nhỡ -->
+    <!-- 2 tab căn trái: Tất cả | Cuộc gọi nhỡ -->
     <LinearLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:paddingStart="28dp" android:paddingEnd="20dp"
         android:paddingTop="16dp">
 
-        <!-- Tab Tất cả: chiếm 50% -->
+        <!-- Tab Tất cả: wrap_content, gạch chân bằng đúng chữ -->
         <LinearLayout
             android:id="@+id/tabAll"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:clickable="true" android:focusable="true">
             <TextView
                 android:id="@+id/tvTabAll"
@@ -61,20 +60,19 @@
                 android:fontFamily="sans-serif" />
             <View
                 android:id="@+id/tabAllUnderline"
-                android:layout_width="wrap_content" android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="center_horizontal"
-                android:minWidth="40dp"
+                android:layout_width="match_parent" android:layout_height="2dp"
+                android:layout_marginTop="6dp"
                 android:background="@color/accent_blue" />
         </LinearLayout>
 
-        <!-- Tab Cuộc gọi nhỡ: chiếm 50% -->
+        <!-- Khoảng cách giữa 2 tab -->
+        <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
+
+        <!-- Tab Cuộc gọi nhỡ: wrap_content, gạch chân bằng đúng chữ -->
         <LinearLayout
             android:id="@+id/tabMissed"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
             android:clickable="true" android:focusable="true">
             <TextView
                 android:id="@+id/tvTabMissed"
@@ -85,10 +83,8 @@
                 android:fontFamily="sans-serif" />
             <View
                 android:id="@+id/tabMissedUnderline"
-                android:layout_width="wrap_content" android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="center_horizontal"
-                android:minWidth="40dp"
+                android:layout_width="match_parent" android:layout_height="2dp"
+                android:layout_marginTop="6dp"
                 android:background="@android:color/transparent" />
         </LinearLayout>
     </LinearLayout>
