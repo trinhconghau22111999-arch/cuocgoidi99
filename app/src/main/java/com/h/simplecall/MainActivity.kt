@@ -73,11 +73,19 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNav.setOnItemReselectedListener { item -> goToTab(item.itemId) }
 
         binding.fabDialpad.setOnClickListener {
-            // Chỉ thay nội dung bằng DialerFragment, KHÔNG push vào back stack và KHÔNG ẩn
-            // thanh điều hướng dưới (Gần đây/Danh bạ) - bàn phím số phải hiện cùng lúc với
-            // thanh điều hướng, không được che/ẩn nó đi.
-            navigateTo(DialerFragment())
-            binding.fabDialpad.visibility = View.GONE
+            // Nếu đang đứng sẵn trong DialerFragment (trường hợp FAB đang hiện vì người dùng vừa
+            // ẩn bàn phím) thì chỉ cần MỞ LẠI bàn phím trên fragment đó, không tạo fragment mới
+            // (tránh mất số đang gõ). Ngược lại (đang ở tab Gần đây/Danh bạ) mới tạo mới như cũ.
+            val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            if (current is DialerFragment) {
+                current.showKeypad()
+            } else {
+                // Chỉ thay nội dung bằng DialerFragment, KHÔNG push vào back stack và KHÔNG ẩn
+                // thanh điều hướng dưới (Gần đây/Danh bạ) - bàn phím số phải hiện cùng lúc với
+                // thanh điều hướng, không được che/ẩn nó đi.
+                navigateTo(DialerFragment())
+                binding.fabDialpad.visibility = View.GONE
+            }
         }
 
         supportFragmentManager.addOnBackStackChangedListener {
@@ -131,6 +139,12 @@ class MainActivity : AppCompatActivity() {
     fun hideNav() {
         binding.bottomNav.visibility   = View.GONE
         binding.fabDialpad.visibility  = View.GONE
+    }
+
+    /** DialerFragment gọi hàm này mỗi khi tự ẩn/hiện bàn phím số của nó, để FAB bàn phím
+     *  (cạnh thanh tab Gần đây/Danh bạ) hiện lên đúng lúc dùng làm nút mở lại. */
+    fun setDialpadFabVisible(visible: Boolean) {
+        binding.fabDialpad.visibility = if (visible) View.VISIBLE else View.GONE
     }
 
     /** Mở màn Cài đặt chuyển hướng cuộc gọi. Được gọi từ icon lục giác ở mỗi tab
