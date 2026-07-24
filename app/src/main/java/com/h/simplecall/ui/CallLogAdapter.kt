@@ -61,17 +61,17 @@ class CallLogAdapter(
             ctx.getColor(if (isMissed) R.color.missed_red else R.color.text_primary)
         )
 
-        // ── SIM badge: luôn xám, chỉ số thay đổi ──
+        // ── SIM badge: luôn xám đậm, chỉ số thay đổi ──
         val simNum = if (isDualSim && item.simSlot != null) item.simSlot + 1 else 1
         h.b.tvSimBadge.text = simNum.toString()
         h.b.tvSimBadge.visibility = View.VISIBLE
-        h.b.tvSimBadge.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+        h.b.tvSimBadge.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
-        // ── Loại đường dây: luôn xám ──
+        // ── Loại đường dây: luôn xám đậm ──
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
-        h.b.tvDate.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+        h.b.tvDate.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
-        // ── Ngày/giờ: luôn xám ──
+        // ── Ngày/giờ: luôn xám đậm ──
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
@@ -80,10 +80,10 @@ class CallLogAdapter(
         val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
                   else SimpleDateFormat("d/M", Locale.getDefault())
         h.b.tvCallTime.text = fmt.format(Date(item.date))
-        h.b.tvCallTime.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+        h.b.tvCallTime.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
-        // ── Icon info: luôn xám ──
-        h.b.btnCallBack.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
+        // ── Icon info: luôn xám đậm ──
+        h.b.btnCallBack.setColorFilter(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
         h.b.root.setOnClickListener { onCall(item.number) }
         h.b.btnCallBack.setOnClickListener { onShowHistory(item.number) }
