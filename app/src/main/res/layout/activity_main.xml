@@ -27,7 +27,7 @@
             app:menu="@menu/bottom_nav"
             app:itemIconTint="@color/black"
             app:itemBackground="@drawable/bg_nav_item_pill"
-            app:itemTextColor="@color/nav_selector"
+            app:itemTextColor="@color/text_primary"
             app:itemTextAppearanceActive="@style/BottomNavLabel"
             app:itemTextAppearanceInactive="@style/BottomNavLabel"
             app:labelVisibilityMode="labeled"
