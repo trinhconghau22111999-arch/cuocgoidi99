@@ -72,13 +72,13 @@ class CallLogAdapter(
         // Loại đường dây
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
 
-        // Thời gian cột phải
+        // Cột phải: hôm nay hiện giờ phút, ngày khác hiện ngày/tháng
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
         val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
-                  else SimpleDateFormat("dd/MM  HH:mm", Locale.getDefault())
+                  else SimpleDateFormat("d/M", Locale.getDefault())
         h.b.tvCallTime.text = fmt.format(Date(item.date))
 
         h.b.root.setOnClickListener { onCall(item.number) }
