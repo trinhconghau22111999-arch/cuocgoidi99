@@ -56,12 +56,12 @@
 
             <!-- Avatar tròn + chữ cái đầu tên -->
             <TextView android:id="@+id/tvAvatar"
-                android:layout_width="96dp" android:layout_height="96dp"
+                android:layout_width="120dp" android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_avatar_circle"
                 android:gravity="center"
-                android:textSize="36sp" android:textColor="@color/white"
+                android:textSize="48sp" android:textColor="@color/white"
                 android:fontFamily="sans-serif-medium" />
 
             <!-- Tên liên hệ, tối đa 2 dòng, canh giữa -->
@@ -71,9 +71,9 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="32dp" android:layout_marginEnd="32dp"
                 android:gravity="center"
-                android:textSize="20sp" android:textStyle="normal"
+                android:textSize="34sp" android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:fontFamily="sans-serif-light" />
+                android:fontFamily="sans-serif-medium" />
 
             <!-- Dòng "Gọi bằng SIMx (mặc định) >" -->
             <LinearLayout android:id="@+id/rowSimDefault"
@@ -142,9 +142,7 @@
                             android:id="@+id/tvCallSimNum"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom|end"
-                            android:layout_marginEnd="2dp"
-                            android:layout_marginBottom="1dp"
+                            android:layout_gravity="top|end"
                             android:text="1"
                             android:textSize="9sp"
                             android:textStyle="bold"
