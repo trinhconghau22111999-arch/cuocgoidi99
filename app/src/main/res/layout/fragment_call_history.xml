@@ -71,9 +71,9 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginStart="32dp" android:layout_marginEnd="32dp"
                 android:gravity="center"
-                android:textSize="26sp" android:textStyle="bold"
+                android:textSize="20sp" android:textStyle="normal"
                 android:textColor="@color/text_primary"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="sans-serif-light" />
 
             <!-- Dòng "Gọi bằng SIMx (mặc định) >" -->
             <LinearLayout android:id="@+id/rowSimDefault"
