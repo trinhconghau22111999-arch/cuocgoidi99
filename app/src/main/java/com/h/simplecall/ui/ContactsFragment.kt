@@ -48,7 +48,8 @@ class ContactsFragment : Fragment() {
 
         val headers = listOf(
             ContactHeader(R.drawable.ic_person, getString(R.string.my_info)) { openMyProfile() },
-            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
+            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() },
+            ContactHeader(R.drawable.ic_star, getString(R.string.starred_contacts)) { openStarredContacts() }
         )
 
         // Khởi tạo adapter rỗng ngay – tránh crash khi cuộn trước khi load xong
@@ -188,6 +189,14 @@ class ContactsFragment : Fragment() {
         Toast.makeText(requireContext(), "Tính năng nhóm liên hệ đang được phát triển", Toast.LENGTH_SHORT).show()
     }
 
+    private fun openStarredContacts() {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, StarredContactsFragment())
+            .addToBackStack("starred")
+            .commit()
+        (activity as? MainActivity)?.hideNav()
+    }
+
     private fun openCreateContact() {
         try {
             startActivity(Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI))
@@ -205,19 +214,22 @@ class ContactsFragment : Fragment() {
             arrayOf(
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
+                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI,
+                ContactsContract.CommonDataKinds.Phone.STARRED
             ), null, null,
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
         ) ?: return list
         cur.use {
-            val iName  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val iNum   = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-            val iPhoto = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
+            val iName    = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val iNum     = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            val iPhoto   = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
+            val iStarred = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
             while (it.moveToNext()) {
                 list.add(Contact(
                     name     = it.getString(iName) ?: "",
                     number   = it.getString(iNum) ?: "",
-                    photoUri = it.getString(iPhoto)
+                    photoUri = it.getString(iPhoto),
+                    starred  = iStarred >= 0 && it.getInt(iStarred) != 0
                 ))
             }
         }

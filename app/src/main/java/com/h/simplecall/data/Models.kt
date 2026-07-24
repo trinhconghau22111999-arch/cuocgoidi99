@@ -3,7 +3,8 @@ package com.h.simplecall.data
 data class Contact(
     val name: String,
     val number: String,
-    val photoUri: String? = null
+    val photoUri: String? = null,
+    val starred: Boolean = false // đã được đánh dấu sao (yêu thích) trong danh bạ hệ thống
 )
 
 data class CallLogEntry(

@@ -1,6 +1,8 @@
 <resources>
     <string name="my_info">Thông tin của tôi</string>
     <string name="my_groups">Nhóm của tôi</string>
+    <string name="starred_contacts">Được đánh dấu sao</string>
+    <string name="no_starred_contacts">Chưa có liên hệ nào được đánh dấu sao</string>
     <string name="add_contact">Thêm liên hệ mới</string>
     <string name="app_name">Gọi Điện</string>
     <string name="tab_recents">Gần đây</string>
