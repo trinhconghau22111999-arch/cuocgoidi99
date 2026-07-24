@@ -7,14 +7,45 @@
     android:background="#1C1C1E">
 
 
+    <!-- Avatar: vòng tròn màu nền (chữ cái đầu) HOẶC ảnh liên hệ thật, đặt phía trên tên -->
+    <View android:id="@+id/avatarView"
+        android:layout_width="88dp" android:layout_height="88dp"
+        android:layout_marginTop="56dp"
+        android:background="@drawable/bg_avatar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <ImageView android:id="@+id/ivContactPhoto"
+        android:layout_width="88dp" android:layout_height="88dp"
+        android:layout_marginTop="56dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/bg_avatar"
+        android:clipToOutline="true"
+        android:visibility="gone"
+        android:contentDescription="@string/contact_photo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView android:id="@+id/tvAvatarLetter"
+        android:layout_width="88dp" android:layout_height="88dp"
+        android:layout_marginTop="56dp"
+        android:gravity="center"
+        android:textSize="36sp" android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="40dp" android:layout_marginEnd="40dp"
         android:gravity="center"
         android:textColor="@color/text_on_dark" android:textSize="28sp"
         android:fontFamily="sans-serif" android:singleLine="true"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/avatarView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -33,28 +64,40 @@
 
     <!-- Badge HD + trạng thái/giờ gọi, gộp chung 1 hàng để tránh constraint vòng lặp -->
     <!-- Icon SIM đang gọi: hình thẻ SIM + số 1/2 bên trong -->
-    <FrameLayout android:id="@+id/llSimLine"
+    <LinearLayout android:id="@+id/llSimLine"
         android:layout_width="wrap_content" android:layout_height="26dp"
         android:layout_marginTop="6dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:layout_width="26dp" android:layout_height="26dp"
-            android:src="@drawable/ic_sim_card"
-            android:tint="#9AA0A6" />
+        <FrameLayout
+            android:layout_width="26dp" android:layout_height="26dp">
 
-        <TextView android:id="@+id/tvSimBadge"
+            <ImageView
+                android:layout_width="26dp" android:layout_height="26dp"
+                android:src="@drawable/ic_sim_card"
+                android:tint="#9AA0A6" />
+
+            <TextView android:id="@+id/tvSimBadge"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="2"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:fontFamily="sans-serif-medium" />
+        </FrameLayout>
+
+        <TextView android:id="@+id/tvCarrier"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="2"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:fontFamily="sans-serif-medium" />
-    </FrameLayout>
+            android:layout_marginStart="6dp"
+            android:textSize="12sp" android:textColor="#9AA0A6"
+            android:fontFamily="sans-serif" />
+    </LinearLayout>
 
     <LinearLayout android:id="@+id/llStatusLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
