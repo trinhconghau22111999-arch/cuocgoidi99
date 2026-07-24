@@ -6,6 +6,11 @@
     android:background="@color/bg">
 
     <!-- Icon tìm kiếm + cài đặt góc trên phải -->
+    <LinearLayout
+        android:id="@+id/llCallLogHeader"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical">
+
     <FrameLayout
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:paddingTop="16dp" android:paddingEnd="20dp">
@@ -92,6 +97,8 @@
     <View
         android:layout_width="match_parent" android:layout_height="0.5dp"
         android:background="#332B2B2B" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent" android:layout_height="0dp"
