@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/bg">
 
-    <!-- Fragment container chiếm toàn bộ, bottom nav dưới -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -24,16 +23,19 @@
             android:id="@+id/bottomNav"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@color/bg"
             app:menu="@menu/bottom_nav"
             app:itemIconTint="@color/nav_selector"
             app:itemTextColor="@color/nav_selector"
             app:itemTextAppearanceActive="@style/BottomNavLabel"
             app:itemTextAppearanceInactive="@style/BottomNavLabel"
             app:labelVisibilityMode="labeled"
+            app:elevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- FAB: xám, icon dialpad xanh -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabDialpad"
             android:layout_width="wrap_content"
@@ -41,8 +43,8 @@
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:src="@drawable/ic_dialpad"
-            app:tint="@color/white"
-            app:backgroundTint="@color/accent_blue"
+            app:tint="@color/accent_blue"
+            app:backgroundTint="@color/key_bg"
             app:fabSize="normal"
             android:contentDescription="@string/open_dialpad"
             app:layout_constraintBottom_toTopOf="@id/bottomNav"
