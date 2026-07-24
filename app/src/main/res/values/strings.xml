@@ -35,6 +35,14 @@
     <string name="yes_block">Chặn</string>
     <string name="cancel">Hủy</string>
     <string name="call_history">Lịch sử cuộc gọi</string>
+    <string name="number_type_mobile">Di động</string>
+    <string name="default_sim_call">Gọi bằng SIM%1$d (mặc định)</string>
+    <string name="zalo_call_with_number">Gọi điện Zalo (+84%1$s)</string>
+    <string name="call_type_missed">Cuộc gọi nhỡ</string>
+    <string name="call_type_outgoing">Cuộc gọi đi</string>
+    <string name="call_type_incoming">Cuộc gọi đến</string>
+    <string name="call_status_missed">Cuộc gọi nhỡ</string>
+    <string name="call_status_not_connected">Chưa được kết nối</string>
     <string name="no_calls_with">Chưa có cuộc gọi nào với số này</string>
     <string name="create_new_contact">Tạo liên hệ mới</string>
     <string name="add_to_existing_contact">Thêm vào liên hệ hiện có</string>

@@ -13,5 +13,6 @@ data class CallLogEntry(
     val type: Int,
     val date: Long,
     val simSlot: Int? = null,      // 0 = SIM 1, 1 = SIM 2
-    val numberType: String = ""    // "Di động", "Việt Nam", v.v.
+    val numberType: String = "",   // "Di động", "Việt Nam", v.v.
+    val duration: Long = 0         // giây - dùng để hiển thị "Chưa được kết nối" khi = 0
 )
