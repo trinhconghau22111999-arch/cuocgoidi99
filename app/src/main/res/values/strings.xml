@@ -48,6 +48,16 @@
     <string name="add_to_existing_contact">Thêm vào liên hệ hiện có</string>
     <string name="send_sms">Gửi tin nhắn SMS</string>
     <string name="video_call_meet">Cuộc gọi video Meet</string>
+    <string name="start_recording">Bắt đầu ghi âm</string>
+    <string name="stop_recording">Dừng ghi âm</string>
+    <string name="hold_call">Giữ</string>
+    <string name="unhold_call">Bỏ giữ</string>
+    <string name="call_clarity">Gọi rõ ràng</string>
+    <string name="add_call">Thêm cuộc gọi</string>
+    <string name="more_options">Thêm</string>
+    <string name="recording_saved">Đã lưu bản ghi âm cuộc gọi</string>
+    <string name="recording_failed">Máy không hỗ trợ ghi âm cuộc gọi</string>
+    <string name="feature_coming_soon">Tính năng đang được phát triển</string>
     <string name="contacts_title">Danh bạ</string>
     <string name="recents_title">Gần đây</string>
     <string name="contacts_count">%d liên hệ</string>
