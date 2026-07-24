@@ -127,11 +127,28 @@
                             android:textSize="13sp" android:textColor="@color/text_secondary" />
                     </LinearLayout>
 
-                    <ImageButton android:id="@+id/btnCallRow"
-                        android:layout_width="40dp" android:layout_height="40dp"
-                        android:background="@android:color/transparent"
-                        android:src="@drawable/ic_call_outline"
-                        android:contentDescription="@string/call" />
+                    <!-- Icon gọi + số SIM ở góc trên -->
+                    <FrameLayout
+                        android:layout_width="40dp"
+                        android:layout_height="40dp">
+                        <ImageButton android:id="@+id/btnCallRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_call_outline"
+                            android:contentDescription="@string/call" />
+                        <!-- Số SIM hiện ở góc trên icon gọi -->
+                        <TextView
+                            android:id="@+id/tvCallSimNum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:text="1"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_secondary"
+                            android:fontFamily="sans-serif-medium" />
+                    </FrameLayout>
 
                     <ImageButton android:id="@+id/btnMessageRow"
                         android:layout_width="40dp" android:layout_height="40dp"
