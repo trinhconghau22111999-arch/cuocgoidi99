@@ -10,7 +10,6 @@
     android:paddingBottom="12dp"
     android:background="@color/bg">
 
-    <!-- Icon cuộc gọi: vào/ra/nhỡ, kích thước lớn hơn -->
     <ImageView
         android:id="@+id/ivType"
         android:layout_width="44dp"
@@ -24,7 +23,6 @@
         android:layout_marginStart="12dp"
         android:orientation="vertical">
 
-        <!-- Tên: 1 dòng, dài thì "..." -->
         <TextView
             android:id="@+id/tvName"
             android:layout_width="match_parent"
@@ -35,7 +33,6 @@
             android:maxLines="1"
             android:ellipsize="end" />
 
-        <!-- Hàng dưới: [□2] Di động -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,7 +40,7 @@
             android:gravity="center_vertical"
             android:layout_marginTop="3dp">
 
-            <!-- SIM badge: ô vuông nhỏ có số bên trong, giống ảnh gốc -->
+            <!-- SIM badge: ô vuông có số, chỉ hiện khi dual SIM -->
             <TextView
                 android:id="@+id/tvSimBadge"
                 android:layout_width="wrap_content"
@@ -59,31 +56,32 @@
                 android:layout_marginEnd="5dp"
                 android:visibility="gone" />
 
+            <!-- Loại đường dây: Di động / Nhà riêng... -->
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:fontFamily="sans-serif" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Thời gian + nút info -->
+    <!-- Cột phải: ngày/giờ + nút info -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         android:layout_marginStart="8dp">
 
+        <!-- Ngày/giờ (ẩn giờ, chỉ hiện ngày hoặc giờ tùy hôm nay) -->
         <TextView
             android:id="@+id/tvCallTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textColor="@color/text_secondary"
-            android:layout_marginEnd="8dp"
             android:fontFamily="sans-serif" />
 
         <ImageButton
