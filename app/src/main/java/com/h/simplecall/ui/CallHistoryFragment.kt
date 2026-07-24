@@ -48,7 +48,9 @@ class CallHistoryFragment : Fragment() {
 
         // ── Header: avatar tròn (chữ cái đầu) + tên + số ──
         b.tvAvatar.text = display.take(1).uppercase()
-        b.tvTitle.text = display
+        // Nếu không có tên liên hệ (chỉ là 1 số lạ) thì số lớn phía trên PHẢI cách nhóm 3-3-2-2
+        // giống số trong thẻ phía dưới, ví dụ "090 130 08 36" - đúng ảnh mẫu người dùng gửi.
+        b.tvTitle.text = if (name.isBlank()) formatNumberGrouped(number) else display
         // Đọc SIM mặc định cho cuộc gọi từ hệ thống
         val defaultSimSlot: Int = try {
             if (android.content.pm.PackageManager.PERMISSION_GRANTED ==
@@ -66,7 +68,7 @@ class CallHistoryFragment : Fragment() {
         // Số SIM trên icon gọi
         b.tvCallSimNum.text = defaultSimSlot.toString()
 
-        b.tvNumber.text = number
+        b.tvNumber.text = formatNumberGrouped(number)
         val digitsOnly = number.filter { it.isDigit() }
         val nationalNumber = if (digitsOnly.startsWith("0")) digitsOnly.drop(1) else digitsOnly
         b.tvZalo.text = getString(R.string.zalo_call_with_number, nationalNumber)
@@ -172,6 +174,25 @@ class CallHistoryFragment : Fragment() {
             SimpleDateFormat("d/M", Locale.getDefault()).format(Date(item.date))
 
         rb.root.setOnClickListener { (activity as? MainActivity)?.placeCall(item.number) }
+    }
+
+    /** Cách nhóm số điện thoại theo 3-3-2-2, ví dụ "0901300836" -> "090 130 08 36",
+     *  đúng định dạng hiển thị trong ảnh mẫu. Giữ dấu "+" đầu số (nếu có) đứng riêng,
+     *  không tính vào phần chia nhóm. Số dài hơn 10 chữ số thì phần dư được gộp vào nhóm cuối. */
+    private fun formatNumberGrouped(raw: String): String {
+        val hasPlus = raw.trimStart().startsWith("+")
+        val digits = raw.filter { it.isDigit() }
+        if (digits.isEmpty()) return raw
+        val groups = mutableListOf<String>()
+        var i = 0
+        for (size in intArrayOf(3, 3, 2, 2)) {
+            if (i >= digits.length) break
+            val end = (i + size).coerceAtMost(digits.length)
+            groups.add(digits.substring(i, end))
+            i = end
+        }
+        if (i < digits.length) groups.add(digits.substring(i))
+        return (if (hasPlus) "+" else "") + groups.joinToString(" ")
     }
 
     private fun formatDuration(seconds: Long): String {
