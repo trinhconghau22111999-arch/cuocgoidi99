@@ -10,17 +10,18 @@
     android:paddingBottom="12dp"
     android:background="@color/bg">
 
+    <!-- Icon gọi vào/ra/nhỡ: nhỏ lại 65% (44→28dp) -->
     <ImageView
         android:id="@+id/ivType"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:padding="8dp" />
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:padding="2dp" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="10dp"
         android:orientation="vertical">
 
         <TextView
@@ -33,6 +34,7 @@
             android:maxLines="1"
             android:ellipsize="end" />
 
+        <!-- Hàng dưới: [□1] Di động  hoặc  [□2] Việt Nam -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,23 +42,21 @@
             android:gravity="center_vertical"
             android:layout_marginTop="3dp">
 
-            <!-- SIM badge: ô vuông có số, chỉ hiện khi dual SIM -->
+            <!-- SIM badge: ô vuông với số sim bên trong, luôn hiện -->
             <TextView
                 android:id="@+id/tvSimBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2"
+                android:text="1"
                 android:textSize="11sp"
                 android:textColor="@color/text_secondary"
                 android:background="@drawable/bg_sim_badge"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
                 android:paddingTop="1dp"
                 android:paddingBottom="1dp"
-                android:layout_marginEnd="5dp"
-                android:visibility="gone" />
+                android:layout_marginEnd="5dp" />
 
-            <!-- Loại đường dây: Di động / Nhà riêng... -->
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Cột phải: ngày/giờ + nút info -->
+    <!-- Cột phải: ngày/giờ trên + nút info to lên 150% -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -75,7 +75,6 @@
         android:gravity="center_horizontal"
         android:layout_marginStart="8dp">
 
-        <!-- Ngày/giờ (ẩn giờ, chỉ hiện ngày hoặc giờ tùy hôm nay) -->
         <TextView
             android:id="@+id/tvCallTime"
             android:layout_width="wrap_content"
@@ -84,10 +83,11 @@
             android:textColor="@color/text_secondary"
             android:fontFamily="sans-serif" />
 
+        <!-- ic_info lớn lên 150% (36→54dp) -->
         <ImageButton
             android:id="@+id/btnCallBack"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
             android:contentDescription="@string/call_history" />
