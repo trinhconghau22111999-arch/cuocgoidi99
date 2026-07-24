@@ -179,6 +179,10 @@ class DialerFragment : Fragment() {
 
         syncBackspace()
 
+        // Bàn phím số luôn bật sẵn khi vào app/tab Gần đây
+        keypadVisible = true
+        b.keypad.visibility = android.view.View.VISIBLE
+
         // KHÔNG bật bàn phím hệ thống của máy ở đây nữa. etNumber chỉ dùng để HIỂN THỊ số đang
         // gõ, việc nhập số chỉ đến từ các phím bấm 0-9 * # trong bàn phím số riêng của app (xem
         // setupKeypad bên dưới). "android:showSoftInputOnFocus" không phải attribute XML công
@@ -464,6 +468,9 @@ class DialerFragment : Fragment() {
     // vĩnh viễn ở chế độ 1 SIM ngay cả sau khi người dùng đã cấp quyền / cắm thêm SIM.
     override fun onResume() {
         super.onResume()
+        // Bàn phím số luôn hiện khi quay lại tab Gần đây
+        keypadVisible = true
+        _b?.keypad?.visibility = android.view.View.VISIBLE
         setupCallButtons()
         loadRecents()
     }
