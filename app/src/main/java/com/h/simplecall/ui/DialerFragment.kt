@@ -492,7 +492,7 @@ class DialerFragment : Fragment() {
         // Header "Gần đây" (tiêu đề + tab) LUÔN nằm cố định trên cùng, KHÔNG bị bàn phím che -
         // chỉ ẩn hẳn khi người dùng bắt đầu gõ số, nhường chỗ cho "Tất cả liên hệ" bên dưới.
         b.llDialerHeader.visibility = if (raw.isEmpty()) View.VISIBLE else View.GONE
-        if (raw.length < 2) {
+        if (raw.length < 1) {
             searchGeneration++
             b.llSuggestionsWrap.visibility = View.GONE
             b.llNoMatchActions.visibility = View.GONE
