@@ -22,7 +22,6 @@ class CallLogAdapter(
     private val items: List<CallLogEntry>,
     private val onCall: (String) -> Unit,
     private val onShowHistory: (String) -> Unit,
-    /** true nếu máy có từ 2 SIM trở lên – chỉ khi đó mới hiện badge SIM */
     private val isDualSim: Boolean = false
 ) : RecyclerView.Adapter<CallLogAdapter.VH>() {
 
@@ -38,8 +37,9 @@ class CallLogAdapter(
         val ctx = h.itemView.context
         val display = item.name.ifEmpty { item.number }
         val isBlocked = BlockedNumbersManager.isBlocked(item.number)
+        val isMissed = item.type == CallLog.Calls.MISSED_TYPE
 
-        // Icon loại cuộc gọi: ra / vào / nhỡ
+        // ── Icon cuộc gọi: xám (vào/ra), đỏ (nhỡ) ──
         when (item.type) {
             CallLog.Calls.MISSED_TYPE -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_missed)
@@ -47,36 +47,43 @@ class CallLogAdapter(
             }
             CallLog.Calls.OUTGOING_TYPE -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_outgoing)
-                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
+                h.b.ivType.clearColorFilter()
             }
             else -> {
                 h.b.ivType.setImageResource(R.drawable.ic_call_incoming)
-                h.b.ivType.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
+                h.b.ivType.clearColorFilter()
             }
         }
 
-        // Tên / số
+        // ── Số / tên: SÁNG (trắng) nếu bình thường, ĐỎ nếu nhỡ ──
         h.b.tvName.text = if (isBlocked) "🚫 $display" else display
         h.b.tvName.setTextColor(
-            ctx.getColor(if (item.type == CallLog.Calls.MISSED_TYPE) R.color.missed_red else R.color.text_primary)
+            ctx.getColor(if (isMissed) R.color.missed_red else R.color.text_primary)
         )
 
-        // Badge SIM: luôn hiện số SIM đã dùng (1 hoặc 2)
+        // ── SIM badge: luôn xám, chỉ số thay đổi ──
         val simNum = if (isDualSim && item.simSlot != null) item.simSlot + 1 else 1
         h.b.tvSimBadge.text = simNum.toString()
         h.b.tvSimBadge.visibility = View.VISIBLE
+        h.b.tvSimBadge.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
 
-        // Loại đường dây
+        // ── Loại đường dây: luôn xám ──
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
+        h.b.tvDate.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
 
-        // Cột phải: hôm nay hiện giờ phút, ngày khác hiện ngày/tháng
+        // ── Ngày/giờ: luôn xám ──
         val today = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
         val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
                   else SimpleDateFormat("d/M", Locale.getDefault())
         h.b.tvCallTime.text = fmt.format(Date(item.date))
+        h.b.tvCallTime.setTextColor(ContextCompat.getColor(ctx, R.color.text_secondary))
+
+        // ── Icon info: luôn xám ──
+        h.b.btnCallBack.setColorFilter(ContextCompat.getColor(ctx, R.color.text_secondary))
 
         h.b.root.setOnClickListener { onCall(item.number) }
         h.b.btnCallBack.setOnClickListener { onShowHistory(item.number) }
