@@ -2,16 +2,17 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
-    <!-- 1 path DUY NHẤT: vòng tròn (outer trừ inner bằng evenOdd) + kim đồng hồ ở giữa.
-         Trước đây icon dùng 2 path riêng (vòng tròn đặc màu đen + kim màu trắng) nên khi
-         BottomNavigationView tô ĐÈ 1 màu duy nhất lên icon (lúc chọn/không chọn) thì cả 2
-         path bị tô cùng 1 màu, kim biến mất vào trong vòng tròn -> chỉ còn thấy khối tròn
-         đặc không có chi tiết gì (đúng lỗi trong ảnh). Cách này chỉ dùng 1 path + evenOdd
-         nên luôn hiện đúng hình vòng tròn rỗng + kim ở bất kỳ màu tô nào. -->
+    <!-- Icon đồng hồ: vòng tròn rỗng (evenOdd) + ĐỦ 2 kim (kim phút thẳng đứng + kim giờ nằm
+         ngang, trước đây thiếu kim giờ nên nhìn như khối tròn trơn). Toàn bộ hình vẽ được
+         phóng to 30% so với bản gốc (bán kính vòng tròn 9->11.7, kim dài/dày hơn tương ứng)
+         nhưng vẫn nằm gọn trong viewport 24x24. Dùng 1 path DUY NHẤT + evenOdd để khi
+         BottomNavigationView tô 1 màu (itemIconTint) lên toàn icon thì vòng tròn + 2 kim vẫn
+         luôn hiện đúng hình, không bị "nuốt" mất chi tiết. -->
     <path
         android:fillColor="#FF000000"
         android:fillType="evenOdd"
-        android:pathData="M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z
-                           M12,5 A7,7 0 1,0 12,19 A7,7 0 1,0 12,5 Z
-                           M11.25,6.5 L12.75,6.5 L12.75,12.4 L11.25,12.4 Z" />
+        android:pathData="M12,0.3 A11.7,11.7 0 1,0 12,23.7 A11.7,11.7 0 1,0 12,0.3 Z
+                           M12,2.9 A9.1,9.1 0 1,0 12,21.1 A9.1,9.1 0 1,0 12,2.9 Z
+                           M11,4.9 L13,4.9 L13,12.5 L11,12.5 Z
+                           M12,11 L17.2,11 L17.2,13 L12,13 Z" />
 </vector>
