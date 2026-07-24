@@ -2,6 +2,7 @@ package com.h.simplecall.ui
 
 import android.os.Bundle
 import android.provider.CallLog
+import android.telephony.SubscriptionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -48,8 +49,22 @@ class CallHistoryFragment : Fragment() {
         // ── Header: avatar tròn (chữ cái đầu) + tên + số ──
         b.tvAvatar.text = display.take(1).uppercase()
         b.tvTitle.text = display
-        b.tvSubtitle.text = getString(R.string.default_sim_call, 2)
-        b.tvSimBadge.text = "2"
+        // Đọc SIM mặc định cho cuộc gọi từ hệ thống
+        val defaultSimSlot: Int = try {
+            if (android.content.pm.PackageManager.PERMISSION_GRANTED ==
+                androidx.core.content.ContextCompat.checkSelfPermission(
+                    requireContext(), android.Manifest.permission.READ_PHONE_STATE)) {
+                val sm = requireContext().getSystemService(SubscriptionManager::class.java)
+                val defaultSubId = SubscriptionManager.getDefaultVoiceSubscriptionId()
+                val info = sm?.getActiveSubscriptionInfo(defaultSubId)
+                (info?.simSlotIndex ?: 0) + 1
+            } else 1
+        } catch (_: Exception) { 1 }
+
+        b.tvSubtitle.text = getString(R.string.default_sim_call, defaultSimSlot)
+        b.tvSimBadge.text = defaultSimSlot.toString()
+        // Số SIM trên icon gọi
+        b.tvCallSimNum.text = defaultSimSlot.toString()
 
         b.tvNumber.text = number
         val digitsOnly = number.filter { it.isDigit() }
@@ -125,15 +140,10 @@ class CallHistoryFragment : Fragment() {
         )
         rb.ivEntryType.setImageResource(iconRes)
 
-        // Giờ:phút của cuộc gọi
-        val timeFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
-        val timeStr = timeFmt.format(Date(item.date))
-
-        // Status: "HH:mm Chưa kết nối" hoặc "HH:mm (13giây)"
         rb.tvEntryStatus.text = when {
-            isMissed -> "$timeStr  ${getString(R.string.call_status_missed)}"
-            item.duration <= 0 -> "$timeStr  ${getString(R.string.call_status_not_connected)}"
-            else -> "$timeStr  (${formatDuration(item.duration)})"
+            isMissed -> getString(R.string.call_status_missed)
+            item.duration <= 0 -> getString(R.string.call_status_not_connected)
+            else -> formatDuration(item.duration)
         }
 
         val today = Calendar.getInstance().apply {
@@ -141,7 +151,7 @@ class CallHistoryFragment : Fragment() {
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         val cal = Calendar.getInstance().apply { timeInMillis = item.date }
-        val fmt = if (cal.after(today)) SimpleDateFormat("HH:mm", Locale.getDefault())
+        val fmt = if (cal.after(today)) SimpleDateFormat("d/M", Locale.getDefault())
                   else SimpleDateFormat("d/M", Locale.getDefault())
         rb.tvEntryDate.text = fmt.format(Date(item.date))
 
