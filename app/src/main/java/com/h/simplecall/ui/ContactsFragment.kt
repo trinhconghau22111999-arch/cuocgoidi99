@@ -26,8 +26,8 @@ import kotlinx.coroutines.withContext
 /** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
  *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
 private val INDEX_LETTERS = listOf(
-    "★", "#", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
-    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "…"
+    "★", "…", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
+    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "#"
 )
 
 class ContactsFragment : Fragment() {
