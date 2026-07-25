@@ -267,7 +267,10 @@ class DialerFragment : Fragment() {
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
-                if (tag == "0") btn.setLineSpacing(0f, 0.8f)
+                // Đồng nhất khoảng cách: số lớn cách chữ phụ bằng khoảng cách hàng số - icon phía trên.
+                // lineSpacingMultiplier 0.85 rút khoảng cách dòng lại vừa phải, nhất quán với phím 1.
+                if (tag == "0") btn.setLineSpacing(0f, 0.7f)
+                else btn.setLineSpacing(0f, 0.85f)
             }
 
             if (tag == "*") {
@@ -311,6 +314,7 @@ class DialerFragment : Fragment() {
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
+                btn.setLineSpacing(0f, 0.85f)
             }
 
             btn.setOnClickListener {
