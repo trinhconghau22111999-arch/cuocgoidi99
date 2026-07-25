@@ -298,7 +298,7 @@ class DialerFragment : Fragment() {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
-                btn.setLineSpacing(0f, 0.85f)
+                btn.setLineSpacing(0f, 0.9f)
             }
 
             if (tag == "*") {
@@ -342,7 +342,7 @@ class DialerFragment : Fragment() {
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
-                btn.setLineSpacing(0f, 0.85f)
+                btn.setLineSpacing(0f, 0.9f)
             }
 
             btn.setOnClickListener {
