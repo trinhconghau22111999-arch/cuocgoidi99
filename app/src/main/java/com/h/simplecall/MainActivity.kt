@@ -11,6 +11,8 @@ import android.provider.Settings
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.view.View
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -96,6 +98,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNav.setOnItemSelectedListener { item -> goToTab(item.itemId); true }
         binding.bottomNav.setOnItemReselectedListener { item -> goToTab(item.itemId) }
+        setupTabSwipeGesture()
         // Ép tắt tint icon bằng code (không chỉ dựa vào app:itemIconTint="@null" trong XML) -
         // đây chính là nguyên nhân icon "Gần đây" khi được chọn bị tô ĐÈ thành xanh LÁ (trùng
         // colorPrimary của theme) thay vì giữ đúng màu xanh DƯƠNG + kim đồng hồ trắng đã vẽ sẵn
@@ -174,16 +177,25 @@ class MainActivity : AppCompatActivity() {
     /** Chuyển sang tab Gần đây/Danh bạ. Tách riêng để dùng chung cho cả lần bấm đầu tiên
      *  (OnItemSelectedListener) VÀ khi bấm lại đúng tab đang được chọn (OnItemReselectedListener) -
      *  trường hợp thứ 2 cần thiết để người dùng có thể thoát khỏi bàn phím số (mở qua FAB, không
-     *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ. */
-    private fun goToTab(itemId: Int) {
+     *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ.
+     *  @param animate false khi gọi từ code (khởi động app...), không cần hiệu ứng trượt. */
+    private fun goToTab(itemId: Int, animate: Boolean = true) {
+        val goingToContacts = itemId == R.id.nav_contacts
+        val wasContacts = currentNavId == R.id.nav_contacts
+        val directionChanged = animate && goingToContacts != wasContacts
         currentNavId = itemId
         val tag = if (itemId == R.id.nav_contacts) "contacts" else "recents"
         val dest = supportFragmentManager.findFragmentByTag(tag) ?: run {
             if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment()
         }
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, dest, tag)
-            .commit()
+        val tx = supportFragmentManager.beginTransaction()
+        if (directionChanged) {
+            // Vuốt/chuyển qua lại giữa Gần đây <-> Danh bạ trượt như lật ảnh trong thư viện:
+            // sang Danh bạ (bên phải) trượt từ phải qua; quay lại Gần đây trượt từ trái qua.
+            if (goingToContacts) tx.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            else tx.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
+        tx.replace(R.id.fragmentContainer, dest, tag).commit()
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
         if (itemId == R.id.nav_contacts) {
@@ -195,6 +207,47 @@ class MainActivity : AppCompatActivity() {
         }
         if (itemId == R.id.nav_recents)
             binding.bottomNav.getBadge(R.id.nav_recents)?.isVisible = false
+    }
+
+    /** Vuốt ngang qua lại trên nội dung chính để chuyển tab Gần đây <-> Danh bạ, giống thao
+     *  tác lướt ảnh qua lại trong thư viện ảnh. Vuốt sang trái = tab kế tiếp (Danh bạ);
+     *  vuốt sang phải = tab trước đó (Gần đây). Chỉ bắt cử chỉ vuốt NGANG rõ rệt, đủ nhanh
+     *  (như ném/fling) để không đụng độ với cuộn dọc bình thường của danh sách bên trong.
+     *
+     *  Bắt ở dispatchTouchEvent() của Activity (không phải setOnTouchListener trên FrameLayout
+     *  cha) vì RecyclerView bên trong luôn "nuốt" ACTION_DOWN để dự phòng cuộn dọc, khiến các
+     *  sự kiện MOVE/UP sau đó không còn nổi bọt lên tới listener của View cha nữa. Activity thì
+     *  luôn nhận được toàn bộ luồng sự kiện chạm trước tiên, bất kể view con xử lý ra sao. */
+    private lateinit var tabSwipeDetector: GestureDetector
+
+    private fun setupTabSwipeGesture() {
+        tabSwipeDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val dx = e2.x - e1.x
+                val dy = e2.y - e1.y
+                val minDist = 80f
+                val minVel = 400f
+                if (kotlin.math.abs(dx) <= kotlin.math.abs(dy)) return false // ưu tiên cuộn dọc
+                if (kotlin.math.abs(dx) < minDist || kotlin.math.abs(velocityX) < minVel) return false
+                if (dx < 0 && currentNavId != R.id.nav_contacts) {
+                    binding.bottomNav.selectedItemId = R.id.nav_contacts // vuốt trái -> Danh bạ
+                    return true
+                }
+                if (dx > 0 && currentNavId != R.id.nav_recents) {
+                    binding.bottomNav.selectedItemId = R.id.nav_recents // vuốt phải -> Gần đây
+                    return true
+                }
+                return false
+            }
+        })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (::tabSwipeDetector.isInitialized) tabSwipeDetector.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
     }
 
     fun hideNav() {

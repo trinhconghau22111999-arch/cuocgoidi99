@@ -260,7 +260,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/divider" />
+            android:background="#151515" /> <!-- tối hơn @color/divider (#2A2A2A), chỉ riêng viền trên bàn phím -->
 
         <!-- Ô nhập số: ẩn khi chưa gõ số -->
         <FrameLayout

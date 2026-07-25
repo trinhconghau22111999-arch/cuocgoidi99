@@ -256,14 +256,15 @@ class DialerFragment : Fragment() {
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
                 // Phím "0": dấu "+" giảm còn 90% mức trước (0.63 * 0.9 ≈ 0.57x)
-                val subScale = if (tag == "0") 1.05f else 0.35f
+                // Phím "0": dấu "+" to gấp đôi mức bình thường (0.35 * 2 = 0.7). Trước đó bị
+                // đẩy lên 1.05x + setLineSpacing 1.75x khiến tổng chiều cao 2 dòng vượt quá
+                // chiều cao cố định của phím (68dp) -> dấu "+" bị cắt mất/ẩn. Bỏ line spacing
+                // dư thừa, giữ đúng 2x như yêu cầu gốc để vừa khít trong khung phím.
+                val subScale = if (tag == "0") 0.7f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
-                // Phím "0": kéo dãn khoảng cách giữa số "0" và dấu "+" lên gấp 2,5 lần
-                // mức trước (0.7 * 2.5 = 1.75)
-                if (tag == "0") btn.setLineSpacing(0f, 1.75f)
             }
 
             if (tag == "*") {
@@ -426,9 +427,10 @@ class DialerFragment : Fragment() {
                 .start()
         } else {
             // Slide DOWN: trượt xuống, đợi xong hẳn mới hiện FAB
+            // Nhanh hơn = tốc độ x1.2 so với trước: 220ms / 1.2 ≈ 183ms
             panel.animate()
                 .translationY(panel.height.toFloat().coerceAtLeast(300f))
-                .setDuration(220)
+                .setDuration(183)
                 .setInterpolator(android.view.animation.AccelerateInterpolator())
                 .withEndAction {
                     panel.visibility = View.GONE
