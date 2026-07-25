@@ -221,18 +221,21 @@ class DialerFragment : Fragment() {
             }
 
             if (tag == "1") {
-                // Kính lúp dưới phím 1: dùng RelativeSizeSpan như các phím khác để đồng nhất
-                // khoảng cách và độ lớn với sub label của 2, 3, 4...
+                // Kính lúp dưới phím 1: đo ĐÚNG font metrics của cỡ chữ 0.35× (y hệt
+                // RelativeSizeSpan(0.35f) các phím khác dùng) để suy ra chiều cao dòng 2,
+                // thay vì công thức áng chừng - đảm bảo khoảng cách với số "1" giống hệt
+                // khoảng cách "2" với "ABC", "3" với "DEF"...
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
                 val sub2Start = ss.length; ss.append("  ")  // 2 space để icon có chỗ
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_key1_glasses)?.let { d ->
-                    // Bounds cố định: rộng ~2× cao, cao = 0.35 × textSize(30sp) × density
-                    val density = resources.displayMetrics.density
-                    val h = (30f * 0.35f * density).toInt()
+                    val subPaint = android.text.TextPaint(btn.paint)
+                    subPaint.textSize = btn.textSize * 0.35f
+                    val fm = subPaint.fontMetricsInt
+                    val h = fm.descent - fm.ascent
                     val w = (h * 2.2f).toInt()
                     d.setBounds(0, 0, w, h)
-                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BASELINE),
+                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BOTTOM),
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
