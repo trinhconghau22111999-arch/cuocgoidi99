@@ -133,7 +133,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
@@ -146,7 +146,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>
@@ -159,7 +159,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
@@ -178,7 +178,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
@@ -191,7 +191,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
@@ -203,7 +203,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
@@ -241,7 +241,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnSpeaker"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_volume_up"
                     android:contentDescription="@string/speaker"/>
@@ -268,7 +268,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnDtmf"
-                    android:layout_width="56dp" android:layout_height="56dp"
+                    android:layout_width="72dp" android:layout_height="72dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_dialpad"
                     android:contentDescription="Bàn phím"/>

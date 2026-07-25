@@ -9,7 +9,7 @@
     <color name="bg">#000000</color>
     <color name="bg_surface">#1A1A1A</color>
     <color name="bg_row">#000000</color>
-    <color name="incall_bg">#000000</color>
+    <color name="incall_bg">#3A3A3C</color>
     <color name="incall_surface">#1A1A1A</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
