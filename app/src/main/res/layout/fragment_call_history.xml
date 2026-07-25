@@ -57,9 +57,9 @@
             <!-- Avatar: tvAvatar (chữ cái đầu, liên hệ đã lưu) HOẶC ivDefaultAvatar (icon người
                  mặc định, dùng khi số LẠ chưa lưu danh bạ) -->
             <FrameLayout
-                android:layout_width="120dp" android:layout_height="120dp"
+                android:layout_width="264dp" android:layout_height="264dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp">
+                android:layout_marginTop="8dp">
 
                 <TextView android:id="@+id/tvAvatar"
                     android:layout_width="120dp" android:layout_height="120dp"
