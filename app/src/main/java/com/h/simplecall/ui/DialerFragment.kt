@@ -255,10 +255,18 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                ss.setSpan(RelativeSizeSpan(0.35f), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                // Phím "0": dấu "+" to gấp đôi các phím khác (0.7x thay vì 0.35x) theo yêu cầu,
+                // các phím còn lại (ABC, DEF...) giữ nguyên cỡ 0.35x như cũ.
+                val subScale = if (tag == "0") 0.70f else 0.35f
+                ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
+            }
+
+            if (tag == "*") {
+                // Dấu "*" to gấp đôi (30sp -> 60sp) theo yêu cầu, không ảnh hưởng các phím khác
+                btn.textSize = 60f
             }
 
             if (tag == "1") {
@@ -271,7 +279,7 @@ class DialerFragment : Fragment() {
                 val sub2Start = ss.length; ss.append("  ")  // 2 space để icon có chỗ
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_key1_glasses)?.let { d ->
                     val subPaint = android.text.TextPaint(btn.paint)
-                    subPaint.textSize = btn.textSize * 0.35f
+                    subPaint.textSize = btn.textSize * 0.175f // giảm 1 nửa so với 0.35f trước đó
                     val fm = subPaint.fontMetricsInt
                     val h = fm.descent - fm.ascent
                     val w = (h * 2.2f).toInt()
