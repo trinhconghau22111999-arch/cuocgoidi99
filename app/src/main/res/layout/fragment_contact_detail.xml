@@ -83,11 +83,20 @@
                 android:orientation="horizontal" android:gravity="center_vertical"
                 android:clickable="true" android:focusable="true">
 
-                <TextView android:id="@+id/tvSimBadge"
-                    android:layout_width="18dp" android:layout_height="18dp"
-                    android:background="@drawable/bg_sim_badge"
-                    android:gravity="center"
-                    android:textSize="11sp" android:textColor="@color/text_secondary" />
+                <FrameLayout
+                    android:layout_width="18dp" android:layout_height="18dp">
+
+                    <ImageView
+                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:src="@drawable/ic_sim_card"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView android:id="@+id/tvSimBadge"
+                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:gravity="center"
+                        android:paddingTop="1dp"
+                        android:textSize="11sp" android:textColor="@color/text_secondary" />
+                </FrameLayout>
 
                 <TextView android:id="@+id/tvSubtitle"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
