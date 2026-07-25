@@ -196,6 +196,13 @@ class MainActivity : AppCompatActivity() {
             else tx.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
         }
         tx.replace(R.id.fragmentContainer, dest, tag).commit()
+        // Ép xử lý xong transaction NGAY (đồng bộ) thay vì để hàng đợi bất đồng bộ mặc định -
+        // nếu người dùng bấm đổi tab liên tục/rất nhanh, nhiều transaction có thể chồng lên
+        // nhau trước khi cái trước xử lý xong, dẫn tới tham chiếu sai trạng thái Fragment
+        // (vd. tái sử dụng 1 Fragment đang trong quá trình bị gỡ) và có thể ném
+        // IllegalStateException. executePendingTransactions() đảm bảo trạng thái luôn nhất
+        // quán trước khi hàm này trả về / trước lần gọi goToTab() kế tiếp.
+        supportFragmentManager.executePendingTransactions()
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
         if (itemId == R.id.nav_contacts) {
@@ -394,19 +401,30 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.fragments.forEach { (it as? DefaultDialerStatusListener)?.onDefaultDialerStatusChanged() }
     }
 
+    /** Đếm số cuộc gọi nhỡ CHƯA đọc để hiện badge đỏ trên tab "Gần đây". Truy vấn CallLog
+     *  chạy ở BACKGROUND THREAD (contentResolver.query có thể chậm nếu nhật ký cuộc gọi dài) -
+     *  trước đây chạy thẳng trên main thread trong onCreate()/onResume(), có thể gây giật/đơ
+     *  (ANR) mỗi lần mở app hoặc quay lại từ màn khác. */
     private fun updateMissedBadge() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_CALL_LOG)
             != PackageManager.PERMISSION_GRANTED) return
-        val cur = contentResolver.query(
-            android.provider.CallLog.Calls.CONTENT_URI,
-            arrayOf(android.provider.CallLog.Calls.TYPE),
-            "${android.provider.CallLog.Calls.NEW} = 1 AND " +
-                "${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
-            null, null)
-        val count = cur?.count ?: 0; cur?.close()
-        val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_recents)
-        if (count > 0) { badge.isVisible = true; badge.number = count }
-        else badge.isVisible = false
+        Thread {
+            val cur = try {
+                contentResolver.query(
+                    android.provider.CallLog.Calls.CONTENT_URI,
+                    arrayOf(android.provider.CallLog.Calls.TYPE),
+                    "${android.provider.CallLog.Calls.NEW} = 1 AND " +
+                        "${android.provider.CallLog.Calls.TYPE} = ${android.provider.CallLog.Calls.MISSED_TYPE}",
+                    null, null)
+            } catch (_: Exception) { null }
+            val count = cur?.count ?: 0; cur?.close()
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val badge = binding.bottomNav.getOrCreateBadge(R.id.nav_recents)
+                if (count > 0) { badge.isVisible = true; badge.number = count }
+                else badge.isVisible = false
+            }
+        }.start()
     }
 
     // ============================================================================================
