@@ -265,26 +265,39 @@ class DialerFragment : Fragment() {
             }
 
             if (tag == "*") {
-                // Dấu "*" to gấp đôi (30sp -> 60sp) theo yêu cầu, không ảnh hưởng các phím khác
-                btn.textSize = 60f
+                // Trước đó đã tăng gấp đôi (30sp -> 60sp), giờ thu nhỏ lại còn 2/3 kích thước đó
+                // theo yêu cầu (60 * 2/3 = 40sp), không ảnh hưởng các phím khác.
+                btn.textSize = 40f
             }
 
             if (tag == "1") {
-                // Kính lúp dưới phím 1: đo ĐÚNG font metrics của cỡ chữ 0.35× (y hệt
-                // RelativeSizeSpan(0.35f) các phím khác dùng) để suy ra chiều cao dòng 2,
-                // thay vì công thức áng chừng - đảm bảo khoảng cách với số "1" giống hệt
-                // khoảng cách "2" với "ABC", "3" với "DEF"...
+                // Khoảng cách dòng 2 (icon) với số "1" phải giống hệt khoảng cách "2"-"ABC",
+                // "3"-"DEF"... của các phím khác - các phím đó dùng cỡ chữ 0.35× để tính chiều
+                // cao dòng 2. Trước đây phím 1 tự tính chiều cao dòng 2 trực tiếp từ cỡ icon đã
+                // thu nhỏ (0.175×), khiến dòng 2 bị "co" lại theo icon nhỏ -> icon dính sát vào
+                // số 1. Giờ tách riêng: chiều cao KHUNG dòng 2 (rowHeight) vẫn tính theo 0.35×
+                // giống các phím khác để khoảng cách bằng nhau, còn ICON thật sự vẽ bên trong
+                // vẫn nhỏ (0.175×) và được canh giữa khung đó bằng InsetDrawable.
                 val ss = SpannableStringBuilder()
                 ss.append("1"); ss.append("\n")
                 val sub2Start = ss.length; ss.append("  ")  // 2 space để icon có chỗ
                 ContextCompat.getDrawable(requireContext(), R.drawable.ic_key1_glasses)?.let { d ->
-                    val subPaint = android.text.TextPaint(btn.paint)
-                    subPaint.textSize = btn.textSize * 0.175f // giảm 1 nửa so với 0.35f trước đó
-                    val fm = subPaint.fontMetricsInt
-                    val h = fm.descent - fm.ascent
-                    val w = (h * 2.2f).toInt()
-                    d.setBounds(0, 0, w, h)
-                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BASELINE),
+                    val rowPaint = android.text.TextPaint(btn.paint)
+                    rowPaint.textSize = btn.textSize * 0.35f
+                    val fmRow = rowPaint.fontMetricsInt
+                    val rowHeight = fmRow.descent - fmRow.ascent
+
+                    val iconPaint = android.text.TextPaint(btn.paint)
+                    iconPaint.textSize = btn.textSize * 0.175f
+                    val fmIcon = iconPaint.fontMetricsInt
+                    val iconHeight = fmIcon.descent - fmIcon.ascent
+                    val iconWidth = (iconHeight * 2.2f).toInt()
+
+                    val insetTop = ((rowHeight - iconHeight) / 2f).toInt().coerceAtLeast(0)
+                    val insetBottom = (rowHeight - iconHeight - insetTop).coerceAtLeast(0)
+                    val inset = android.graphics.drawable.InsetDrawable(d, 0, insetTop, 0, insetBottom)
+                    inset.setBounds(0, 0, iconWidth, rowHeight)
+                    ss.setSpan(ImageSpan(inset, ImageSpan.ALIGN_BASELINE),
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f

@@ -403,10 +403,10 @@
 
             <ImageButton
                 android:id="@+id/btnKeypadToggle"
-                android:layout_width="55dp" android:layout_height="55dp"
+                android:layout_width="72dp" android:layout_height="66dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_dialpad"
-                android:tint="@color/text_secondary"
+                android:tint="@color/accent_blue"
                 android:contentDescription="@string/open_dialpad" />
 
         </LinearLayout>

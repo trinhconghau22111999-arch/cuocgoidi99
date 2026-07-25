@@ -23,8 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private val INDEX_LETTERS = listOf(
-    "★", "#", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
-    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "…"
+    "★", "…", "A", "Â", "B", "C", "D", "Đ", "G", "H", "J", "K", "L", "M", "N",
+    "O", "Ô", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z", "#"
 )
 
 class ContactsFragment : Fragment() {
@@ -44,7 +44,7 @@ class ContactsFragment : Fragment() {
 
         val headers = listOf(
             ContactHeader(R.drawable.ic_person, getString(R.string.my_info)) { openMyProfile() },
-            ContactHeader(R.drawable.ic_tab_contacts, getString(R.string.my_groups)) { openMyGroups() }
+            ContactHeader(R.drawable.ic_group, getString(R.string.my_groups)) { openMyGroups() }
         )
 
         adapter = ContactsAdapter(emptyList(), headers) { (activity as? MainActivity)?.placeCall(it) }
