@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1C1C1E">
+    android:background="#333338">
 
 
     <!-- Avatar: vòng tròn màu nền (chữ cái đầu) HOẶC ảnh liên hệ thật, đặt phía trên tên -->
@@ -52,7 +52,7 @@
     <!-- Số điện thoại (hiện dưới tên nếu có tên) -->
     <TextView android:id="@+id/tvCallerNumber"
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="0dp"
         android:gravity="center"
         android:textColor="#9AA0A6" android:textSize="14sp"
         android:fontFamily="sans-serif"
@@ -62,48 +62,12 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
-    <!-- Badge HD + trạng thái/giờ gọi, gộp chung 1 hàng để tránh constraint vòng lặp -->
-    <!-- Icon SIM đang gọi: hình thẻ SIM + số 1/2 bên trong -->
-    <LinearLayout android:id="@+id/llSimLine"
-        android:layout_width="wrap_content" android:layout_height="26dp"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <FrameLayout
-            android:layout_width="26dp" android:layout_height="26dp">
-
-            <ImageView
-                android:layout_width="26dp" android:layout_height="26dp"
-                android:src="@drawable/ic_sim_card"
-                android:tint="#9AA0A6" />
-
-            <TextView android:id="@+id/tvSimBadge"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="2"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:fontFamily="sans-serif-medium" />
-        </FrameLayout>
-
-        <TextView android:id="@+id/tvCarrier"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:textSize="12sp" android:textColor="#9AA0A6"
-            android:fontFamily="sans-serif" />
-    </LinearLayout>
-
+    <!-- Badge HD + trạng thái/giờ gọi -->
     <LinearLayout android:id="@+id/llStatusLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
         android:layout_marginTop="6dp"
-        app:layout_constraintTop_toBottomOf="@id/llSimLine"
+        app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
