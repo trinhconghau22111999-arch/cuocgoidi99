@@ -367,6 +367,8 @@
                 android:id="@+id/llCallDual"
                 android:layout_width="wrap_content" android:layout_height="50dp"
                 android:layout_gravity="center"
+                android:layout_marginStart="22dp"
+                android:layout_marginEnd="22dp"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
