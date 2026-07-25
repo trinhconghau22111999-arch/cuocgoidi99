@@ -93,6 +93,24 @@ class DialerFragment : Fragment() {
         }
     }
 
+    // Xin quyền READ_CONTACTS lần đầu vào app (chưa có cuộc gọi nào).
+    // Khi người dùng đồng ý -> prewarmContacts() tải trước danh bạ vào bộ đệm
+    // để lần gõ số đầu tiên ra kết quả ngay, không phải chờ query lần đầu.
+    private val contactsPermLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) prewarmContacts()
+    }
+
+    /** Tải trước danh bạ vào bộ đệm của suggestAdapter sau khi được cấp quyền lần đầu,
+     *  chạy nền để không block main thread. */
+    private fun prewarmContacts() {
+        val appContext = requireContext().applicationContext
+        bgExecutor.execute {
+            queryContactSuggestions(appContext, "") // query rỗng = tải tất cả để JIT cache
+        }
+    }
+
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentDialerBinding.inflate(i, c, false); return b.root
     }
@@ -110,6 +128,20 @@ class DialerFragment : Fragment() {
 
         b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
         loadRecents()
+
+        // Xin quyền READ_CONTACTS lần đầu tiên vào app (savedInstanceState == null = lần tạo view đầu tiên).
+        // Chỉ hỏi khi chưa có quyền; nếu đã có thì bỏ qua. Mục đích: tải trước danh bạ vào bộ đệm
+        // để gợi ý tìm kiếm hoạt động ngay từ lần gõ số đầu tiên mà không cần chờ query lạnh.
+        if (savedInstanceState == null) {
+            val hasContactsPerm = ContextCompat.checkSelfPermission(
+                requireContext(), android.Manifest.permission.READ_CONTACTS
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            if (!hasContactsPerm) {
+                contactsPermLauncher.launch(android.Manifest.permission.READ_CONTACTS)
+            } else {
+                prewarmContacts()
+            }
+        }
 
         b.btnDialerSettings.setOnClickListener { (activity as? MainActivity)?.openSettings() }
         b.btnDialerSearch.setOnClickListener {
