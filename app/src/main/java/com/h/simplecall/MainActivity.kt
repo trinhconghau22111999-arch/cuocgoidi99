@@ -1,11 +1,13 @@
 package com.h.simplecall
 
+import android.app.AlertDialog
 import android.app.role.RoleManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.view.View
@@ -53,11 +55,24 @@ class MainActivity : AppCompatActivity() {
     }.toTypedArray()
 
     private val permLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) {
+        ActivityResultContracts.RequestMultiplePermissions()) { results ->
         requestDefaultDialer()
         // Vừa xin quyền xong (có thể vừa được cấp READ_CONTACTS) - thử nạp trước danh bạ ngầm
         // luôn, không đợi người dùng bấm vào tab Danh bạ mới biết là giờ đã có quyền.
         com.h.simplecall.data.ContactsRepository.refreshInBackground(this)
+
+        // Quyền nào vẫn bị từ chối SAU khi hộp thoại vừa đóng, và hệ thống báo không cần giải
+        // thích thêm (shouldShowRequestPermissionRationale = false) trong khi mình ĐÃ từng xin
+        // qua rồi (đánh dấu ở prefsHasRequestedPermsBefore) => chắc chắn là bị từ chối VĨNH VIỄN
+        // ("Không hỏi lại"). Trường hợp này gọi lại permLauncher lần nữa sẽ KHÔNG hiện hộp thoại
+        // gì cả (im lặng trả về denied ngay), nên phải tự dẫn người dùng sang Cài đặt ứng dụng.
+        val permanentlyDenied = results.filter { (perm, granted) ->
+            !granted && !shouldShowRequestPermissionRationale(perm) && hasRequestedPermsBefore()
+        }.keys
+        if (permanentlyDenied.isNotEmpty()) {
+            showPermanentlyDeniedDialog(permanentlyDenied)
+        }
+        markHasRequestedPermsBefore()
     }
     private val roleLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { updateDefaultDialerStatus() }
@@ -204,6 +219,57 @@ class MainActivity : AppCompatActivity() {
             binding.root.post { permLauncher.launch(missing.toTypedArray()) }
         } else {
             binding.root.post { requestDefaultDialer() }
+        }
+    }
+
+    // Đánh dấu "đã từng hiện hộp thoại xin quyền ít nhất 1 lần" bằng SharedPreferences, để lần
+    // sau phân biệt được "lần đầu bị từ chối" (chưa chắc là vĩnh viễn) với "bị từ chối vĩnh viễn
+    // thật sự" (shouldShowRequestPermissionRationale=false NGAY CẢ KHI đã từng xin qua rồi).
+    private fun hasRequestedPermsBefore(): Boolean =
+        getSharedPreferences("perms", MODE_PRIVATE).getBoolean("requested_once", false)
+
+    private fun markHasRequestedPermsBefore() {
+        getSharedPreferences("perms", MODE_PRIVATE).edit()
+            .putBoolean("requested_once", true).apply()
+    }
+
+    /** Tên tiếng Việt dễ hiểu cho từng quyền, dùng trong hộp thoại dẫn sang Cài đặt. */
+    private fun permissionLabel(perm: String): String = when (perm) {
+        android.Manifest.permission.CALL_PHONE -> "Gọi điện thoại"
+        android.Manifest.permission.READ_PHONE_STATE -> "Trạng thái điện thoại"
+        android.Manifest.permission.READ_CALL_LOG -> "Đọc nhật ký cuộc gọi"
+        android.Manifest.permission.WRITE_CALL_LOG -> "Ghi nhật ký cuộc gọi"
+        android.Manifest.permission.READ_CONTACTS -> "Danh bạ"
+        android.Manifest.permission.ANSWER_PHONE_CALLS -> "Trả lời cuộc gọi"
+        android.Manifest.permission.RECORD_AUDIO -> "Micro (ghi âm cuộc gọi)"
+        android.Manifest.permission.POST_NOTIFICATIONS -> "Thông báo"
+        else -> perm.substringAfterLast(".")
+    }
+
+    /** Một hoặc nhiều quyền QUAN TRỌNG đã bị từ chối vĩnh viễn ("Không hỏi lại") - hộp thoại
+     *  xin quyền của hệ thống sẽ KHÔNG bao giờ tự hiện lại nữa, nên phải chủ động dẫn người
+     *  dùng sang đúng màn Cài đặt > Quyền của ứng dụng để họ tự bật lại. Không làm gì (im lặng)
+     *  sẽ khiến nhiều tính năng cốt lõi (đọc nhật ký, danh bạ, gọi điện...) không hoạt động mà
+     *  người dùng không hiểu vì sao. */
+    private fun showPermanentlyDeniedDialog(perms: Collection<String>) {
+        if (isFinishing || isDestroyed) return
+        val names = perms.joinToString(", ") { permissionLabel(it) }
+        AlertDialog.Builder(this)
+            .setTitle("Cần cấp thêm quyền")
+            .setMessage("Ứng dụng cần quyền: $names để hoạt động đầy đủ, nhưng đã bị từ chối " +
+                "vĩnh viễn. Vào Cài đặt > Quyền để cấp lại thủ công.")
+            .setPositiveButton("Mở Cài đặt") { _, _ -> openAppSettings() }
+            .setNegativeButton("Để sau", null)
+            .setCancelable(true)
+            .show()
+    }
+
+    private fun openAppSettings() {
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", packageName, null)))
+        } catch (_: Exception) {
+            Toast.makeText(this, "Không mở được màn hình Cài đặt", Toast.LENGTH_SHORT).show()
         }
     }
 
