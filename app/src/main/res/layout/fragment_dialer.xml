@@ -347,6 +347,7 @@
                 android:contentDescription="@string/video_call">
                 <ImageView android:layout_width="31dp" android:layout_height="31dp"
                     android:layout_gravity="center"
+                    android:translationX="6dp"
                     android:src="@drawable/ic_video_call_outline"
                     android:tint="@color/text_secondary"
                     tools:ignore="MissingClass"/>
@@ -408,13 +409,20 @@
 
             <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
 
-            <ImageButton
-                android:id="@+id/btnKeypadToggle"
+            <FrameLayout
                 android:layout_width="72dp" android:layout_height="66dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_dialpad"
-                android:tint="@color/text_secondary"
-                android:contentDescription="@string/open_dialpad" />
+                android:background="@android:color/transparent">
+                <ImageButton
+                    android:id="@+id/btnKeypadToggle"
+                    android:layout_width="31dp" android:layout_height="31dp"
+                    android:layout_gravity="center"
+                    android:translationX="6dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_dialpad"
+                    android:scaleType="fitCenter"
+                    android:tint="@color/text_secondary"
+                    android:contentDescription="@string/open_dialpad" />
+            </FrameLayout>
 
         </LinearLayout>
     </LinearLayout>
