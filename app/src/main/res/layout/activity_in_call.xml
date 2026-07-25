@@ -135,6 +135,8 @@
                 <ImageButton android:id="@+id/btnRecord"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="#9AA0A6"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
                 <TextView android:id="@+id/tvRecordLabel"
@@ -148,11 +150,13 @@
                 <ImageButton android:id="@+id/btnMute"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Im lặng" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="Im lặng" android:textColor="@color/text_on_dark" android:textSize="12sp"
                     android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
@@ -161,6 +165,8 @@
                 <ImageButton android:id="@+id/btnHold"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
                 <TextView android:id="@+id/tvHoldLabel"
@@ -180,6 +186,8 @@
                 <ImageButton android:id="@+id/btnClarity"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
                 <TextView android:id="@+id/tvClarityLabel"
@@ -193,6 +201,8 @@
                 <ImageButton android:id="@+id/btnAddCall"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="#9AA0A6"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -205,10 +215,12 @@
                 <ImageButton android:id="@+id/btnMore"
                     android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="@string/more_options" android:textColor="@color/text_on_dark" android:textSize="12sp"
                     android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
