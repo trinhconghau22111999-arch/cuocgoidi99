@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#333338">
+    android:background="@color/incall_bg">
 
 
     <!-- Avatar: vòng tròn màu nền (chữ cái đầu) HOẶC ảnh liên hệ thật, đặt phía trên tên -->
@@ -12,6 +12,8 @@
         android:layout_width="88dp" android:layout_height="88dp"
         android:layout_marginTop="56dp"
         android:background="@drawable/bg_avatar"
+        android:elevation="0dp"
+        android:outlineProvider="none"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
