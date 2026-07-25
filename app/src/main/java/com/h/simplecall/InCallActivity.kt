@@ -13,6 +13,7 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.provider.ContactsContract
 import android.telecom.Call
+import android.telephony.SubscriptionManager
 import android.view.View
 import android.widget.Button
 import android.widget.GridLayout
@@ -271,6 +272,11 @@ class InCallActivity : AppCompatActivity() {
         binding.incomingControls.visibility = if (isRinging) View.VISIBLE else View.GONE
         binding.activeControls.visibility   = if (isRinging) View.GONE   else View.VISIBLE
 
+        if (binding.llSimLine.tag != call) {
+            binding.llSimLine.tag = call
+            renderSimLine(call)
+        }
+
         when (state) {
             Call.STATE_RINGING -> {
                 timerHandler.removeCallbacks(timerRunnable)
@@ -304,6 +310,28 @@ class InCallActivity : AppCompatActivity() {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang kết thúc..."
             }
+        }
+    }
+
+    /** Hiện icon SIM (1/2) đang dùng để gọi, dựa vào PhoneAccountHandle của cuộc gọi.
+     *  Máy 1 SIM hoặc không tra được subscription thì ẩn icon này đi. Không hiện tên nhà
+     *  mạng/quốc gia nữa - chỉ icon thẻ SIM + số bên trong. */
+    private fun renderSimLine(call: Call) {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) { binding.llSimLine.visibility = View.GONE; return }
+            val subId = call.details?.accountHandle?.id?.toIntOrNull()
+            val info = if (subId != null)
+                getSystemService(SubscriptionManager::class.java)?.getActiveSubscriptionInfo(subId)
+            else null
+            if (info != null) {
+                binding.llSimLine.visibility = View.VISIBLE
+                binding.tvSimBadge.text = (info.simSlotIndex + 1).toString()
+            } else {
+                binding.llSimLine.visibility = View.GONE
+            }
+        } catch (_: Exception) {
+            binding.llSimLine.visibility = View.GONE
         }
     }
 
