@@ -4,12 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
-/**
- * Tất cả hàm ở đây chạy ĐỒNG BỘ (blocking) - giống các hàm truy vấn cũ trong CallLogFragment/
- * DialerFragment. Nơi gọi PHẢI tự chạy trong bgExecutor, không được gọi trực tiếp trên main
- * thread (Room sẽ ném IllegalStateException nếu vi phạm).
- */
 @Dao
 interface CallHistoryDao {
 
@@ -28,11 +24,16 @@ interface CallHistoryDao {
     @Query("SELECT * FROM call_history WHERE id = :id LIMIT 1")
     fun getById(id: Long): CallHistoryEntity?
 
+    /** Blocking – chỉ dùng trong background thread */
     @Query("SELECT * FROM call_history ORDER BY date DESC")
     fun getAll(): List<CallHistoryEntity>
 
     @Query("SELECT * FROM call_history ORDER BY date DESC LIMIT :limit")
     fun getRecent(limit: Int): List<CallHistoryEntity>
+
+    /** Flow – Room tự emit mỗi khi DB thay đổi, không cần load lại thủ công */
+    @Query("SELECT * FROM call_history ORDER BY date DESC")
+    fun observeAll(): Flow<List<CallHistoryEntity>>
 
     @Query("SELECT * FROM call_history WHERE number LIKE :numberPattern ORDER BY date DESC")
     fun getByNumber(numberPattern: String): List<CallHistoryEntity>
