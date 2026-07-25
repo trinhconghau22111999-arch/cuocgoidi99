@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.h.simplecall.R
 import com.h.simplecall.call.BlockedNumbersManager
@@ -19,11 +20,26 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CallLogAdapter(
-    private val items: List<CallLogEntry>,
+    items: List<CallLogEntry>,
     private val onCall: (String) -> Unit,
     private val onShowHistory: (String) -> Unit,
     private val isDualSim: Boolean = false
 ) : RecyclerView.Adapter<CallLogAdapter.VH>() {
+
+    private var items: List<CallLogEntry> = items
+
+    /** Cập nhật danh sách dùng DiffUtil – không flash, không tạo adapter mới */
+    fun updateItems(newItems: List<CallLogEntry>) {
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = items.size
+            override fun getNewListSize() = newItems.size
+            override fun areItemsTheSame(o: Int, n: Int) =
+                items[o].date == newItems[n].date && items[o].number == newItems[n].number
+            override fun areContentsTheSame(o: Int, n: Int) = items[o] == newItems[n]
+        })
+        items = newItems
+        diff.dispatchUpdatesTo(this)
+    }
 
     inner class VH(val b: ItemCallLogBinding) : RecyclerView.ViewHolder(b.root)
 
