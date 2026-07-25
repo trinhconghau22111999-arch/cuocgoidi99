@@ -19,7 +19,10 @@
          và giờ/ngày trong danh sách Gần đây — theo yêu cầu làm các phần này "xám hơn". -->
     <color name="call_log_muted">#6E7176</color>
     <color name="text_hint">#5F6368</color>
-    <color name="text_on_dark">#E8EAED</color>
+    <!-- Chỉ dùng riêng cho activity_in_call.xml (đã xác nhận không layout nào khác dùng tên
+         này). Nền màn hình gọi giờ là TRẮNG SÁNG nên đổi giá trị sang tối để chữ còn đọc được -
+         tên biến giữ nguyên để không phải sửa lại mọi chỗ tham chiếu trong layout. -->
+    <color name="text_on_dark">#202124</color>
     <color name="divider">#2A2A2A</color>
     <color name="key_ripple">#22FFFFFF</color>
     <color name="key_bg">#1E1E1E</color>

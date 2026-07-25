@@ -253,8 +253,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnSpeaker"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_volume_up"
                     android:contentDescription="@string/speaker"/>
                 <TextView android:id="@+id/tvSpeakerLabel"
