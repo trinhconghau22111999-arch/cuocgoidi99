@@ -255,9 +255,10 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                // Phím "0": dấu "+" to gấp đôi các phím khác (0.7x thay vì 0.35x) theo yêu cầu,
-                // các phím còn lại (ABC, DEF...) giữ nguyên cỡ 0.35x như cũ.
-                val subScale = if (tag == "0") 0.70f else 0.35f
+                // Phím "0": dấu "+" từng để to gấp đôi (0.7x), nay thu nhỏ còn 90% mức đó
+                // (0.7 * 0.9 = 0.63x) để không quá khổ và khoảng cách với số "0" cũng khít lại
+                // gần với các phím khác hơn.
+                val subScale = if (tag == "0") 0.63f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
