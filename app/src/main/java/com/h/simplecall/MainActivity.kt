@@ -67,6 +67,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Warm-up DB connection ngay khi app mở để lần đầu vào tab Gần đây không delay
+        val appCtx = applicationContext
+        Thread {
+            com.h.simplecall.data.local.AppDatabase.warmUp(appCtx)
+        }.start()
+
         CallForwardManager.init(this)
         BlockedNumbersManager.init(this)
         MissedCallNotifier.init(this)
@@ -156,21 +162,7 @@ class MainActivity : AppCompatActivity() {
      *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ. */
     private fun goToTab(itemId: Int) {
         currentNavId = itemId
-        // Cache fragment: không tạo mới mỗi lần chuyển tab → không bị nhứng
-        val dest = when (itemId) {
-            R.id.nav_contacts -> {
-                supportFragmentManager.findFragmentByTag("contacts") as? ContactsFragment
-                    ?: ContactsFragment().also { it.arguments = Bundle() }
-            }
-            else -> {
-                supportFragmentManager.findFragmentByTag("recents") as? CallLogFragment
-                    ?: CallLogFragment()
-            }
-        }
-        val tag = if (itemId == R.id.nav_contacts) "contacts" else "recents"
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, dest, tag)
-            .commit()
+        navigateTo(if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment())
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
         if (itemId == R.id.nav_contacts) {
