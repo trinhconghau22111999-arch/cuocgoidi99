@@ -35,12 +35,6 @@ class ContactsFragment : Fragment() {
     private val indexViews = mutableMapOf<String, TextView>()
     private var activeIndexLetter: String? = null
 
-    companion object {
-        /** Cache danh bạ giữa các lần chuyển tab – load 1 lần, dùng mãi */
-        @Volatile var cachedContacts: List<Contact> = emptyList()
-        @Volatile var cacheLoaded: Boolean = false
-    }
-
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentContactsBinding.inflate(i, c, false); return b.root
     }
@@ -68,7 +62,8 @@ class ContactsFragment : Fragment() {
 
         setupAlphabetIndex()
         highlightIndexLetter(adapter.letterAtOrBefore(0))
-        b.fabAddContact.setOnClickListener { openCreateContact() }
+        // Nút "+" thêm liên hệ giờ là fabAddContact ở activity_main.xml (MainActivity gọi
+        // openCreateContactPublic() khi bấm) - không còn FAB riêng trong layout này nữa.
 
         b.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
@@ -79,21 +74,25 @@ class ContactsFragment : Fragment() {
             }
         })
 
-        // Hiện cache ngay nếu đã có → vào lại tab = hiện liền, không chờ
-        if (cacheLoaded && cachedContacts.isNotEmpty()) {
-            adapter.updateContacts(cachedContacts)
-            b.tvContactsCount.text = getString(R.string.contacts_count, cachedContacts.size)
-            b.tvContactsCount.visibility = View.VISIBLE
-            setupAlphabetIndex()
-            highlightIndexLetter(adapter.letterAtOrBefore(0))
+        // Hiện cache ngay nếu ContactsRepository đã có sẵn (thường là do MainActivity.onCreate()
+        // nạp trước từ lúc mở app) → vào tab = hiện liền, không chờ.
+        com.h.simplecall.data.ContactsRepository.peek()?.let { cached ->
+            if (cached.isNotEmpty()) {
+                adapter.updateContacts(cached)
+                b.tvContactsCount.text = getString(R.string.contacts_count, cached.size)
+                b.tvContactsCount.visibility = View.VISIBLE
+                setupAlphabetIndex()
+                highlightIndexLetter(adapter.letterAtOrBefore(0))
+            }
         }
 
-        // Refresh nền để đồng bộ liên hệ mới thêm/sửa/xóa
+        // Luôn đọc lại (đồng bộ liên hệ mới thêm/sửa/xoá) - dùng CHUNG ContactsRepository nên
+        // kết quả cũng được lưu lại cho các lần mở tab/app sau, không riêng lẻ mỗi Fragment.
         viewLifecycleOwner.lifecycleScope.launch {
-            val contacts = withContext(Dispatchers.IO) { loadContacts() }
+            val contacts = withContext(Dispatchers.IO) {
+                com.h.simplecall.data.ContactsRepository.getContacts(requireContext())
+            }
             if (_b == null) return@launch
-            cachedContacts = contacts
-            cacheLoaded = true
             adapter.updateContacts(contacts)
             if (contacts.isNotEmpty()) {
                 b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
@@ -164,34 +163,6 @@ class ContactsFragment : Fragment() {
     private fun openCreateContact() {
         try { startActivity(Intent(Intent.ACTION_INSERT, ContactsContract.Contacts.CONTENT_URI)) }
         catch (_: Exception) { Toast.makeText(requireContext(), "Không tìm thấy ứng dụng để tạo liên hệ", Toast.LENGTH_SHORT).show() }
-    }
-
-    private fun loadContacts(): List<Contact> {
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
-        val list = mutableListOf<Contact>()
-        val cur = requireContext().contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            arrayOf(
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI
-            ), null, null,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-        ) ?: return list
-        cur.use {
-            val iName  = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val iNum   = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-            val iPhoto = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
-            while (it.moveToNext()) {
-                list.add(Contact(
-                    name     = it.getString(iName) ?: "",
-                    number   = it.getString(iNum) ?: "",
-                    photoUri = it.getString(iPhoto)
-                ))
-            }
-        }
-        return list
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }
