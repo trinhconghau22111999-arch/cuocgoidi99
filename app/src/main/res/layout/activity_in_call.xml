@@ -42,7 +42,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageView
-            android:layout_width="26dp" android:layout_height="26dp"
+            android:layout_width="30dp" android:layout_height="30dp"
             android:src="@drawable/ic_sim_card"
             android:tint="#9AA0A6" />
 
