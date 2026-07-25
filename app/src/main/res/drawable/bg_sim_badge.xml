@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <stroke android:width="1.5dp" android:color="@color/text_secondary" />
-    <corners android:radius="3dp" />
-    <solid android:color="@android:color/transparent" />
-</shape>
+<!-- Khung số SIM: hình thẻ SIM bo góc, GÓC TRÊN-PHẢI bị cắt vát - vẽ bằng 1 NÉT VIỀN (stroke)
+     duy nhất, dày đều 100% quanh toàn bộ hình (kể cả đoạn cắt vát), không dùng kiểu "hình đặc
+     khoét lỗ" như ic_sim_card.xml (file đó có viền phải bị mảnh dần, thậm chí = 0 ở đoạn dưới,
+     do lệch toạ độ giữa path ngoài và path trong). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp" android:height="18dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/text_secondary"
+        android:strokeWidth="2.4"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M4,2 L15,2 L20,7 L20,20 Q20,22 18,22 L4,22 Q2,22 2,20 L2,4 Q2,2 4,2 Z" />
+</vector>
