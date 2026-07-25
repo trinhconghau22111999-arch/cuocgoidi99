@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Màn "chi tiết liên hệ" mở ra khi bấm icon info trên 1 dòng ở Lịch sử/Gần đây.
-     Dựng lại toàn bộ theo đúng ảnh mẫu người dùng gửi (Screenshot_20260724-155415):
+<!-- Màn "chi tiết liên hệ" mở ra khi bấm vào 1 liên hệ trong tab Danh bạ (liên hệ ĐÃ LƯU,
+     luôn có tên) - TÁCH RIÊNG khỏi fragment_call_history.xml (màn mở từ icon "i" ở Gần đây).
      thanh icon trên cùng cố định (back/edit/contact-card/more) + phần nội dung cuộn
      (avatar tròn, tên, dòng SIM mặc định, thẻ số điện thoại + Zalo + Xem thêm, thẻ Meet,
      thẻ Tóm tắt/Bản ghi âm cuộc gọi, và danh sách Nhật ký cuộc gọi). -->
@@ -54,30 +54,15 @@
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Avatar: tvAvatar (chữ cái đầu, liên hệ đã lưu) HOẶC ivDefaultAvatar (icon người
-                 mặc định, dùng khi số LẠ chưa lưu danh bạ) -->
-            <FrameLayout
+            <!-- Avatar tròn + chữ cái đầu tên -->
+            <TextView android:id="@+id/tvAvatar"
                 android:layout_width="120dp" android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp">
-
-                <TextView android:id="@+id/tvAvatar"
-                    android:layout_width="120dp" android:layout_height="120dp"
-                    android:background="@drawable/bg_avatar_circle"
-                    android:gravity="center"
-                    android:textSize="48sp" android:textColor="@color/white"
-                    android:fontFamily="sans-serif-medium" />
-
-                <ImageView android:id="@+id/ivDefaultAvatar"
-                    android:layout_width="120dp" android:layout_height="120dp"
-                    android:background="@drawable/bg_avatar_default"
-                    android:src="@drawable/ic_person"
-                    android:scaleType="center"
-                    android:padding="30dp"
-                    app:tint="@color/white"
-                    android:visibility="gone"
-                    android:contentDescription="@string/contact_photo" />
-            </FrameLayout>
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:gravity="center"
+                android:textSize="48sp" android:textColor="@color/white"
+                android:fontFamily="sans-serif-medium" />
 
             <!-- Tên liên hệ, tối đa 2 dòng, canh giữa -->
             <TextView android:id="@+id/tvTitle"
@@ -182,7 +167,7 @@
                         android:contentDescription="Video call" />
                 </LinearLayout>
 
-                <View android:id="@+id/divBeforeZalo"
+                <View
                     android:layout_width="match_parent" android:layout_height="1dp"
                     android:layout_marginTop="20dp" android:layout_marginBottom="16dp"
                     android:background="@color/divider" />
@@ -280,54 +265,6 @@
                         android:layout_width="0dp" android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Bản ghi âm cuộc gọi"
-                        android:textSize="16sp" android:textColor="@color/text_primary" />
-
-                    <ImageView
-                        android:layout_width="20dp" android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Thẻ MỚI: chỉ hiện khi số điện thoại NÀY chưa có trong danh bạ (số lạ) -->
-            <LinearLayout android:id="@+id/cardAddContact"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card_rounded"
-                android:visibility="gone">
-
-                <LinearLayout android:id="@+id/rowCreateContact"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:padding="20dp"
-                    android:clickable="true" android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Tạo liên hệ mới"
-                        android:textSize="16sp" android:textColor="@color/text_primary" />
-
-                    <ImageView
-                        android:layout_width="20dp" android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent" android:layout_height="1dp"
-                    android:layout_marginStart="20dp" android:layout_marginEnd="20dp"
-                    android:background="@color/divider" />
-
-                <LinearLayout android:id="@+id/rowAddExisting"
-                    android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal" android:gravity="center_vertical"
-                    android:padding="20dp"
-                    android:clickable="true" android:focusable="true">
-
-                    <TextView
-                        android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Thêm vào liên lạc hiện có"
                         android:textSize="16sp" android:textColor="@color/text_primary" />
 
                     <ImageView

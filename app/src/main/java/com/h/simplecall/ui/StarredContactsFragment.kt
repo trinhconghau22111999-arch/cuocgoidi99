@@ -31,8 +31,12 @@ class StarredContactsFragment : Fragment() {
 
         b.btnBack.setOnClickListener { requireActivity().onBackPressedDispatcher.onBackPressed() }
 
-        val adapter = ContactsAdapter(emptyList(), emptyList()) {
-            (activity as? MainActivity)?.placeCall(it)
+        val adapter = ContactsAdapter(emptyList(), emptyList()) { contact ->
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(com.h.simplecall.R.id.fragmentContainer, ContactDetailFragment.newInstance(contact.number, contact.name))
+                .addToBackStack("contactDetail")
+                .commit()
+            (activity as? MainActivity)?.hideNav()
         }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter

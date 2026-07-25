@@ -47,7 +47,13 @@ class ContactsFragment : Fragment() {
             ContactHeader(R.drawable.ic_group, getString(R.string.my_groups)) { openMyGroups() }
         )
 
-        adapter = ContactsAdapter(emptyList(), headers) { (activity as? MainActivity)?.placeCall(it) }
+        adapter = ContactsAdapter(emptyList(), headers) { contact ->
+            requireActivity().supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, ContactDetailFragment.newInstance(contact.number, contact.name))
+                .addToBackStack("contactDetail")
+                .commit()
+            (activity as? MainActivity)?.hideNav()
+        }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
         b.recyclerView.itemAnimator = null  // không flash khi update

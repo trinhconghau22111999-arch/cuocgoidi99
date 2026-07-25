@@ -13,26 +13,22 @@ import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
-import com.h.simplecall.databinding.FragmentCallHistoryBinding
+import com.h.simplecall.databinding.FragmentContactDetailBinding
 import com.h.simplecall.databinding.ItemCallHistoryEntryBinding
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * Màn "chi tiết số điện thoại", mở ra khi bấm icon "i" trên 1 dòng ở Gần đây. Xử lý CẢ 2
- * trường hợp:
- *  - Số ĐÃ có trong danh bạ (name khác rỗng): hiển thị như bình thường (avatar chữ cái đầu,
- *    thanh icon sửa/thẻ liên hệ/thêm phía trên).
- *  - Số LẠ chưa lưu (name rỗng): ẩn avatar chữ cái + 3 icon sửa/thẻ liên hệ/thêm phía trên,
- *    ẩn dòng Zalo/Xem thêm, thay bằng avatar mặc định (icon người) + thẻ "Tạo liên hệ mới" /
- *    "Thêm vào liên lạc hiện có".
- * (Màn riêng cho khi bấm 1 liên hệ trong tab Danh bạ là ContactDetailFragment - KHÔNG dùng
- * chung file này, để sửa màn này không ảnh hưởng màn kia.)
+ * Màn "chi tiết liên hệ", mở ra khi bấm vào 1 liên hệ trong tab Danh bạ (luôn là liên hệ
+ * ĐÃ LƯU sẵn, có tên). Tách RIÊNG khỏi CallHistoryFragment (màn mở từ icon "i" ở Gần đây,
+ * xử lý cả trường hợp số LẠ chưa lưu) để sửa 1 màn không ảnh hưởng màn kia.
+ * Bố cục: avatar tròn, tên lớn, dòng SIM mặc định, thẻ số điện thoại + Zalo + Xem thêm,
+ * thẻ Meet, thẻ Tóm tắt/Bản ghi âm cuộc gọi, và danh sách Nhật ký cuộc gọi của riêng số này.
  */
-class CallHistoryFragment : Fragment() {
+class ContactDetailFragment : Fragment() {
 
     companion object {
-        fun newInstance(number: String, name: String) = CallHistoryFragment().also {
+        fun newInstance(number: String, name: String) = ContactDetailFragment().also {
             it.arguments = Bundle().apply {
                 putString("number", number)
                 putString("name", name)
@@ -40,32 +36,16 @@ class CallHistoryFragment : Fragment() {
         }
     }
 
-    private var _b: FragmentCallHistoryBinding? = null
+    private var _b: FragmentContactDetailBinding? = null
     private val b get() = _b!!
     private var currentEntries: List<CallLogEntry> = emptyList()
-    private var pendingNumberForPick: String = ""
-
-    private val pickContactLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.PickContact()
-    ) { contactUri ->
-        if (contactUri == null) return@registerForActivityResult
-        try {
-            startActivity(android.content.Intent(android.content.Intent.ACTION_EDIT).apply {
-                setDataAndType(contactUri, android.provider.ContactsContract.Contacts.CONTENT_ITEM_TYPE)
-                putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, pendingNumberForPick)
-                putExtra("finishActivityOnSaveCompleted", true)
-            })
-        } catch (_: Exception) {
-            android.widget.Toast.makeText(requireContext(), "Không thể mở màn hình sửa liên hệ", android.widget.Toast.LENGTH_SHORT).show()
-        }
-    }
 
     // Room không cho phép query trên main thread -> luôn đọc/ghi DB lịch sử ở nền.
     private val bgExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
-        _b = FragmentCallHistoryBinding.inflate(i, c, false); return b.root
+        _b = FragmentContactDetailBinding.inflate(i, c, false); return b.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,53 +54,12 @@ class CallHistoryFragment : Fragment() {
         val number = arguments?.getString("number") ?: ""
         val name   = arguments?.getString("name") ?: number
         val display = name.ifBlank { number }
-        val isKnownContact = name.isNotBlank()
 
         // ── Header: avatar tròn (chữ cái đầu) + tên + số ──
         b.tvAvatar.text = display.take(1).uppercase()
         // Nếu không có tên liên hệ (chỉ là 1 số lạ) thì số lớn phía trên PHẢI cách nhóm 3-3-2-2
         // giống số trong thẻ phía dưới, ví dụ "090 130 08 36" - đúng ảnh mẫu người dùng gửi.
         b.tvTitle.text = if (name.isBlank()) formatNumberGrouped(number) else display
-
-        // ── Số LẠ chưa lưu danh bạ: ẩn avatar chữ cái + 3 icon sửa/thẻ liên hệ/thêm phía trên,
-        // ẩn Zalo/Xem thêm, đổi loại số thành "Điện thoại", hiện thẻ Tạo/Thêm liên hệ ──
-        if (isKnownContact) {
-            b.tvAvatar.visibility = View.VISIBLE
-            b.ivDefaultAvatar.visibility = View.GONE
-            b.btnEdit.visibility = View.VISIBLE
-            b.btnContactCard.visibility = View.VISIBLE
-            b.btnMore.visibility = View.VISIBLE
-            b.divBeforeZalo.visibility = View.VISIBLE
-            b.rowZalo.visibility = View.VISIBLE
-            b.rowSeeMore.visibility = View.VISIBLE
-            b.cardAddContact.visibility = View.GONE
-        } else {
-            b.tvAvatar.visibility = View.GONE
-            b.ivDefaultAvatar.visibility = View.VISIBLE
-            b.btnEdit.visibility = View.GONE
-            b.btnContactCard.visibility = View.GONE
-            b.btnMore.visibility = View.GONE
-            b.divBeforeZalo.visibility = View.GONE
-            b.rowZalo.visibility = View.GONE
-            b.rowSeeMore.visibility = View.GONE
-            b.tvNumberType.text = "Điện thoại"
-            b.cardAddContact.visibility = View.VISIBLE
-            pendingNumberForPick = number
-            b.rowCreateContact.setOnClickListener {
-                try {
-                    startActivity(android.content.Intent(android.content.Intent.ACTION_INSERT, android.provider.ContactsContract.Contacts.CONTENT_URI)
-                        .putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, number))
-                } catch (_: Exception) {
-                    android.widget.Toast.makeText(requireContext(), "Không tìm thấy ứng dụng để tạo liên hệ", android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-            b.rowAddExisting.setOnClickListener {
-                try { pickContactLauncher.launch(null) }
-                catch (_: Exception) {
-                    android.widget.Toast.makeText(requireContext(), "Không thể mở danh bạ", android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
         // Đọc SIM mặc định cho cuộc gọi từ hệ thống
         val defaultSimSlot: Int = try {
             if (android.content.pm.PackageManager.PERMISSION_GRANTED ==
@@ -302,7 +241,7 @@ class CallHistoryFragment : Fragment() {
             try {
                 AppDatabase.getInstance(appContext).callHistoryDao().deleteByNumber("%$clean%")
             } catch (e: Exception) {
-                android.util.Log.e("CallHistoryFragment", "Xoá lịch sử theo số thất bại", e)
+                android.util.Log.e("ContactDetailFragment", "Xoá lịch sử theo số thất bại", e)
             }
         }
         currentEntries = emptyList()
@@ -320,7 +259,7 @@ class CallHistoryFragment : Fragment() {
                 .getByNumber("%$clean%")
                 .map { it.toCallLogEntry() }
         } catch (e: Exception) {
-            android.util.Log.e("CallHistoryFragment", "Đọc lịch sử theo số thất bại", e)
+            android.util.Log.e("ContactDetailFragment", "Đọc lịch sử theo số thất bại", e)
             emptyList()
         }
     }

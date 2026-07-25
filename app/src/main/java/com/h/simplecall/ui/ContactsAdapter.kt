@@ -38,7 +38,7 @@ private sealed class Row {
 class ContactsAdapter(
     private var allContacts: List<Contact>,
     private val headers: List<ContactHeader>,
-    private val onCall: (String) -> Unit
+    private val onOpenDetail: (Contact) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -141,7 +141,7 @@ class ContactsAdapter(
                 }
 
                 h.b.tvName.text = c.name
-                h.b.root.setOnClickListener { onCall(c.number) }
+                h.b.root.setOnClickListener { onOpenDetail(c) }
             }
         }
     }
