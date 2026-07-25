@@ -255,14 +255,14 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                // Phím "0": dấu "+" từng để to gấp đôi (0.7x), nay thu nhỏ còn 90% mức đó
-                // (0.7 * 0.9 = 0.63x) để không quá khổ và khoảng cách với số "0" cũng khít lại
-                // gần với các phím khác hơn.
-                val subScale = if (tag == "0") 0.63f else 0.35f
+                // Phím "0": dấu "+" giảm còn 90% mức trước (0.63 * 0.9 ≈ 0.57x)
+                val subScale = if (tag == "0") 0.57f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
+                // Phím "0": rút khoảng cách giữa số "0" và dấu "+" còn 70%
+                if (tag == "0") btn.setLineSpacing(0f, 0.7f)
             }
 
             if (tag == "*") {
@@ -294,10 +294,9 @@ class DialerFragment : Fragment() {
                     val iconHeight = fmIcon.descent - fmIcon.ascent
                     val iconWidth = (iconHeight * 2.2f).toInt()
 
-                    // Nhân đôi khoảng cách GIỮA số "1" và icon (insetTop) theo yêu cầu, giữ
-                    // nguyên khoảng đệm phía dưới icon (insetBottom) như cũ.
+                    // Tăng khoảng cách giữa số "1" và icon lên 140% (2f -> 2.8f)
                     val gap = ((rowHeight - iconHeight) / 2f).coerceAtLeast(0f)
-                    val insetTop = (gap * 2f).toInt()
+                    val insetTop = (gap * 2.8f).toInt()
                     val insetBottom = gap.toInt()
                     val newRowHeight = iconHeight + insetTop + insetBottom
                     val inset = android.graphics.drawable.InsetDrawable(d, 0, insetTop, 0, insetBottom)
