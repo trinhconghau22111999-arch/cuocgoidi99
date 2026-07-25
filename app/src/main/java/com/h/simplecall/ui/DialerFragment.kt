@@ -244,6 +244,25 @@ class DialerFragment : Fragment() {
         imm?.hideSoftInputFromWindow(b.etNumber.windowToken, 0)
     }
 
+    /** Ép chiều cao 1 dòng văn bản về đúng [targetHeight] (px), KHÔNG phụ thuộc cỡ chữ thật của
+     *  dòng đó. Dùng để khoảng cách (line spacing) giữa 2 dòng luôn nhất quán dù dòng dưới có
+     *  cỡ chữ to nhỏ khác nhau (ví dụ dấu "+" to hơn "ABC" nhưng khoảng cách với số phía trên
+     *  vẫn phải bằng nhau). */
+    private class FixedLineHeightSpan(private val targetHeight: Int) : android.text.style.LineHeightSpan {
+        override fun chooseHeight(
+            text: CharSequence, start: Int, end: Int, spanstartv: Int, lineHeight: Int,
+            fm: android.graphics.Paint.FontMetricsInt
+        ) {
+            val original = fm.descent - fm.ascent
+            if (original <= 0) return
+            val ratio = targetHeight.toFloat() / original
+            fm.descent = Math.round(fm.descent * ratio)
+            fm.ascent = fm.descent - targetHeight
+            fm.top = fm.ascent
+            fm.bottom = fm.descent
+        }
+    }
+
     private fun setupKeypad(view: View) {
         val grid = view.findViewById<GridLayout>(R.id.keypad)
         for (i in 0 until grid.childCount) {
@@ -266,11 +285,20 @@ class DialerFragment : Fragment() {
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                if (tag == "0") {
+                    // Khoảng cách "+" với "0" phải bằng đúng khoảng cách "ABC" với "2"... - đo
+                    // chiều cao dòng chuẩn (cỡ chữ 0.35x, y hệt các phím khác) rồi ÉP dòng "+"
+                    // (cỡ chữ 0.56x, to hơn) dùng chung chiều cao đó bằng FixedLineHeightSpan,
+                    // thay vì chỉnh lineSpacingMultiplier áng chừng như trước.
+                    val standardPaint = android.text.TextPaint(btn.paint)
+                    standardPaint.textSize = btn.textSize * 0.35f
+                    val standardFm = standardPaint.fontMetricsInt
+                    val standardHeight = standardFm.descent - standardFm.ascent
+                    ss.setSpan(FixedLineHeightSpan(standardHeight), subStart, ss.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
-                // Đồng nhất khoảng cách: số lớn cách chữ phụ bằng khoảng cách hàng số - icon phía trên.
-                // lineSpacingMultiplier 0.85 rút khoảng cách dòng lại vừa phải, nhất quán với phím 1.
-                if (tag == "0") btn.setLineSpacing(0f, 0.7f)
-                else btn.setLineSpacing(0f, 0.85f)
+                btn.setLineSpacing(0f, 0.85f)
             }
 
             if (tag == "*") {
