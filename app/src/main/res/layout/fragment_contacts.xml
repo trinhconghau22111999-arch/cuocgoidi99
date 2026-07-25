@@ -98,19 +98,10 @@
             android:orientation="vertical"
             android:gravity="center_horizontal" />
 
-        <!-- FAB thêm liên hệ mới -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabAddContact"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_add"
-            app:tint="@color/fab_icon"
-            app:backgroundTint="@color/fab_bg"
-            app:fabSize="normal"
-            android:contentDescription="@string/create_new_contact" />
+        <!-- Nút "+" thêm liên hệ đã chuyển ra FAB TOÀN CỤC dùng chung (fabAddContact trong
+             activity_main.xml, do MainActivity điều khiển hiện/ẩn theo tab). Trước đây màn này
+             CÒN GIỮ RIÊNG 1 FAB "+" khác cùng vị trí -> hiện 2 nút "+" chồng lên nhau. Đã xóa
+             hẳn FAB ở đây, không dựng lại nữa. -->
 
     </FrameLayout>
 </LinearLayout>
