@@ -70,7 +70,7 @@
                     android:fontFamily="sans-serif-medium" />
 
                 <ImageView android:id="@+id/ivDefaultAvatar"
-                    android:layout_width="84dp" android:layout_height="84dp"
+                    android:layout_width="71dp" android:layout_height="71dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_avatar_default"
                     android:src="@drawable/ic_person"
