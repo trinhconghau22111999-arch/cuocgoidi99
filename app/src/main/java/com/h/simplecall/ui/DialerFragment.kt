@@ -294,10 +294,14 @@ class DialerFragment : Fragment() {
                     val iconHeight = fmIcon.descent - fmIcon.ascent
                     val iconWidth = (iconHeight * 2.2f).toInt()
 
-                    val insetTop = ((rowHeight - iconHeight) / 2f).toInt().coerceAtLeast(0)
-                    val insetBottom = (rowHeight - iconHeight - insetTop).coerceAtLeast(0)
+                    // Nhân đôi khoảng cách GIỮA số "1" và icon (insetTop) theo yêu cầu, giữ
+                    // nguyên khoảng đệm phía dưới icon (insetBottom) như cũ.
+                    val gap = ((rowHeight - iconHeight) / 2f).coerceAtLeast(0f)
+                    val insetTop = (gap * 2f).toInt()
+                    val insetBottom = gap.toInt()
+                    val newRowHeight = iconHeight + insetTop + insetBottom
                     val inset = android.graphics.drawable.InsetDrawable(d, 0, insetTop, 0, insetBottom)
-                    inset.setBounds(0, 0, iconWidth, rowHeight)
+                    inset.setBounds(0, 0, iconWidth, newRowHeight)
                     ss.setSpan(ImageSpan(inset, ImageSpan.ALIGN_BASELINE),
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
