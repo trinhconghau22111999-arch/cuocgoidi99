@@ -133,7 +133,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -148,7 +148,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="@color/text_on_dark"
@@ -163,7 +163,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -184,7 +184,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -199,7 +199,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -213,7 +213,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="match_parent" android:layout_height="184dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="@color/text_on_dark"
