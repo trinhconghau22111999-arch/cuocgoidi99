@@ -101,15 +101,15 @@
                 android:clickable="true" android:focusable="true">
 
                 <FrameLayout
-                    android:layout_width="18dp" android:layout_height="18dp">
+                    android:layout_width="22dp" android:layout_height="22dp">
 
                     <ImageView
-                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_width="22dp" android:layout_height="22dp"
                         android:src="@drawable/ic_sim_card"
                         app:tint="@color/text_secondary" />
 
                     <TextView android:id="@+id/tvSimBadge"
-                        android:layout_width="18dp" android:layout_height="18dp"
+                        android:layout_width="22dp" android:layout_height="22dp"
                         android:gravity="center"
                         android:paddingTop="1dp"
                         android:textSize="11sp" android:textColor="@color/text_secondary" />
