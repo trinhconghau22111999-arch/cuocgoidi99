@@ -117,11 +117,52 @@ class ContactsFragment : Fragment() {
                     android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
                 )
                 setPadding(0, 1, 0, 1)
-                setOnClickListener { jumpTo(letter) }
             }
             indexViews[letter] = tv
             b.llAlphabetIndex.addView(tv)
         }
+        setupAlphabetIndexTouch()
+    }
+
+    /** Cho phép chạm/kéo (giữ ngón tay rê lên xuống) dọc thanh chữ cái: lướt tới đâu, danh
+     *  bạ tự cuộn theo chữ đó tới đó, giống thanh index của Zalo/Danh bạ Google. */
+    private fun setupAlphabetIndexTouch() {
+        b.llAlphabetIndex.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN,
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    letterAtY(event.y)?.let { letter ->
+                        if (letter != activeIndexLetter) {
+                            v.performHapticFeedback(android.view.HapticFeedbackConstants.TEXT_HANDLE_MOVE)
+                        }
+                        jumpTo(letter)
+                    }
+                    true
+                }
+                android.view.MotionEvent.ACTION_UP,
+                android.view.MotionEvent.ACTION_CANCEL -> {
+                    v.performClick()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    /** Xác định chữ cái tương ứng với vị trí Y đang chạm/kéo trên thanh chỉ mục. */
+    private fun letterAtY(y: Float): String? {
+        val container = b.llAlphabetIndex
+        val count = container.childCount
+        if (count == 0) return null
+        val first = container.getChildAt(0)
+        val last = container.getChildAt(count - 1)
+        if (y <= first.top) return INDEX_LETTERS.firstOrNull()
+        if (y >= last.bottom) return INDEX_LETTERS.lastOrNull()
+        for (idx in 0 until count) {
+            val child = container.getChildAt(idx)
+            if (y >= child.top && y < child.bottom) return INDEX_LETTERS.getOrNull(idx)
+        }
+        return activeIndexLetter
     }
 
     private fun highlightIndexLetter(letter: String?) {
