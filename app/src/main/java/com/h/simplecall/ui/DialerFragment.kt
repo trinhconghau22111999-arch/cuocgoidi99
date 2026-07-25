@@ -235,7 +235,7 @@ class DialerFragment : Fragment() {
                     val h = fm.descent - fm.ascent
                     val w = (h * 2.2f).toInt()
                     d.setBounds(0, 0, w, h)
-                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BOTTOM),
+                    ss.setSpan(ImageSpan(d, ImageSpan.ALIGN_BASELINE),
                         sub2Start, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
@@ -505,12 +505,17 @@ class DialerFragment : Fragment() {
     // Khi mở màn hình này lần đầu, quyền READ_PHONE_STATE có thể CHƯA được cấp (hộp thoại xin
     // quyền của MainActivity chạy bất đồng bộ). Nếu không làm mới lại ở đây, nút gọi sẽ bị kẹt
     // vĩnh viễn ở chế độ 1 SIM ngay cả sau khi người dùng đã cấp quyền / cắm thêm SIM.
+    private var hasResumedOnce = false
+
     override fun onResume() {
         super.onResume()
-        // Bàn phím số luôn hiện khi quay lại tab Gần đây
         setKeypadVisible(true)
         setupCallButtons()
-        loadRecents()
+        // Không tải lịch sử cuộc gọi lần đầu tiên vào app (savedInstanceState == null và chưa resume lần nào)
+        // để tránh hiện danh sách cũ ngay khi mở app lần đầu. Từ lần thứ 2 trở đi (quay lại tab,
+        // lên từ background...) thì tải bình thường để cập nhật cuộc gọi mới nhất.
+        if (hasResumedOnce) loadRecents()
+        hasResumedOnce = true
     }
 
     override fun onDestroyView() {
