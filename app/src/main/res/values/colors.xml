@@ -55,7 +55,7 @@
     <color name="avatar_header_bg">#242424</color>
     <!-- Màu tím avatar tròn ở màn Lịch sử cuộc gọi (chi tiết liên hệ) - lấy đúng mã màu từ
          ảnh mẫu người dùng gửi (pixel-sample #A58FFC). -->
-    <color name="avatar_purple">#A58FFC</color>
+    <color name="avatar_purple">#3D8BEF</color>
     <!-- Nền thẻ (card) bo góc ở màn chi tiết liên hệ: trùng bg_surface, tách tên riêng cho rõ ý -->
     <color name="detail_card_bg">#1A1A1A</color>
 </resources>
