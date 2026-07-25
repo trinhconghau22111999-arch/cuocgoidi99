@@ -214,7 +214,7 @@
             android:paddingStart="20dp" android:paddingEnd="20dp"
             android:paddingTop="14dp" android:paddingBottom="14dp">
             <ImageView android:layout_width="24dp" android:layout_height="24dp"
-                android:src="@android:drawable/ic_dialog_email" app:tint="@color/white" tools:ignore="MissingClass"/>
+                android:src="@drawable/ic_message_outline" app:tint="@color/white" tools:ignore="MissingClass"/>
             <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:layout_marginStart="24dp"
                 android:text="@string/send_sms"
