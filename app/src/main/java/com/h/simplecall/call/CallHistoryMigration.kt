@@ -36,13 +36,6 @@ object CallHistoryMigration {
         }
 
         val dao = AppDatabase.getInstance(context).callHistoryDao()
-        // An toàn: chỉ di trú khi DB app còn trống, tránh chèn trùng nếu hàm này vô tình
-        // được gọi nhiều lần trước khi kịp lưu cờ "đã xong".
-        if (dao.count() > 0) {
-            prefs.edit().putBoolean(KEY_DONE, true).apply()
-            return
-        }
-
         val legacyEntries = readLegacyCallLog(context)
         if (legacyEntries.isNotEmpty()) dao.insertAll(legacyEntries)
         prefs.edit().putBoolean(KEY_DONE, true).apply()

@@ -32,6 +32,11 @@ object CallHistoryManager {
     @Volatile private var sessionStartMs = 0L
     @Volatile private var sessionNumber = ""
     @Volatile private var recordId: Long = -1
+    // Cuộc gọi VỪA được chốt sổ (finalizeSession) gần nhất. Một số thiết bị/ROM bắn thêm 1-2
+    // sự kiện MUỘN (ví dụ onDetailsChanged dọn dẹp) cho đúng cuộc gọi đã DISCONNECTED, SAU KHI
+    // trackedCall đã bị đặt về null - nếu không chặn, code sẽ hiểu nhầm đó là 1 cuộc gọi hoàn
+    // toàn mới và ghi thêm 1 dòng lịch sử thứ 2 cho cùng 1 cuộc gọi thật.
+    @Volatile private var lastFinalizedCall: Call? = null
 
     fun init(context: Context) {
         if (initialized) return
@@ -48,6 +53,7 @@ object CallHistoryManager {
 
     private fun onCallEvent(call: Call?, state: Int) {
         if (call == null || appContext == null) return
+        if (call === lastFinalizedCall) return // sự kiện muộn của cuộc gọi ĐÃ kết thúc - bỏ qua
 
         if (call !== trackedCall) {
             // An toàn: nếu phiên trước chưa được đóng lại (hi hữu, ví dụ callback bị bỏ lỡ)
@@ -112,6 +118,7 @@ object CallHistoryManager {
         val number = sessionNumber
         val name = CallManager.callerName(call)
 
+        lastFinalizedCall = call
         trackedCall = null
 
         bgExecutor.execute {
