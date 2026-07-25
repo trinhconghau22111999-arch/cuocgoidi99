@@ -260,11 +260,14 @@ class DialerFragment : Fragment() {
                 // đẩy lên 1.05x + setLineSpacing 1.75x khiến tổng chiều cao 2 dòng vượt quá
                 // chiều cao cố định của phím (68dp) -> dấu "+" bị cắt mất/ẩn. Bỏ line spacing
                 // dư thừa, giữ đúng 2x như yêu cầu gốc để vừa khít trong khung phím.
-                val subScale = if (tag == "0") 0.7f else 0.35f
+                // Giờ thu nhỏ dấu "+" còn 80% mức trên (0.7 * 0.8 = 0.56x) và rút khoảng cách
+                // với số "0" còn 80% (line spacing multiplier 0.8) theo yêu cầu mới nhất.
+                val subScale = if (tag == "0") 0.7f * 0.8f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
+                if (tag == "0") btn.setLineSpacing(0f, 0.8f)
             }
 
             if (tag == "*") {
