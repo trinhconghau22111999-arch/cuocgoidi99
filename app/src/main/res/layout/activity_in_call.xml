@@ -32,28 +32,25 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
 
-    <!-- Icon SIM đang gọi: chỉ hình thẻ SIM + số 1/2 bên trong, KHÔNG có chữ tên nhà mạng -->
+    <!-- Icon SIM đang gọi: đổi sang ĐÚNG kiểu khung thẻ SIM dùng ở Lịch sử cuộc gọi
+         (bg_sim_badge - chỉ 1 TextView, không dùng ImageView ic_sim_card nữa vì file đó có lỗi
+         viền mảnh dần/mất hẳn ở đoạn dưới do lệch toạ độ giữa path ngoài và path trong). -->
     <FrameLayout android:id="@+id/llSimLine"
-        android:layout_width="26dp" android:layout_height="26dp"
+        android:layout_width="18dp" android:layout_height="18dp"
         android:layout_marginTop="6dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:layout_width="30dp" android:layout_height="30dp"
-            android:src="@drawable/ic_sim_card"
-            android:tint="#9AA0A6" />
-
         <TextView android:id="@+id/tvSimBadge"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_width="18dp" android:layout_height="18dp"
+            android:gravity="center"
+            android:background="@drawable/bg_sim_badge"
             android:text="2"
-            android:textSize="10sp"
+            android:textSize="9sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:fontFamily="sans-serif-medium" />
+            android:textColor="@color/text_secondary" />
     </FrameLayout>
 
     <!-- Badge HD + trạng thái/giờ gọi -->
@@ -151,6 +148,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>

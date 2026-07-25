@@ -228,6 +228,25 @@ class InCallActivity : AppCompatActivity() {
     private var lastLookedUpNumber: String? = null
     private var lastContactInfo: Pair<String, android.net.Uri?>? = null
 
+    /** Làm mờ + vô hiệu hoá 4 nút chỉ có tác dụng lúc đang nói chuyện thật (Ghi âm, Giữ,
+     *  Rõ tiếng, Thêm cuộc gọi) trong lúc cuộc gọi ĐI còn đang đổ chuông/kết nối, chưa ai bắt
+     *  máy - bấm vào lúc này chưa có ý nghĩa gì. "Im lặng" và "Thêm" vẫn hữu ích ngay cả khi
+     *  chưa kết nối (tắt mic trước, hoặc mở menu thêm) nên KHÔNG đụng tới 2 nút đó. */
+    private fun setPreConnectDimming(dim: Boolean) {
+        val alpha = if (dim) 0.35f else 1f
+        val views = listOf(
+            binding.btnRecord, binding.tvRecordLabel,
+            binding.btnHold, binding.tvHoldLabel,
+            binding.btnClarity, binding.tvClarityLabel,
+            binding.btnAddCall
+        )
+        views.forEach { it.alpha = alpha }
+        binding.btnRecord.isEnabled = !dim
+        binding.btnHold.isEnabled = !dim
+        binding.btnClarity.isEnabled = !dim
+        binding.btnAddCall.isEnabled = !dim
+    }
+
     private fun updateUi(call: Call?, state: Int) {
         if (call == null || state == Call.STATE_DISCONNECTED) {
             timerHandler.removeCallbacks(timerRunnable)
@@ -287,12 +306,18 @@ class InCallActivity : AppCompatActivity() {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang gọi..."
                 binding.tvHdBadge.visibility = View.GONE
+                // Chưa kết nối được với đầu bên kia: các nút chỉ có tác dụng LÚC ĐANG NÓI
+                // CHUYỆN (Ghi âm, Giữ, Rõ tiếng, Thêm cuộc gọi) làm mờ đi + vô hiệu hoá tạm
+                // thời. "Im lặng" và "Thêm" vẫn dùng được bình thường nên giữ nguyên độ sáng.
+                setPreConnectDimming(true)
             }
             Call.STATE_ACTIVE -> {
                 isHeld = false
                 binding.btnHold.setBackgroundResource(R.drawable.bg_action_circle)
                 binding.tvHoldLabel.text = getString(R.string.hold_call)
                 binding.tvHdBadge.visibility = View.VISIBLE
+                // Đã kết nối - trả lại độ sáng/bật lại đầy đủ các nút vừa bị làm mờ lúc đang gọi.
+                setPreConnectDimming(false)
                 if (callStartMs == 0L) {
                     callStartMs = System.currentTimeMillis()
                     timerHandler.post(timerRunnable)
