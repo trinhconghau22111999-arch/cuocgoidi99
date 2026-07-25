@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.CallLog
 import android.telephony.SubscriptionManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.CallHistoryEntity
@@ -23,22 +24,31 @@ object CallHistoryMigration {
     private const val KEY_DONE = "migrated_from_system_call_log"
 
     /** Gọi ở NỀN (không phải main thread) - hàm này tự kiểm tra điều kiện và bỏ qua an toàn
-     *  nếu đã di trú rồi, chưa có quyền đọc CallLog, hoặc DB app đã có dữ liệu sẵn. */
+     *  nếu đã di trú rồi, chưa có quyền đọc CallLog, hoặc DB app đã có dữ liệu sẵn.
+     *
+     *  TOÀN BỘ thân hàm được bọc try/catch: đây là tác vụ chạy trên bgExecutor (không phải main
+     *  thread), nhưng trên Android 1 exception không bắt được ở BẤT KỲ thread nào cũng làm CRASH
+     *  TOÀN BỘ app, không riêng gì thread đó. Vì đây chỉ là bước "di trú tiện lợi" (không bắt
+     *  buộc để app hoạt động), thà bỏ qua và log lỗi còn hơn làm sập cả ứng dụng. */
     fun runIfNeeded(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        if (prefs.getBoolean(KEY_DONE, false)) return
+        try {
+            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            if (prefs.getBoolean(KEY_DONE, false)) return
 
-        if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALL_LOG)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Chưa được cấp quyền - có thể người dùng cấp sau, nên KHÔNG đánh dấu "đã xong"
-            // để lần khởi động kế tiếp còn thử lại.
-            return
+            if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.READ_CALL_LOG)
+                != PackageManager.PERMISSION_GRANTED) {
+                // Chưa được cấp quyền - có thể người dùng cấp sau, nên KHÔNG đánh dấu "đã xong"
+                // để lần khởi động kế tiếp còn thử lại.
+                return
+            }
+
+            val dao = AppDatabase.getInstance(context).callHistoryDao()
+            val legacyEntries = readLegacyCallLog(context)
+            if (legacyEntries.isNotEmpty()) dao.insertAll(legacyEntries)
+            prefs.edit().putBoolean(KEY_DONE, true).apply()
+        } catch (e: Exception) {
+            Log.e("CallHistoryMigration", "Di trú lịch sử cũ thất bại, bỏ qua an toàn", e)
         }
-
-        val dao = AppDatabase.getInstance(context).callHistoryDao()
-        val legacyEntries = readLegacyCallLog(context)
-        if (legacyEntries.isNotEmpty()) dao.insertAll(legacyEntries)
-        prefs.edit().putBoolean(KEY_DONE, true).apply()
     }
 
     private fun readLegacyCallLog(context: Context): List<CallHistoryEntity> {

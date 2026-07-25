@@ -123,7 +123,12 @@ class CallLogFragment : Fragment() {
      *  (do CallHistoryManager ghi lại), không phải số nguyên bản do hệ thống tự log. */
     private fun loadCallLog(ctx: Context): List<CallLogEntry> {
         CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
-        return AppDatabase.getInstance(ctx).callHistoryDao().getAll().map { it.toCallLogEntry() }
+        return try {
+            AppDatabase.getInstance(ctx).callHistoryDao().getAll().map { it.toCallLogEntry() }
+        } catch (e: Exception) {
+            android.util.Log.e("CallLogFragment", "Đọc lịch sử cuộc gọi thất bại", e)
+            emptyList()
+        }
     }
 
     /** Đánh dấu các cuộc gọi nhỡ là "đã xem" trong DB nội bộ - thay cho việc cập nhật cờ
@@ -131,8 +136,12 @@ class CallLogFragment : Fragment() {
     private fun markMissedAsRead() {
         val appContext = requireContext().applicationContext
         bgExecutor.execute {
-            AppDatabase.getInstance(appContext).callHistoryDao()
-                .markMissedAsRead(CallLog.Calls.MISSED_TYPE)
+            try {
+                AppDatabase.getInstance(appContext).callHistoryDao()
+                    .markMissedAsRead(CallLog.Calls.MISSED_TYPE)
+            } catch (e: Exception) {
+                android.util.Log.e("CallLogFragment", "Đánh dấu đã xem cuộc gọi nhỡ thất bại", e)
+            }
         }
     }
 

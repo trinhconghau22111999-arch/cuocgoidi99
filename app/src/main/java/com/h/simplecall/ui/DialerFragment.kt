@@ -472,7 +472,12 @@ class DialerFragment : Fragment() {
      *  tại thời điểm gọi, không phải số CallLog hệ thống tự ghi. */
     private fun queryRecents(ctx: Context): List<CallLogEntry> {
         CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
-        return AppDatabase.getInstance(ctx).callHistoryDao().getRecent(50).map { it.toCallLogEntry() }
+        return try {
+            AppDatabase.getInstance(ctx).callHistoryDao().getRecent(50).map { it.toCallLogEntry() }
+        } catch (e: Exception) {
+            android.util.Log.e("DialerFragment", "Đọc lịch sử gần đây thất bại", e)
+            emptyList()
+        }
     }
 
     private fun searchSuggestions(raw: String) {

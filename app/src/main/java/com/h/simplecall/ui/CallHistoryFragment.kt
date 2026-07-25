@@ -237,7 +237,11 @@ class CallHistoryFragment : Fragment() {
         val clean = number.filter { it.isDigit() }
         val appContext = requireContext().applicationContext
         bgExecutor.execute {
-            AppDatabase.getInstance(appContext).callHistoryDao().deleteByNumber("%$clean%")
+            try {
+                AppDatabase.getInstance(appContext).callHistoryDao().deleteByNumber("%$clean%")
+            } catch (e: Exception) {
+                android.util.Log.e("CallHistoryFragment", "Xoá lịch sử theo số thất bại", e)
+            }
         }
         currentEntries = emptyList()
         b.llHistoryEntries.removeAllViews()
@@ -249,9 +253,14 @@ class CallHistoryFragment : Fragment() {
     private fun loadHistory(ctx: android.content.Context, number: String): List<CallLogEntry> {
         CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
         val clean = number.filter { it.isDigit() }
-        return AppDatabase.getInstance(ctx).callHistoryDao()
-            .getByNumber("%$clean%")
-            .map { it.toCallLogEntry() }
+        return try {
+            AppDatabase.getInstance(ctx).callHistoryDao()
+                .getByNumber("%$clean%")
+                .map { it.toCallLogEntry() }
+        } catch (e: Exception) {
+            android.util.Log.e("CallHistoryFragment", "Đọc lịch sử theo số thất bại", e)
+            emptyList()
+        }
     }
 
     override fun onDestroyView() {

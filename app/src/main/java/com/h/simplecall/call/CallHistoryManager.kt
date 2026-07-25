@@ -110,20 +110,24 @@ object CallHistoryManager {
         val number = sessionNumber
 
         bgExecutor.execute {
-            val id = dao().insert(
-                CallHistoryEntity(
-                    name = name,
-                    number = number,
-                    date = startedAt,
-                    type = if (outgoing) CallLog.Calls.OUTGOING_TYPE else CallLog.Calls.INCOMING_TYPE,
-                    duration = 0,
-                    simSlot = simSlot,
-                    numberType = if (name.isNotEmpty()) "Di động" else "Việt Nam",
-                    isNew = false
+            try {
+                val id = dao().insert(
+                    CallHistoryEntity(
+                        name = name,
+                        number = number,
+                        date = startedAt,
+                        type = if (outgoing) CallLog.Calls.OUTGOING_TYPE else CallLog.Calls.INCOMING_TYPE,
+                        duration = 0,
+                        simSlot = simSlot,
+                        numberType = if (name.isNotEmpty()) "Di động" else "Việt Nam",
+                        isNew = false
+                    )
                 )
-            )
-            // Chỉ áp dụng nếu vẫn đang là phiên này (tránh ghi đè nhầm nếu cuộc gọi đã đổi rất nhanh)
-            if (trackedCall === call) recordId = id
+                // Chỉ áp dụng nếu vẫn đang là phiên này (tránh ghi đè nhầm nếu cuộc gọi đã đổi rất nhanh)
+                if (trackedCall === call) recordId = id
+            } catch (e: Exception) {
+                android.util.Log.e("CallHistoryManager", "Ghi lịch sử cuộc gọi (bắt đầu) thất bại", e)
+            }
         }
     }
 
@@ -144,21 +148,25 @@ object CallHistoryManager {
         trackedCall = null
 
         bgExecutor.execute {
-            // recordId có thể chưa kịp gán (insert() còn đang chạy) - đợi ngắn bằng cách đọc lại
-            // từ chính executor tuần tự (mọi lệnh trong bgExecutor chạy lần lượt trên 1 thread),
-            // nên tới đây insert() ở startSession chắc chắn đã xong nếu được gửi trước.
-            val id = recordId
-            if (id <= 0) return@execute
-            val existing = dao().getById(id) ?: return@execute
-            dao().update(
-                existing.copy(
-                    number = number.ifEmpty { existing.number },
-                    name = if (name.isNotEmpty()) name else existing.name,
-                    type = finalType,
-                    duration = duration,
-                    isNew = missed
+            try {
+                // recordId có thể chưa kịp gán (insert() còn đang chạy) - đợi ngắn bằng cách đọc
+                // lại từ chính executor tuần tự (mọi lệnh trong bgExecutor chạy lần lượt trên 1
+                // thread), nên tới đây insert() ở startSession chắc chắn đã xong nếu gửi trước.
+                val id = recordId
+                if (id <= 0) return@execute
+                val existing = dao().getById(id) ?: return@execute
+                dao().update(
+                    existing.copy(
+                        number = number.ifEmpty { existing.number },
+                        name = if (name.isNotEmpty()) name else existing.name,
+                        type = finalType,
+                        duration = duration,
+                        isNew = missed
+                    )
                 )
-            )
+            } catch (e: Exception) {
+                android.util.Log.e("CallHistoryManager", "Ghi lịch sử cuộc gọi (kết thúc) thất bại", e)
+            }
         }
     }
 
