@@ -42,6 +42,13 @@ import com.h.simplecall.databinding.FragmentDialerBinding
 class DialerFragment : Fragment() {
 
     companion object {
+        /** Cache "Gần đây" giữa các lần mở lại tab/app – hiện ngay từ cache trong lúc chờ
+         *  đọc lại DB ở nền, giống hệt cơ chế cachedContacts của ContactsFragment, để tránh
+         *  màn hình trắng/giật khi mở lại. Dữ liệu gốc vẫn luôn lấy từ Room (đã lưu bền), đây
+         *  chỉ là bản sao trong RAM để hiển thị tức thời. */
+        @Volatile var cachedRecents: List<CallLogEntry> = emptyList()
+        @Volatile var recentsCacheLoaded: Boolean = false
+
         private val SUB_LABELS = mapOf(
             "2" to "ABC", "3" to "DEF", "4" to "GHI",
             "5" to "JKL", "6" to "MNO", "7" to "PQRS",
@@ -128,6 +135,7 @@ class DialerFragment : Fragment() {
         b.rvSuggestions.adapter = suggestAdapter
 
         b.rvRecents.layoutManager = LinearLayoutManager(requireContext())
+        b.rvRecents.itemAnimator = null // không nháy khi cache hiện trước rồi refresh nền đè lên
         loadRecents()
 
         // Xin quyền READ_CONTACTS lần đầu tiên vào app (savedInstanceState == null = lần tạo view đầu tiên).
@@ -416,12 +424,21 @@ class DialerFragment : Fragment() {
             b.rvRecents.visibility = View.GONE
             return
         }
-        val appContext = requireContext().applicationContext
         val isDualSim = callCapableAccounts().size >= 2
+
+        // Hiện cache ngay nếu đã có (từ lần mở trước, cùng phiên app) → không chờ, không giật/trắng
+        if (recentsCacheLoaded && cachedRecents.isNotEmpty()) {
+            allRecentEntries = cachedRecents
+            renderRecents(isDualSim)
+        }
+
+        val appContext = requireContext().applicationContext
         bgExecutor.execute {
             val entries = queryRecents(appContext)
             mainHandler.post {
                 if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
+                cachedRecents = entries
+                recentsCacheLoaded = true
                 allRecentEntries = entries
                 renderRecents(isDualSim)
             }
