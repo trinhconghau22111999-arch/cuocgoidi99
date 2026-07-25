@@ -177,7 +177,13 @@ class MainActivity : AppCompatActivity() {
      *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ. */
     private fun goToTab(itemId: Int) {
         currentNavId = itemId
-        navigateTo(if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment())
+        val tag = if (itemId == R.id.nav_contacts) "contacts" else "recents"
+        val dest = supportFragmentManager.findFragmentByTag(tag) ?: run {
+            if (itemId == R.id.nav_contacts) ContactsFragment() else CallLogFragment()
+        }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, dest, tag)
+            .commit()
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
         if (itemId == R.id.nav_contacts) {
