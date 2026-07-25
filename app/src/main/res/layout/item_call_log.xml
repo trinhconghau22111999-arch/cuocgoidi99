@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -43,17 +44,28 @@
             android:gravity="center_vertical"
             android:layout_marginTop="3dp">
 
-            <TextView
-                android:id="@+id/tvSimBadge"
+            <FrameLayout
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:gravity="center"
-                android:text="1"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:textColor="@color/text_secondary"
-                android:background="@drawable/bg_sim_badge"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="4dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_sim_card"
+                    app:tint="@color/text_secondary" />
+
+                <TextView
+                    android:id="@+id/tvSimBadge"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:gravity="center"
+                    android:paddingTop="1dp"
+                    android:text="1"
+                    android:textSize="8sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_secondary" />
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tvHdBadge"
