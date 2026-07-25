@@ -8,7 +8,9 @@ import android.telephony.SubscriptionManager
 import androidx.core.content.ContextCompat
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.CallHistoryEntity
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Tự ghi lịch sử cuộc gọi vào DB cục bộ của app (Room) - KHÔNG đọc/ghi qua CallLog provider của
@@ -22,6 +24,11 @@ object CallHistoryManager {
     private val bgExecutor = Executors.newSingleThreadExecutor()
     private var appContext: Context? = null
     private var initialized = false
+    // Đóng lại khi di trú lịch sử cũ (CallHistoryMigration) xong - các màn hình đọc lịch sử
+    // (CallLogFragment/CallHistoryFragment/DialerFragment) gọi awaitReady() ở NỀN của CHÍNH
+    // chúng trước khi query Room, để không bao giờ đọc trúng lúc migration còn đang chạy dở
+    // (ví dụ vừa mở app lần đầu, chưa gọi cuộc nào) -> tránh hiện "Gần đây" trống oan.
+    private val migrationDoneLatch = CountDownLatch(1)
 
     // Trạng thái phiên gọi hiện tại - app chỉ quản lý 1 cuộc gọi tại một thời điểm
     // (giống giả định hiện có của CallManager.currentCall). @Volatile vì các field này được
@@ -46,7 +53,22 @@ object CallHistoryManager {
 
         // Di trú lịch sử cũ từ CallLog hệ thống sang Room - chỉ chạy 1 lần, ở nền.
         val ctx = appContext!!
-        bgExecutor.execute { CallHistoryMigration.runIfNeeded(ctx) }
+        bgExecutor.execute {
+            try {
+                CallHistoryMigration.runIfNeeded(ctx)
+            } finally {
+                migrationDoneLatch.countDown()
+            }
+        }
+    }
+
+    /** Gọi ở NỀN (KHÔNG phải main thread) trước khi query lịch sử, để đảm bảo migration lịch
+     *  sử cũ (nếu có) đã chạy xong. Có timeout để không bao giờ treo vô hạn nếu có sự cố. */
+    fun awaitReady() {
+        try {
+            migrationDoneLatch.await(5, TimeUnit.SECONDS)
+        } catch (_: InterruptedException) {
+        }
     }
 
     private fun dao() = AppDatabase.getInstance(appContext!!).callHistoryDao()

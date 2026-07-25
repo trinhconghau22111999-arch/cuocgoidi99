@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
+import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
@@ -120,8 +121,10 @@ class CallLogFragment : Fragment() {
     /** Đọc TOÀN BỘ lịch sử từ DB nội bộ của app (không đụng tới CallLog provider hệ thống nữa).
      *  Số của mỗi dòng chính là số ĐÃ ĐƯỢC HIỂN THỊ TRÊN MÀN HÌNH GỌI tại thời điểm gọi
      *  (do CallHistoryManager ghi lại), không phải số nguyên bản do hệ thống tự log. */
-    private fun loadCallLog(ctx: Context): List<CallLogEntry> =
-        AppDatabase.getInstance(ctx).callHistoryDao().getAll().map { it.toCallLogEntry() }
+    private fun loadCallLog(ctx: Context): List<CallLogEntry> {
+        CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
+        return AppDatabase.getInstance(ctx).callHistoryDao().getAll().map { it.toCallLogEntry() }
+    }
 
     /** Đánh dấu các cuộc gọi nhỡ là "đã xem" trong DB nội bộ - thay cho việc cập nhật cờ
      *  CallLog.Calls.NEW của hệ thống trước đây. */

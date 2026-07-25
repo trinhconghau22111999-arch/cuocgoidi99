@@ -34,6 +34,7 @@ import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.Contact
+import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentDialerBinding
@@ -469,8 +470,10 @@ class DialerFragment : Fragment() {
      *  (có máy hàng nghìn cuộc gọi) — giới hạn 50 dòng mới nhất là đủ và tránh lag khi mở màn.
      *  Đọc từ DB nội bộ của app (Room) - số của mỗi dòng LÀ số đã hiển thị trên màn hình gọi
      *  tại thời điểm gọi, không phải số CallLog hệ thống tự ghi. */
-    private fun queryRecents(ctx: Context): List<CallLogEntry> =
-        AppDatabase.getInstance(ctx).callHistoryDao().getRecent(50).map { it.toCallLogEntry() }
+    private fun queryRecents(ctx: Context): List<CallLogEntry> {
+        CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
+        return AppDatabase.getInstance(ctx).callHistoryDao().getRecent(50).map { it.toCallLogEntry() }
+    }
 
     private fun searchSuggestions(raw: String) {
         // Header "Gần đây" (tiêu đề + tab) LUÔN nằm cố định trên cùng, KHÔNG bị bàn phím che -

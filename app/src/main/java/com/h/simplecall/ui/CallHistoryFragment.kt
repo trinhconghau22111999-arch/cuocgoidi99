@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
+import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
@@ -246,6 +247,7 @@ class CallHistoryFragment : Fragment() {
      *  màn hình gọi tại thời điểm gọi (xem CallHistoryManager), không phải số CallLog hệ thống
      *  tự ghi. PHẢI gọi ở nền (bgExecutor) vì Room chặn query trên main thread. */
     private fun loadHistory(ctx: android.content.Context, number: String): List<CallLogEntry> {
+        CallHistoryManager.awaitReady() // đảm bảo di trú lịch sử cũ (nếu có) đã chạy xong
         val clean = number.filter { it.isDigit() }
         return AppDatabase.getInstance(ctx).callHistoryDao()
             .getByNumber("%$clean%")
