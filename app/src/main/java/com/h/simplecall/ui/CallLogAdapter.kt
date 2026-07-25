@@ -83,6 +83,10 @@ class CallLogAdapter(
         h.b.tvSimBadge.visibility = View.VISIBLE
         h.b.tvSimBadge.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
 
+        // ── Khung "HD": chỉ hiện với số ĐÃ có trong danh bạ (item.name khác rỗng) ──
+        h.b.tvHdBadge.visibility = if (item.name.isNotBlank()) View.VISIBLE else View.GONE
+        h.b.tvHdBadge.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
+
         // ── Loại đường dây: luôn xám đậm ──
         h.b.tvDate.text = item.numberType.ifEmpty { "Di động" }
         h.b.tvDate.setTextColor(ContextCompat.getColor(ctx, R.color.call_log_muted))
