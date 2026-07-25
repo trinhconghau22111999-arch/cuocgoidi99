@@ -38,6 +38,12 @@ class ContactsFragment : Fragment() {
     private val indexViews = mutableMapOf<String, TextView>()
     private var activeIndexLetter: String? = null
 
+    companion object {
+        /** Cache danh bạ giữa các lần chuyển tab – load 1 lần, dùng mãi */
+        @Volatile var cachedContacts: List<com.h.simplecall.data.Contact> = emptyList()
+        @Volatile var cacheLoaded: Boolean = false
+    }
+
     override fun onCreateView(i: LayoutInflater, c: ViewGroup?, s: Bundle?): View {
         _b = FragmentContactsBinding.inflate(i, c, false); return b.root
     }
