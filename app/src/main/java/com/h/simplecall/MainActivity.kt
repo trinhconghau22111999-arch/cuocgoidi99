@@ -55,6 +55,9 @@ class MainActivity : AppCompatActivity() {
     private val permLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()) {
         requestDefaultDialer()
+        // Vừa xin quyền xong (có thể vừa được cấp READ_CONTACTS) - thử nạp trước danh bạ ngầm
+        // luôn, không đợi người dùng bấm vào tab Danh bạ mới biết là giờ đã có quyền.
+        com.h.simplecall.data.ContactsRepository.refreshInBackground(this)
     }
     private val roleLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()) { updateDefaultDialerStatus() }
@@ -78,6 +81,11 @@ class MainActivity : AppCompatActivity() {
         // trong ic_tab_recents_blue. Gọi thẳng setItemIconTintList(null) đảm bảo tắt tint trên
         // mọi phiên bản thư viện Material, không phụ thuộc việc XML có được áp dụng đúng hay không.
         binding.bottomNav.itemIconTintList = null
+
+        // Nạp trước danh bạ NGẦM ngay khi mở app (không chờ, không chặn UI) - để đến lúc người
+        // dùng bấm tab Danh bạ lần đầu, dữ liệu thường đã sẵn trong ContactsRepository rồi,
+        // không phải đợi truy vấn ContactsContract từ đầu nữa.
+        com.h.simplecall.data.ContactsRepository.refreshInBackground(this)
 
         binding.fabAddContact.setOnClickListener {
             val frag = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
