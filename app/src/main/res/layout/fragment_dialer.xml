@@ -169,47 +169,39 @@
         android:paddingTop="8dp"
         android:visibility="gone">
 
+        <!-- Tạo liên hệ mới, Thêm vào liên hệ hiện có, Gửi SMS, Gọi Meet: 4 HÀNG xếp dọc
+             đồng nhất kiểu danh sách (trước đây 2 mục đầu nằm ngang thành 1 hàng, giờ tách
+             riêng thành hàng của nó, tổng cộng đủ 4 hàng). -->
         <LinearLayout
+            android:id="@+id/rowCreateContact"
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="28dp" android:paddingEnd="28dp"
-            android:paddingTop="4dp" android:paddingBottom="4dp">
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_add" app:tint="@color/white" tools:ignore="MissingClass"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:layout_marginStart="24dp"
+                android:text="@string/create_new_contact"
+                android:textSize="16sp" android:textColor="@color/text_primary" android:fontFamily="sans-serif"/>
+        </LinearLayout>
 
-            <!-- Tạo liên hệ mới: icon đơn đồng nhất với btnKeypadToggle -->
-            <LinearLayout
-                android:id="@+id/rowCreateContact"
-                android:layout_width="72dp" android:layout_height="wrap_content"
-                android:orientation="vertical" android:gravity="center"
-                android:clickable="true" android:focusable="true">
-                <ImageView android:layout_width="28dp" android:layout_height="28dp"
-                    android:src="@drawable/ic_add"
-                    android:tint="@color/text_secondary" tools:ignore="MissingClass"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/create_new_contact"
-                    android:textSize="10sp" android:textColor="@color/text_secondary"
-                    android:gravity="center" android:maxLines="2"/>
-            </LinearLayout>
-
-            <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1"/>
-
-            <!-- Thêm vào liên hệ cũ: icon đơn đồng nhất với btnKeypadToggle -->
-            <LinearLayout
-                android:id="@+id/rowAddToExisting"
-                android:layout_width="72dp" android:layout_height="wrap_content"
-                android:orientation="vertical" android:gravity="center"
-                android:clickable="true" android:focusable="true">
-                <ImageView android:layout_width="28dp" android:layout_height="28dp"
-                    android:src="@drawable/ic_person_add"
-                    android:tint="@color/text_secondary" tools:ignore="MissingClass"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/add_to_existing_contact"
-                    android:textSize="10sp" android:textColor="@color/text_secondary"
-                    android:gravity="center" android:maxLines="2"/>
-            </LinearLayout>
-
+        <LinearLayout
+            android:id="@+id/rowAddToExisting"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_settings_row"
+            android:clickable="true" android:focusable="true"
+            android:paddingStart="20dp" android:paddingEnd="20dp"
+            android:paddingTop="14dp" android:paddingBottom="14dp">
+            <ImageView android:layout_width="24dp" android:layout_height="24dp"
+                android:src="@drawable/ic_person_add" app:tint="@color/white" tools:ignore="MissingClass"/>
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:layout_marginStart="24dp"
+                android:text="@string/add_to_existing_contact"
+                android:textSize="16sp" android:textColor="@color/text_primary" android:fontFamily="sans-serif"/>
         </LinearLayout>
 
         <!-- Gửi SMS và Meet: giữ nguyên dạng hàng danh sách -->
