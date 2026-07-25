@@ -20,6 +20,7 @@ import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentCallLogBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -48,7 +49,6 @@ class CallLogFragment : Fragment() {
 
         isDualSim = callCapableAccountCount() >= 2
 
-        // Khởi tạo adapter 1 lần duy nhất, tái dùng cho mọi lần refresh
         adapter = CallLogAdapter(
             emptyList(),
             isDualSim = isDualSim,
@@ -65,10 +65,9 @@ class CallLogFragment : Fragment() {
         )
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         b.recyclerView.adapter = adapter
-        // Tắt animation mặc định tránh nhấp nháy khi update
-        b.recyclerView.itemAnimator = null
+        b.recyclerView.itemAnimator = null  // không flash khi update
 
-        loadCallLog()
+        observeCallLog()
     }
 
     private fun callCapableAccountCount(): Int {
@@ -80,38 +79,38 @@ class CallLogFragment : Fragment() {
         } catch (_: SecurityException) { 0 }
     }
 
-    private fun loadCallLog() {
+    private fun observeCallLog() {
         val appContext = requireContext().applicationContext
         viewLifecycleOwner.lifecycleScope.launch {
-            // Chờ migration xong trên IO, không block main
-            val loaded = withContext(Dispatchers.IO) {
-                CallHistoryManager.awaitReady()
-                try {
-                    AppDatabase.getInstance(appContext).callHistoryDao()
-                        .getAll().map { it.toCallLogEntry() }
-                } catch (e: Exception) {
-                    android.util.Log.e("CallLogFragment", "Lỗi đọc lịch sử", e)
-                    emptyList()
+            // Đảm bảo migration chạy xong 1 lần duy nhất trên IO
+            withContext(Dispatchers.IO) { CallHistoryManager.awaitReady() }
+
+            // observe Flow: Room tự push data mỗi khi có cuộc gọi mới
+            // flowOn(IO) = query trên IO thread, collect trên Main
+            AppDatabase.getInstance(appContext)
+                .callHistoryDao()
+                .observeAll()
+                .flowOn(Dispatchers.IO)
+                .collect { entities ->
+                    if (_b == null) return@collect
+                    allEntries = entities.map { it.toCallLogEntry() }
+                    renderList()
+                    // Đánh dấu đã xem trên IO (không await)
+                    launch(Dispatchers.IO) {
+                        try {
+                            AppDatabase.getInstance(appContext).callHistoryDao()
+                                .markMissedAsRead(CallLog.Calls.MISSED_TYPE)
+                        } catch (_: Exception) {}
+                    }
                 }
-            }
-            if (_b == null) return@launch
-            allEntries = loaded
-            renderList()
-            // Đánh dấu đã xem trên IO
-            withContext(Dispatchers.IO) {
-                try {
-                    AppDatabase.getInstance(appContext).callHistoryDao()
-                        .markMissedAsRead(CallLog.Calls.MISSED_TYPE)
-                } catch (_: Exception) {}
-            }
         }
     }
 
     private fun selectTab(missed: Boolean) {
         showMissedOnly = missed
-        val accent     = ContextCompat.getColor(requireContext(), R.color.accent_blue)
-        val bright     = ContextCompat.getColor(requireContext(), R.color.text_primary)
-        val secondary  = ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        val accent      = ContextCompat.getColor(requireContext(), R.color.accent_blue)
+        val bright      = ContextCompat.getColor(requireContext(), R.color.text_primary)
+        val secondary   = ContextCompat.getColor(requireContext(), R.color.text_secondary)
         val transparent = ContextCompat.getColor(requireContext(), android.R.color.transparent)
         b.tvTabAll.setTextColor(if (missed) secondary else bright)
         b.tvTabAll.setTypeface(null, if (missed) android.graphics.Typeface.NORMAL else android.graphics.Typeface.BOLD)
@@ -134,7 +133,6 @@ class CallLogFragment : Fragment() {
         } else {
             b.tvEmpty.visibility = View.GONE
             b.recyclerView.visibility = View.VISIBLE
-            // Dùng DiffUtil thay vì tạo adapter mới → không flash, không lag
             adapter?.updateItems(entries)
         }
     }
