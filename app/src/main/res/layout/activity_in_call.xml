@@ -8,46 +8,14 @@
 
 
     <!-- Avatar: vòng tròn màu nền (chữ cái đầu) HOẶC ảnh liên hệ thật, đặt phía trên tên -->
-    <View android:id="@+id/avatarView"
-        android:layout_width="88dp" android:layout_height="88dp"
-        android:layout_marginTop="56dp"
-        android:background="@drawable/bg_avatar"
-        android:elevation="0dp"
-        android:outlineProvider="none"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <ImageView android:id="@+id/ivContactPhoto"
-        android:layout_width="88dp" android:layout_height="88dp"
-        android:layout_marginTop="56dp"
-        android:scaleType="centerCrop"
-        android:background="@drawable/bg_avatar"
-        android:clipToOutline="true"
-        android:visibility="gone"
-        android:contentDescription="@string/contact_photo"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView android:id="@+id/tvAvatarLetter"
-        android:layout_width="88dp" android:layout_height="88dp"
-        android:layout_marginTop="56dp"
-        android:gravity="center"
-        android:textSize="36sp" android:textStyle="bold"
-        android:fontFamily="sans-serif-medium"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
     <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="80dp"
         android:layout_marginStart="40dp" android:layout_marginEnd="40dp"
         android:gravity="center"
         android:textColor="@color/text_on_dark" android:textSize="28sp"
         android:fontFamily="sans-serif" android:singleLine="true"
-        app:layout_constraintTop_toBottomOf="@id/avatarView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

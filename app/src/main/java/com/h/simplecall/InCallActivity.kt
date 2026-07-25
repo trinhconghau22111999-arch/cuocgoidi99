@@ -351,18 +351,6 @@ class InCallActivity : AppCompatActivity() {
             binding.tvCallerNumber.visibility = View.GONE
         }
 
-        // Avatar
-        if (photoUri != null) {
-            binding.ivContactPhoto.visibility = View.VISIBLE
-            binding.ivContactPhoto.setImageURI(photoUri)
-        } else {
-            binding.ivContactPhoto.visibility = View.GONE
-            val idx = Math.abs(displayName.hashCode()) % avatarBgs.size
-            binding.avatarView.setBackgroundResource(R.drawable.bg_avatar)
-            binding.avatarView.background.setTint(getColor(avatarBgs[idx]))
-            binding.tvAvatarLetter.text = displayName.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-            binding.tvAvatarLetter.setTextColor(getColor(avatarTxts[idx]))
-        }
     }
 
     private fun formatNumberForDisplay(raw: String): String {
