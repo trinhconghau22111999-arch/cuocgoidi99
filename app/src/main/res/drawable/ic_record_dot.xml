@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Icon "bắt đầu ghi âm" kiểu mới: chấm tròn đỏ ĐẶC, không còn vòng viền xám bên ngoài
-     (khác hẳn dạng "vòng tròn rỗng + chấm nhỏ" trước đây), giống biểu tượng record phổ biến
-     trên Zoom/Google Meet. -->
+<!-- Icon ghi âm: sóng âm (waveform) 5 vạch dọc cao thấp xen kẽ, giống ảnh mẫu -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="#FFEA4335"
-        android:pathData="M12,3 A9,9 0 1,0 12,21 A9,9 0 1,0 12,3 Z"/>
+    <!-- Vạch 1 (thấp) -->
+    <path android:fillColor="#FFFFFFFF" android:strokeColor="#FFFFFFFF" android:strokeWidth="0"
+        android:pathData="M4,10 L5.4,10 L5.4,14 L4,14 Z"/>
+    <!-- Vạch 2 (cao) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M7,7 L8.4,7 L8.4,17 L7,17 Z"/>
+    <!-- Vạch 3 (cao nhất) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M10,5 L11.4,5 L11.4,19 L10,19 Z"/>
+    <!-- Vạch 4 (cao) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M13,7 L14.4,7 L14.4,17 L13,17 Z"/>
+    <!-- Vạch 5 (thấp) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M16,10 L17.4,10 L17.4,14 L16,14 Z"/>
+    <!-- Vạch 6 (cao) -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M19,7 L20.4,7 L20.4,17 L19,17 Z"/>
 </vector>
