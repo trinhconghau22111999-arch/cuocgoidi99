@@ -62,18 +62,20 @@
                 android:layout_marginTop="8dp">
 
                 <TextView android:id="@+id/tvAvatar"
-                    android:layout_width="120dp" android:layout_height="120dp"
+                    android:layout_width="264dp" android:layout_height="264dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/bg_avatar_circle"
                     android:gravity="center"
-                    android:textSize="48sp" android:textColor="@color/white"
+                    android:textSize="96sp" android:textColor="@color/white"
                     android:fontFamily="sans-serif-medium" />
 
                 <ImageView android:id="@+id/ivDefaultAvatar"
-                    android:layout_width="120dp" android:layout_height="120dp"
+                    android:layout_width="264dp" android:layout_height="264dp"
+                    android:layout_gravity="center"
                     android:background="@drawable/bg_avatar_default"
                     android:src="@drawable/ic_person"
                     android:scaleType="center"
-                    android:padding="30dp"
+                    android:padding="66dp"
                     app:tint="@color/white"
                     android:visibility="gone"
                     android:contentDescription="@string/contact_photo" />
