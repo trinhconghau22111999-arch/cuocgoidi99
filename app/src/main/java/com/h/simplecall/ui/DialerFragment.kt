@@ -255,13 +255,15 @@ class DialerFragment : Fragment() {
                 val ss = SpannableStringBuilder()
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
-                // Tất cả sub label dùng 0.35f; phím "0" hơi to hơn 1 chút (0.42f)
-                // để dấu "+" nhìn rõ nhưng không bị tràn ra ngoài phím
-                val subScale = if (tag == "0") 0.42f else 0.35f
+                // Phím "0": dấu "+" giảm còn 90% mức trước (0.63 * 0.9 ≈ 0.57x)
+                val subScale = if (tag == "0") 1.05f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btn.text = ss; btn.setLines(2); btn.textSize = 30f
+                // Phím "0": kéo dãn khoảng cách giữa số "0" và dấu "+" lên gấp 2,5 lần
+                // mức trước (0.7 * 2.5 = 1.75)
+                if (tag == "0") btn.setLineSpacing(0f, 1.75f)
             }
 
             if (tag == "*") {
@@ -413,7 +415,8 @@ class DialerFragment : Fragment() {
             return
         }
         if (visible) {
-            // Slide UP: hiện panel rồi trượt từ dưới lên
+            // Slide UP: ẩn FAB ngay, hiện panel rồi trượt từ dưới lên
+            (activity as? MainActivity)?.setDialpadFabVisible(false)
             panel.visibility = View.VISIBLE
             panel.translationY = panel.height.toFloat().coerceAtLeast(300f)
             panel.animate()
@@ -422,16 +425,18 @@ class DialerFragment : Fragment() {
                 .setInterpolator(android.view.animation.DecelerateInterpolator())
                 .start()
         } else {
-            // Slide DOWN: trượt xuống rồi ẩn
+            // Slide DOWN: trượt xuống, đợi xong hẳn mới hiện FAB
             panel.animate()
                 .translationY(panel.height.toFloat().coerceAtLeast(300f))
                 .setDuration(220)
                 .setInterpolator(android.view.animation.AccelerateInterpolator())
-                .withEndAction { panel.visibility = View.GONE }
+                .withEndAction {
+                    panel.visibility = View.GONE
+                    (activity as? MainActivity)?.setDialpadFabVisible(true)
+                }
                 .start()
         }
         updateKeypadToggleIcon()
-        (activity as? MainActivity)?.setDialpadFabVisible(!visible)
     }
 
     /** Gọi từ MainActivity khi người dùng bấm FAB bàn phím lúc đang ở màn này với bàn phím đã ẩn. */
