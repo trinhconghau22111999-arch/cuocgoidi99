@@ -56,12 +56,12 @@
 
             <!-- Avatar tròn + chữ cái đầu tên -->
             <TextView android:id="@+id/tvAvatar"
-                android:layout_width="84dp" android:layout_height="84dp"
+                android:layout_width="120dp" android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/bg_avatar_circle"
                 android:gravity="center"
-                android:textSize="58sp" android:textColor="@color/white"
+                android:textSize="48sp" android:textColor="@color/white"
                 android:fontFamily="sans-serif-medium" />
 
             <!-- Tên liên hệ, tối đa 2 dòng, canh giữa -->

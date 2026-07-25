@@ -57,23 +57,23 @@
             <!-- Avatar: tvAvatar (chữ cái đầu, liên hệ đã lưu) HOẶC ivDefaultAvatar (icon người
                  mặc định, dùng khi số LẠ chưa lưu danh bạ) -->
             <FrameLayout
-                android:layout_width="84dp" android:layout_height="84dp"
+                android:layout_width="120dp" android:layout_height="120dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp">
 
                 <TextView android:id="@+id/tvAvatar"
-                    android:layout_width="84dp" android:layout_height="84dp"
+                    android:layout_width="120dp" android:layout_height="120dp"
                     android:background="@drawable/bg_avatar_circle"
                     android:gravity="center"
-                    android:textSize="58sp" android:textColor="@color/white"
+                    android:textSize="48sp" android:textColor="@color/white"
                     android:fontFamily="sans-serif-medium" />
 
                 <ImageView android:id="@+id/ivDefaultAvatar"
-                    android:layout_width="84dp" android:layout_height="84dp"
+                    android:layout_width="120dp" android:layout_height="120dp"
                     android:background="@drawable/bg_avatar_default"
                     android:src="@drawable/ic_person"
                     android:scaleType="center"
-                    android:padding="21dp"
+                    android:padding="30dp"
                     app:tint="@color/white"
                     android:visibility="gone"
                     android:contentDescription="@string/contact_photo" />
