@@ -256,7 +256,7 @@ class DialerFragment : Fragment() {
                 ss.append(tag); ss.append("\n")
                 val subStart = ss.length; ss.append(sub)
                 // Phím "0": dấu "+" giảm còn 90% mức trước (0.63 * 0.9 ≈ 0.57x)
-                val subScale = if (tag == "0") 0.57f else 0.35f
+                val subScale = if (tag == "0") 1.05f else 0.35f
                 ss.setSpan(RelativeSizeSpan(subScale), subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 ss.setSpan(ForegroundColorSpan(requireContext().getColor(R.color.text_secondary)),
                     subStart, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -409,8 +409,29 @@ class DialerFragment : Fragment() {
     // cạnh thanh tab Gần đây/Danh bạ) sẽ hiện lên thay thế, dùng để mở lại bàn phím.
     private fun setKeypadVisible(visible: Boolean) {
         keypadVisible = visible
-        // panelKeypad bao gồm etNumber + keypad + rowDialControls, nổi overlay gravity=bottom
-        _b?.panelKeypad?.visibility = if (visible) View.VISIBLE else View.GONE
+        val panel = _b?.panelKeypad ?: run {
+            updateKeypadToggleIcon()
+            (activity as? MainActivity)?.setDialpadFabVisible(!visible)
+            return
+        }
+        if (visible) {
+            // Slide UP: hiện panel rồi trượt từ dưới lên
+            panel.visibility = View.VISIBLE
+            panel.translationY = panel.height.toFloat().coerceAtLeast(300f)
+            panel.animate()
+                .translationY(0f)
+                .setDuration(220)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        } else {
+            // Slide DOWN: trượt xuống rồi ẩn
+            panel.animate()
+                .translationY(panel.height.toFloat().coerceAtLeast(300f))
+                .setDuration(220)
+                .setInterpolator(android.view.animation.AccelerateInterpolator())
+                .withEndAction { panel.visibility = View.GONE }
+                .start()
+        }
         updateKeypadToggleIcon()
         (activity as? MainActivity)?.setDialpadFabVisible(!visible)
     }
