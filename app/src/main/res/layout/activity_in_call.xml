@@ -24,7 +24,7 @@
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         android:gravity="center"
-        android:textColor="#9AA0A6" android:textSize="14sp"
+        android:textColor="@color/text_on_dark" android:textSize="14sp"
         android:fontFamily="sans-serif"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerName"
@@ -76,7 +76,7 @@
 
         <TextView android:id="@+id/tvCallStatus"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="#9AA0A6" android:textSize="14sp"
+            android:textColor="@color/text_on_dark" android:textSize="14sp"
             android:fontFamily="sans-serif" />
     </LinearLayout>
 
@@ -133,40 +133,40 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
                 <TextView android:id="@+id/tvRecordLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/start_recording" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Im lặng" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
                 <TextView android:id="@+id/tvHoldLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -178,38 +178,38 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
                 <TextView android:id="@+id/tvClarityLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="72dp" android:layout_height="72dp"
+                    android:layout_width="108dp" android:layout_height="108dp"
                     android:background="@android:color/transparent"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="6dp" android:fontFamily="sans-serif"/>
+                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
 
