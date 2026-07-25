@@ -21,11 +21,15 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "call_history.db"
                 )
-                    // An toàn khi schema lệch giữa các lần build/test (identity hash mismatch) -
-                    // Room sẽ CRASH NGAY LÚC MỞ DB nếu không có dòng này. Chấp nhận mất lịch sử
-                    // cũ trong tình huống hiếm đó còn hơn làm sập cả ứng dụng.
                     .fallbackToDestructiveMigration()
+                    // WAL mode: đọc và ghi song song không chặn nhau → hiển thị nhanh hơn
+                    .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                     .build().also { INSTANCE = it }
             }
+
+        /** Gọi khi app khởi động để warm-up DB connection trước, tránh delay lần đầu */
+        fun warmUp(context: Context) {
+            getInstance(context).callHistoryDao().count()
+        }
     }
 }
