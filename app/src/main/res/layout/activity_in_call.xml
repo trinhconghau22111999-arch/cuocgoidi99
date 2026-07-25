@@ -70,7 +70,7 @@
             android:paddingStart="4dp" android:paddingEnd="4dp"
             android:gravity="center" android:text="HD"
             android:textSize="10sp" android:textColor="#9AA0A6"
-            android:background="@drawable/bg_sim_badge"
+            android:background="@drawable/bg_hd_badge"
             android:layout_marginEnd="6dp"
             android:visibility="gone" />
 
