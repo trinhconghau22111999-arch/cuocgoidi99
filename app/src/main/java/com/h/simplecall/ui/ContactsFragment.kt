@@ -18,10 +18,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.Contact
+import com.h.simplecall.data.ContactsRepository
 import com.h.simplecall.databinding.FragmentContactsBinding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /** Các chữ cái trên thanh chỉ mục bên phải, theo đúng thứ tự bảng chữ cái tiếng Việt
  *  dùng trong danh bạ điện thoại (bỏ E,F,I,W...). */
@@ -68,7 +67,9 @@ class ContactsFragment : Fragment() {
 
         setupAlphabetIndex()
         highlightIndexLetter(adapter.letterAtOrBefore(0))
-        b.fabAddContact.setOnClickListener { openCreateContact() }
+        // Nút "+" đã chuyển hẳn ra FAB toàn cục (fabAddContact trong activity_main.xml),
+        // MainActivity gọi openCreateContactPublic() bên dưới khi bấm - không còn FAB riêng
+        // ở màn này nữa nên không cần setOnClickListener ở đây.
 
         b.recyclerView.addOnScrollListener(object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: androidx.recyclerview.widget.RecyclerView, dx: Int, dy: Int) {
@@ -79,18 +80,31 @@ class ContactsFragment : Fragment() {
             }
         })
 
-        // Fix bug3: load danh bạ trên IO thread, tránh ANR với 7000+ liên hệ
+        // Cache-first: nếu đã có dữ liệu nạp sẵn từ trước (do MainActivity nạp trước ngầm lúc mở
+        // app, hoặc lần vào tab Danh bạ trước đó) thì hiện NGAY LẬP TỨC, không phải chờ truy vấn
+        // lại từ đầu - đây chính là chỗ khiến "truy xuất lâu" trước đây (mỗi lần vào tab lại
+        // query lại toàn bộ ContactsContract). Sau khi hiện cache, vẫn làm mới ngầm 1 lần để
+        // đồng bộ nếu người dùng vừa thêm/xoá số bên ngoài app.
+        ContactsRepository.peek()?.let { cached -> bindContacts(cached) }
+
         viewLifecycleOwner.lifecycleScope.launch {
-            val contacts = withContext(Dispatchers.IO) { loadContacts() }
+            val contacts = ContactsRepository.getContacts(requireContext())
             if (_b == null) return@launch
-            adapter.updateContacts(contacts)
-            if (contacts.isNotEmpty()) {
-                b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
-                b.tvContactsCount.visibility = View.VISIBLE
-            }
-            setupAlphabetIndex()
-            highlightIndexLetter(adapter.letterAtOrBefore(0))
+            bindContacts(contacts)
         }
+        ContactsRepository.refreshInBackground(requireContext()) { fresh ->
+            if (_b != null) bindContacts(fresh)
+        }
+    }
+
+    private fun bindContacts(contacts: List<Contact>) {
+        adapter.updateContacts(contacts)
+        if (contacts.isNotEmpty()) {
+            b.tvContactsCount.text = getString(R.string.contacts_count, contacts.size)
+            b.tvContactsCount.visibility = View.VISIBLE
+        }
+        setupAlphabetIndex()
+        highlightIndexLetter(adapter.letterAtOrBefore(0))
     }
 
     private fun setupAlphabetIndex() {
@@ -197,41 +211,6 @@ class ContactsFragment : Fragment() {
         } catch (_: Exception) {
             Toast.makeText(requireContext(), "Không tìm thấy ứng dụng để tạo liên hệ", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun loadContacts(): List<Contact> {
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CONTACTS)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED) return emptyList()
-        val list = mutableListOf<Contact>()
-        val cur = requireContext().contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            arrayOf(
-                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Phone.NUMBER,
-                ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI,
-                ContactsContract.CommonDataKinds.Phone.STARRED
-            ), null, null,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
-        ) ?: return list
-        cur.use {
-            val iName    = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val iNum     = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-            val iPhoto   = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI)
-            val iStarred = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.STARRED)
-            while (it.moveToNext()) {
-                list.add(Contact(
-                    name     = it.getString(iName) ?: "",
-                    number   = it.getString(iNum) ?: "",
-                    photoUri = it.getString(iPhoto),
-                    starred  = iStarred >= 0 && it.getInt(iStarred) != 0
-                ))
-            }
-        }
-        // DISPLAY_NAME ASC (SQL) xếp ký tự/số TRƯỚC chữ cái theo bảng mã Unicode, nên các liên
-        // hệ thuộc nhóm "#" (tên bắt đầu bằng số/ký hiệu) bị đẩy lên ĐẦU danh sách — không khớp
-        // với cột chỉ mục A-Z bên phải (đã xếp "#" ở CUỐI). Sắp xếp lại: đẩy nhóm "#" xuống cuối,
-        // dùng sortedBy (stable) nên thứ tự A-Z bên trong mỗi nhóm vẫn giữ nguyên như cũ.
-        return list.sortedBy { if (firstLetterKey(it.name) == "#") 1 else 0 }
     }
 
     override fun onDestroyView() { super.onDestroyView(); _b = null }
