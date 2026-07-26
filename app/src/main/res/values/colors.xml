@@ -14,6 +14,7 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="text_primary">#E8EAED</color>
+    <color name="text_medium">#C4C7CC</color>
     <color name="text_secondary">#9AA0A6</color>
     <!-- Xám đậm hơn text_secondary, dùng riêng cho icon gọi đến/đi, số SIM, loại số,
          và giờ/ngày trong danh sách Gần đây — theo yêu cầu làm các phần này "xám hơn". -->

@@ -145,7 +145,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/number_type_mobile"
-                            android:textSize="13sp" android:textColor="@color/text_secondary" />
+                            android:textSize="13sp" android:textColor="@color/text_medium" />
                     </LinearLayout>
 
                     <!-- Icon gọi + số SIM ở góc trên -->
@@ -167,9 +167,9 @@
                             android:layout_marginTop="12dp"
                             android:layout_marginEnd="10dp"
                             android:text="1"
-                            android:textSize="9sp"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:textColor="@color/white"
+                            android:textColor="@color/text_medium"
                             android:fontFamily="sans-serif-medium" />
                     </FrameLayout>
 
