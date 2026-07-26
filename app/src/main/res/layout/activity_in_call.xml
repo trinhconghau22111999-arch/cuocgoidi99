@@ -99,8 +99,8 @@
                 android:src="@drawable/ic_call_end"
                 android:contentDescription="@string/decline"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Từ chối" android:textColor="#9AA0A6" android:textSize="12sp"
-                android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                android:text="Từ chối" android:textColor="#9AA0A6" android:textSize="14sp"
+                android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
         </LinearLayout>
 
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -111,8 +111,8 @@
                 android:src="@drawable/ic_call"
                 android:contentDescription="@string/answer"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Trả lời" android:textColor="#9AA0A6" android:textSize="12sp"
-                android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                android:text="Trả lời" android:textColor="#9AA0A6" android:textSize="14sp"
+                android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -142,8 +142,8 @@
                     android:contentDescription="@string/start_recording"/>
                 <TextView android:id="@+id/tvRecordLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/start_recording" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="@string/start_recording" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -157,8 +157,8 @@
                     android:contentDescription="Im lặng"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Im lặng" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="Im lặng" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -172,8 +172,8 @@
                     android:contentDescription="@string/hold_call"/>
                 <TextView android:id="@+id/tvHoldLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -193,8 +193,8 @@
                     android:contentDescription="@string/call_clarity"/>
                 <TextView android:id="@+id/tvClarityLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -207,8 +207,8 @@
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -221,8 +221,8 @@
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
+                    android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="14sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif" android:textSize="14sp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -262,7 +262,7 @@
                     android:contentDescription="@string/speaker"/>
                 <TextView android:id="@+id/tvSpeakerLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="14sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -281,7 +281,7 @@
                         tools:ignore="MissingClass" />
                 </FrameLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="14sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
@@ -296,7 +296,7 @@
                     android:src="@drawable/ic_dialpad"
                     android:contentDescription="Bàn phím"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="14sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
