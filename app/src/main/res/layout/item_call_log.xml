@@ -45,18 +45,18 @@
             android:layout_marginTop="3dp">
 
             <FrameLayout
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:layout_marginEnd="1.33dp">
 
                 <TextView
                     android:id="@+id/tvSimBadge"
-                    android:layout_width="15.12dp"
-                    android:layout_height="18dp"
+                    android:layout_width="11.76dp"
+                    android:layout_height="14dp"
                     android:gravity="center"
                     android:background="@drawable/bg_sim_badge"
                     android:text="1"
-                    android:textSize="9sp"
+                    android:textSize="7sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_secondary" />
             </FrameLayout>
