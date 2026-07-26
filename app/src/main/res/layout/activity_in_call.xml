@@ -17,7 +17,7 @@
     <!-- Tên người gọi (hoặc số điện thoại nếu chưa lưu danh bạ) -->
     <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="140dp"
         android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
         android:gravity="center"
         android:textColor="@color/text_on_dark" android:textSize="40sp"
@@ -45,10 +45,10 @@
             <TextView android:id="@+id/tvSimBadge"
                 android:layout_width="18dp" android:layout_height="18dp"
                 android:gravity="center"
-                android:background="@drawable/bg_sim_badge"
+                android:background="@drawable/bg_sim_badge_light"
                 android:text="2"
                 android:textSize="8sp"
-                android:textColor="@color/call_log_muted" />
+                android:textColor="#D0D0D0" />
         </FrameLayout>
 
         <TextView android:id="@+id/tvCallerNumber"
