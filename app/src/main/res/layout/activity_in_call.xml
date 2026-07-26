@@ -44,7 +44,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView android:id="@+id/tvSimBadge"
-            android:layout_width="18dp" android:layout_height="18dp"
+            android:layout_width="12.6dp" android:layout_height="18dp"
             android:gravity="center"
             android:background="@drawable/bg_sim_badge"
             android:text="2"
