@@ -380,7 +380,7 @@
                     <FrameLayout
                         android:id="@+id/btnCallSim1"
                         android:layout_width="79dp" android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
+                        android:background="@drawable/bg_call_pill_left"
                         android:clickable="true" android:focusable="true">
                         <View
                             android:layout_width="11dp" android:layout_height="match_parent"
@@ -397,7 +397,7 @@
                     <FrameLayout
                         android:id="@+id/btnCallSim2"
                         android:layout_width="79dp" android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
+                        android:background="@drawable/bg_call_pill_right"
                         android:clickable="true" android:focusable="true">
                         <ImageView android:layout_width="20dp" android:layout_height="20dp"
                             android:layout_gravity="center" android:src="@drawable/ic_call" tools:ignore="MissingClass"/>
