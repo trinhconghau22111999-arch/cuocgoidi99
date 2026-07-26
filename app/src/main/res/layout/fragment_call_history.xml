@@ -101,7 +101,7 @@
                 android:clickable="true" android:focusable="true">
 
                 <FrameLayout
-                    android:layout_width="14dp" android:layout_height="14dp">
+                    android:layout_width="20dp" android:layout_height="18dp">
 
                     <TextView android:id="@+id/tvSimBadge"
                         android:layout_width="11.76dp" android:layout_height="14dp"
