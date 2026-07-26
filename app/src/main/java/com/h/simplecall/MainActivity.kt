@@ -139,40 +139,17 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
-                if (current is CallHistoryFragment) {
-                    // KHÔNG cậy nhờ cơ chế replace()+addToBackStack() tự khôi phục lại đúng
-                    // fragment bên dưới (Recents) nữa - đã xác nhận bị lỗi: pop xong back-stack
-                    // về 0 nhưng container vẫn kẹt ở CallHistoryFragment (không thoát cũng không
-                    // quay lại đúng danh sách được, khiến người dùng thấy "back ra là ra luôn"
-                    // thay vì lùi từng bước như ở Danh bạ). Dọn sạch back-stack rồi CHỦ ĐỘNG điều
-                    // hướng thẳng về đúng tab đang chọn - giống hệt cách Danh bạ đang chạy đúng.
-                    if (supportFragmentManager.backStackEntryCount > 0) {
-                        supportFragmentManager.popBackStack(
-                            null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                    }
-                    goToTab(currentNavId, animate = false)
-                    return
-                }
+                // Back stack còn entry → pop bình thường (bao gồm cả khi đang ở CallHistoryFragment)
                 if (supportFragmentManager.backStackEntryCount > 0) {
                     supportFragmentManager.popBackStack()
                     return
                 }
-                // Bàn phím số (Gần đây, mở qua FAB hoặc mặc định lúc khởi động) đang mở →
-                // back chỉ tắt bàn phím, KHÔNG thoát app.
+                // Bàn phím số đang mở → back chỉ tắt bàn phím
                 if (current is DialerFragment && current.isKeypadVisible()) {
                     current.hideKeypad()
                     return
                 }
-                // Đã ở đúng trang gốc thật sự (Gần đây - dù đang hiển thị bằng CallLogFragment
-                // HAY bằng DialerFragment lúc bàn phím đã tắt, cả 2 đều coi là gốc / Danh bạ) →
-                // thoát app. DÙNG moveTaskToBack THAY VÌ tự set isEnabled=false rồi gọi lại
-                // dispatcher như trước - cách cũ có lỗi nghiêm trọng: callback này KHÔNG BAO GIỜ
-                // được bật lại (không có dòng nào set isEnabled=true), nên chỉ cần 1 lần callback
-                // bị tắt (kể cả 1 lần thoát app hợp lệ trước đó mà Activity không bị huỷ hẳn - dễ
-                // gặp trên nhiều ROM Android hay giữ Activity sống trong bộ nhớ), MỌI lần back sau
-                // đó trong suốt phiên dùng app - bất kể đang ở màn nào, bàn phím có mở hay không -
-                // đều bỏ qua toàn bộ logic phía trên, rơi thẳng vào mặc định = thoát app ngay lập
-                // tức. moveTaskToBack không bao giờ tắt callback nên không thể tái diễn lỗi này.
+                // Đã ở trang gốc → thu app về background (không thoát hẳn)
                 moveTaskToBack(true)
             }
         })
