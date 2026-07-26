@@ -339,24 +339,24 @@ class InCallActivity : AppCompatActivity() {
     }
 
     /** Hiện icon SIM (1/2) đang dùng để gọi, dựa vào PhoneAccountHandle của cuộc gọi.
-     *  Máy 1 SIM hoặc không tra được subscription thì ẩn icon này đi. Không hiện tên nhà
-     *  mạng/quốc gia nữa - chỉ icon thẻ SIM + số bên trong. */
+     *  Máy 1 SIM hoặc không tra được subscription thì chỉ ẩn icon SIM (tvSimBadge), KHÔNG ẩn
+     *  cả hàng - hàng này còn chứa nhãn "Việt Nam" phải hiện độc lập, không phụ thuộc icon SIM. */
     private fun renderSimLine(call: Call) {
         try {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) { binding.llSimLine.visibility = View.GONE; return }
+                != PackageManager.PERMISSION_GRANTED) { binding.tvSimBadge.visibility = View.GONE; return }
             val subId = call.details?.accountHandle?.id?.toIntOrNull()
             val info = if (subId != null)
                 getSystemService(SubscriptionManager::class.java)?.getActiveSubscriptionInfo(subId)
             else null
             if (info != null) {
-                binding.llSimLine.visibility = View.VISIBLE
+                binding.tvSimBadge.visibility = View.VISIBLE
                 binding.tvSimBadge.text = (info.simSlotIndex + 1).toString()
             } else {
-                binding.llSimLine.visibility = View.GONE
+                binding.tvSimBadge.visibility = View.GONE
             }
         } catch (_: Exception) {
-            binding.llSimLine.visibility = View.GONE
+            binding.tvSimBadge.visibility = View.GONE
         }
     }
 
@@ -372,8 +372,10 @@ class InCallActivity : AppCompatActivity() {
         if (contactInfo != null && number.isNotEmpty()) {
             binding.tvCallerNumber.text = formatNumberForDisplay(number)
             binding.tvCallerNumber.visibility = View.VISIBLE
+            binding.llSimLine.visibility = View.VISIBLE
         } else {
             binding.tvCallerNumber.visibility = View.GONE
+            binding.llSimLine.visibility = View.GONE
         }
 
     }

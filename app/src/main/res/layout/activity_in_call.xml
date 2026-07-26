@@ -19,37 +19,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Số điện thoại (hiện dưới tên nếu có tên) -->
-    <TextView android:id="@+id/tvCallerNumber"
-        android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:gravity="center"
-        android:textColor="@color/text_on_dark" android:textSize="14sp"
-        android:fontFamily="sans-serif"
+    <!-- Icon SIM + Số điện thoại + "| Việt Nam": TẤT CẢ trên CÙNG 1 HÀNG ngay dưới tên, đúng
+         như giao diện hệ thống tham khảo (hình 1) - không tách dòng riêng như trước nữa. -->
+    <LinearLayout android:id="@+id/llSimLine"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginTop="4dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-
-    <!-- Icon SIM đang gọi: ĐỒNG BỘ 100% với khung thẻ SIM dùng ở màn Lịch sử cuộc gọi/Chi tiết
-         liên hệ (bg_sim_badge - cùng size, cùng màu, cùng kiểu chữ, không riêng lẻ nữa). -->
-    <FrameLayout android:id="@+id/llSimLine"
-        android:layout_width="22dp" android:layout_height="22dp"
-        android:layout_marginTop="6dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView android:id="@+id/tvSimBadge"
             android:layout_width="20dp" android:layout_height="22dp"
+            android:layout_marginEnd="6dp"
             android:gravity="center"
             android:background="@drawable/bg_sim_badge"
             android:text="2"
             android:textSize="9sp"
+            android:visibility="gone"
             android:textColor="@color/call_log_muted" />
-    </FrameLayout>
+
+        <TextView android:id="@+id/tvCallerNumber"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="@color/text_on_dark" android:textSize="14sp"
+            android:fontFamily="sans-serif"/>
+
+        <TextView android:id="@+id/tvNumberType"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text=" | Việt Nam"
+            android:textColor="@color/text_on_dark" android:textSize="14sp"
+            android:fontFamily="sans-serif"/>
+    </LinearLayout>
 
     <!-- Badge HD + trạng thái/giờ gọi -->
     <LinearLayout android:id="@+id/llStatusLine"
