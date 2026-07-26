@@ -364,13 +364,13 @@ class InCallActivity : AppCompatActivity() {
         val photoUri = contactInfo?.second
 
         binding.tvCallerName.text = displayName
-        // Số CHƯA lưu danh bạ → font mảnh hơn (light); đã lưu → bold như cũ
+        // Số CHƯA lưu danh bạ → font light; đã lưu → thin (mảnh hơn bold ~50%)
         if (contactInfo == null) {
             binding.tvCallerName.setTypeface(
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         } else {
             binding.tvCallerName.setTypeface(
-                android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD))
+                android.graphics.Typeface.create("sans-serif-thin", android.graphics.Typeface.NORMAL))
         }
         if (contactInfo != null && number.isNotEmpty()) {
             // Nhà mạng/quốc gia: dùng chung quy ước đơn giản đã có sẵn trong app (CallLogFragment) -
