@@ -107,7 +107,7 @@
                         android:layout_width="11.76dp" android:layout_height="14dp"
                         android:gravity="center"
                         android:background="@drawable/bg_sim_badge_light"
-                        android:textSize="7sp" android:textColor="@color/text_primary" />
+                        android:textSize="7sp" android:textColor="#9AA0A6" />
                 </FrameLayout>
 
                 <TextView android:id="@+id/tvSubtitle"
