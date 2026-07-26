@@ -67,8 +67,7 @@ class InCallActivity : AppCompatActivity() {
         binding.btnMute.setOnClickListener {
             isMuted = !isMuted
             CallManager.toggleMute(isMuted)
-            binding.btnMute.setBackgroundResource(
-                if (isMuted) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.
             binding.btnMute.setImageResource(
                 if (isMuted) R.drawable.ic_mic_off else R.drawable.ic_mic)
             binding.tvMuteLabel.text = if (isMuted) "Bật mic" else "Tắt mic"
@@ -77,16 +76,14 @@ class InCallActivity : AppCompatActivity() {
         binding.btnSpeaker.setOnClickListener {
             isSpeaker = !isSpeaker
             CallManager.setSpeaker(isSpeaker)
-            binding.btnSpeaker.setBackgroundResource(
-                if (isSpeaker) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.
         }
 
         // DTMF toggle
         binding.btnDtmf.setOnClickListener {
             dtmfVisible = !dtmfVisible
             binding.dtmfPanel.visibility = if (dtmfVisible) View.VISIBLE else View.GONE
-            binding.btnDtmf.setBackgroundResource(
-                if (dtmfVisible) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.
         }
 
         // DTMF keys
@@ -110,8 +107,7 @@ class InCallActivity : AppCompatActivity() {
         binding.btnHold.setOnClickListener {
             isHeld = !isHeld
             if (isHeld) CallManager.currentCall?.hold() else CallManager.currentCall?.unhold()
-            binding.btnHold.setBackgroundResource(
-                if (isHeld) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.
             binding.tvHoldLabel.text = getString(if (isHeld) R.string.unhold_call else R.string.hold_call)
         }
 
@@ -142,8 +138,7 @@ class InCallActivity : AppCompatActivity() {
                 Toast.makeText(this, "Máy không hỗ trợ khử tiếng ồn", Toast.LENGTH_SHORT).show()
                 isClarityOn = false
             }
-            binding.btnClarity.setBackgroundResource(
-                if (isClarityOn) R.drawable.bg_action_circle_active else R.drawable.bg_action_circle)
+            binding.
         }
 
         // "Thêm cuộc gọi" (ghép cuộc gọi thứ 2/hội nghị) và "Thêm" (tuỳ chọn khác) chưa được
@@ -196,7 +191,7 @@ class InCallActivity : AppCompatActivity() {
             recorder = rec
             recordingFile = file
             isRecording = true
-            binding.btnRecord.setBackgroundResource(R.drawable.bg_action_circle_active)
+            binding.btnRecord.setBackgroundResource(android.R.color.transparent)
             binding.tvRecordLabel.text = getString(R.string.stop_recording)
         } catch (e: Exception) {
             // Rất nhiều máy (đặc biệt Samsung/Xiaomi các đời mới) chặn hẳn việc ghi âm cuộc
@@ -212,7 +207,7 @@ class InCallActivity : AppCompatActivity() {
         try { recorder?.release() } catch (_: Exception) {}
         recorder = null
         isRecording = false
-        binding.btnRecord.setBackgroundResource(R.drawable.bg_action_circle)
+        binding.btnRecord.setBackgroundResource(android.R.color.transparent)
         binding.tvRecordLabel.text = getString(R.string.start_recording)
         recordingFile?.let {
             Toast.makeText(this, "${getString(R.string.recording_saved)}: ${it.name}", Toast.LENGTH_LONG).show()
@@ -313,7 +308,7 @@ class InCallActivity : AppCompatActivity() {
             }
             Call.STATE_ACTIVE -> {
                 isHeld = false
-                binding.btnHold.setBackgroundResource(R.drawable.bg_action_circle)
+                binding.btnHold.setBackgroundResource(android.R.color.transparent)
                 binding.tvHoldLabel.text = getString(R.string.hold_call)
                 binding.tvHdBadge.visibility = View.VISIBLE
                 // Đã kết nối - trả lại độ sáng/bật lại đầy đủ các nút vừa bị làm mờ lúc đang gọi.
@@ -325,7 +320,7 @@ class InCallActivity : AppCompatActivity() {
             }
             Call.STATE_HOLDING -> {
                 isHeld = true
-                binding.btnHold.setBackgroundResource(R.drawable.bg_action_circle_active)
+                binding.btnHold.setBackgroundResource(android.R.color.transparent)
                 binding.tvHoldLabel.text = getString(R.string.unhold_call)
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đang giữ máy"
