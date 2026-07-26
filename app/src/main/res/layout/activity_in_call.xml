@@ -274,7 +274,7 @@
                     android:background="@drawable/bg_decline_circle"
                     android:clickable="true" android:focusable="true">
                     <ImageView
-                        android:layout_width="54dp" android:layout_height="54dp"
+                        android:layout_width="46dp" android:layout_height="46dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_call_end"
                         android:contentDescription="@string/end_call"
