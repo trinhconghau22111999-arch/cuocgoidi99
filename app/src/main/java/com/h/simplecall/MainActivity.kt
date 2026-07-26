@@ -179,7 +179,10 @@ class MainActivity : AppCompatActivity() {
      *  trường hợp thứ 2 cần thiết để người dùng có thể thoát khỏi bàn phím số (mở qua FAB, không
      *  đổi tab đang chọn) quay lại danh sách Gần đây/Danh bạ.
      *  @param animate false khi gọi từ code (khởi động app...), không cần hiệu ứng trượt. */
+    private var isTabSwitching = false
+
     private fun goToTab(itemId: Int, animate: Boolean = true) {
+        if (animate && isTabSwitching) return
         val goingToContacts = itemId == R.id.nav_contacts
         val wasContacts = currentNavId == R.id.nav_contacts
         val directionChanged = animate && goingToContacts != wasContacts
@@ -196,13 +199,15 @@ class MainActivity : AppCompatActivity() {
             else tx.setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
         }
         tx.replace(R.id.fragmentContainer, dest, tag).commit()
-        // Ép xử lý xong transaction NGAY (đồng bộ) thay vì để hàng đợi bất đồng bộ mặc định -
-        // nếu người dùng bấm đổi tab liên tục/rất nhanh, nhiều transaction có thể chồng lên
-        // nhau trước khi cái trước xử lý xong, dẫn tới tham chiếu sai trạng thái Fragment
-        // (vd. tái sử dụng 1 Fragment đang trong quá trình bị gỡ) và có thể ném
-        // IllegalStateException. executePendingTransactions() đảm bảo trạng thái luôn nhất
-        // quán trước khi hàm này trả về / trước lần gọi goToTab() kế tiếp.
-        supportFragmentManager.executePendingTransactions()
+        // TRƯỚC ĐÂY gọi executePendingTransactions() ở đây để tránh 2 transaction chồng lên
+        // nhau khi bấm đổi tab liên tục/rất nhanh - nhưng việc ép dựng layout Fragment mới chạy
+        // ĐỒNG BỘ ngay tại đây khiến toàn bộ animation bị "khựng" 1 nhịp (đứng hình) trước khi
+        // kịp hiện ra, vì hệ thống phải dựng xong toàn bộ view mới cho animation chạy.
+        // Thay bằng debounce nhẹ: khi đang trong lúc animation (isTabSwitching=true), lờ đi các
+        // lần bấm đổi tab dồn dập tiếp theo, để FragmentManager xử lý transaction bình thường
+        // (bất đồng bộ, mượt hơn) mà vẫn tránh được tình trạng chồng transaction gây crash.
+        isTabSwitching = true
+        binding.root.postDelayed({ isTabSwitching = false }, 440L)
         // Tab Danh bạ đã có sẵn nút "+" riêng (fabAddContact) ở đúng vị trí này,
         // nên phải ẩn FAB bàn phím số đi để không bị đè lên nhau.
         if (itemId == R.id.nav_contacts) {
