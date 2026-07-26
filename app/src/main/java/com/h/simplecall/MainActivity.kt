@@ -22,6 +22,7 @@ import com.h.simplecall.call.BlockedNumbersManager
 import com.h.simplecall.call.CallForwardManager
 import com.h.simplecall.call.MissedCallNotifier
 import com.h.simplecall.databinding.ActivityMainBinding
+import com.h.simplecall.ui.CallHistoryFragment
 import com.h.simplecall.ui.CallLogFragment
 import com.h.simplecall.ui.ContactsFragment
 import com.h.simplecall.ui.DialerFragment
@@ -137,10 +138,24 @@ class MainActivity : AppCompatActivity() {
         // nhưng fragment hiện tại không phải fragment tab gốc, điều hướng lại về tab đang chọn.
         onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                if (current is CallHistoryFragment) {
+                    // KHÔNG cậy nhờ cơ chế replace()+addToBackStack() tự khôi phục lại đúng
+                    // fragment bên dưới (Recents) nữa - đã xác nhận bị lỗi: pop xong back-stack
+                    // về 0 nhưng container vẫn kẹt ở CallHistoryFragment (không thoát cũng không
+                    // quay lại đúng danh sách được, khiến người dùng thấy "back ra là ra luôn"
+                    // thay vì lùi từng bước như ở Danh bạ). Dọn sạch back-stack rồi CHỦ ĐỘNG điều
+                    // hướng thẳng về đúng tab đang chọn - giống hệt cách Danh bạ đang chạy đúng.
+                    if (supportFragmentManager.backStackEntryCount > 0) {
+                        supportFragmentManager.popBackStack(
+                            null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                    }
+                    goToTab(currentNavId, animate = false)
+                    return
+                }
                 if (supportFragmentManager.backStackEntryCount > 0) {
                     supportFragmentManager.popBackStack()
                 } else {
-                    val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
                     // Nếu đang ở Gần đây (DialerFragment) và bàn phím đang mở → back chỉ tắt bàn phím
                     if (current is DialerFragment && current.isKeypadVisible()) {
                         current.hideKeypad()
