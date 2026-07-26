@@ -47,7 +47,7 @@
             <FrameLayout
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:layout_marginEnd="4dp">
+                android:layout_marginEnd="1.33dp">
 
                 <TextView
                     android:id="@+id/tvSimBadge"
