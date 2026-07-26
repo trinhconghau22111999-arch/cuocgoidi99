@@ -3,35 +3,22 @@ package com.h.simplecall.data
 import android.content.Context
 import android.provider.ContactsContract
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import com.h.simplecall.ui.firstLetterKey
 
 /**
  * Bộ nhớ đệm danh bạ dùng chung cho cả app (singleton object - process này chỉ có 1 bản).
  *
- * Trước đây mỗi lần vào tab Danh bạ, ContactsFragment lại truy vấn LẠI TOÀN BỘ
- * ContactsContract từ đầu (dù vẫn chạy nền, không treo UI) - với danh bạ vài nghìn số thì
- * lần nào cũng phải chờ, cảm giác "truy xuất lâu". Giờ:
- *   1) getContacts() trả NGAY danh sách đã cache nếu có (gần như tức thì).
- *   2) refreshInBackground() được gọi từ MainActivity.onCreate() để NẠP TRƯỚC danh bạ
- *      ngay khi mở app (chạy nền, không chờ), nên lúc người dùng bấm tab Danh bạ thì cache
- *      thường đã sẵn sàng.
- *   3) Mỗi lần ContactsFragment hiển thị, nó vẫn gọi refreshInBackground() 1 lần để đồng bộ
- *      thay đổi mới (thêm/xoá số) - nhưng UI không phải CHỜ việc này, chỉ cập nhật lại khi xong.
+ * KHÔNG còn tự động truy xuất danh bạ trước khi người dùng mở tab Danh bạ (đã bỏ theo yêu cầu -
+ * trước đây MainActivity.onCreate() có gọi nạp trước ngầm ngay khi mở app, giờ không còn nữa).
+ * getContacts() chỉ thực sự truy vấn ContactsContract khi được gọi lần đầu (lúc người dùng bấm
+ * vào tab Danh bạ), và cache lại kết quả cho các lần gọi sau trong cùng phiên chạy app.
  */
 object ContactsRepository {
 
     @Volatile private var cache: List<Contact>? = null
     private val mutex = Mutex()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var prefetchJob: Job? = null
 
     /** Có cache sẵn hay chưa - dùng để quyết định có cần hiện loading hay không. */
     fun peek(): List<Contact>? = cache
@@ -45,19 +32,6 @@ object ContactsRepository {
         if (!hasPermission(context)) return emptyList()
         return mutex.withLock {
             cache ?: loadFromSystem(context).also { cache = it }
-        }
-    }
-
-    /** Nạp trước / làm mới ngầm, không chặn caller. An toàn gọi nhiều lần (chỉ 1 job chạy).
-     *  Bỏ qua nếu chưa có quyền đọc danh bạ - tránh cache nhầm 1 danh sách rỗng vĩnh viễn. */
-    fun refreshInBackground(context: Context, onUpdated: ((List<Contact>) -> Unit)? = null) {
-        if (prefetchJob?.isActive == true) return
-        val appContext = context.applicationContext
-        if (!hasPermission(appContext)) return
-        prefetchJob = scope.launch {
-            val fresh = loadFromSystem(appContext)
-            mutex.withLock { cache = fresh }
-            if (onUpdated != null) withContext(Dispatchers.Main) { onUpdated(fresh) }
         }
     }
 
