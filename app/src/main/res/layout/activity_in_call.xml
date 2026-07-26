@@ -33,21 +33,21 @@
     <LinearLayout android:id="@+id/llSimLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <FrameLayout
-            android:layout_width="18dp" android:layout_height="18dp"
-            android:layout_marginEnd="6dp">
+            android:layout_width="15dp" android:layout_height="15dp"
+            android:layout_marginEnd="5dp">
             <TextView android:id="@+id/tvSimBadge"
-                android:layout_width="18dp" android:layout_height="18dp"
+                android:layout_width="15dp" android:layout_height="15dp"
                 android:gravity="center"
                 android:background="@drawable/bg_sim_badge_light"
                 android:text="2"
-                android:textSize="8sp"
+                android:textSize="7sp"
                 android:textColor="#D0D0D0" />
         </FrameLayout>
 
