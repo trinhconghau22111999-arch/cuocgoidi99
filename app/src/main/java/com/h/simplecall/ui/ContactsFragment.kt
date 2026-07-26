@@ -89,6 +89,7 @@ class ContactsFragment : Fragment() {
                 b.tvContactsCount.visibility = View.VISIBLE
                 setupAlphabetIndex()
                 highlightIndexLetter(adapter.letterAtOrBefore(0))
+                forceRecyclerRedraw()
             }
         }
 
@@ -106,6 +107,19 @@ class ContactsFragment : Fragment() {
             }
             setupAlphabetIndex()
             highlightIndexLetter(adapter.letterAtOrBefore(0))
+            forceRecyclerRedraw()
+        }
+    }
+
+    /** Ép RecyclerView vẽ lại NGAY sau khi cập nhật dữ liệu, thay vì chỉ trông chờ
+     *  notifyDataSetChanged() tự kích hoạt layout đúng lúc. Có trường hợp danh sách đã có
+     *  dữ liệu trong bộ nhớ (adapter đã update) nhưng màn hình chưa vẽ lại kịp, chỉ hiện ra
+     *  khi người dùng chạm vào đâu đó (như thanh chỉ mục A-Z) - gọi thẳng requestLayout +
+     *  invalidate để loại bỏ độ trễ vẽ lại đó. */
+    private fun forceRecyclerRedraw() {
+        _b?.recyclerView?.apply {
+            requestLayout()
+            invalidate()
         }
     }
 
