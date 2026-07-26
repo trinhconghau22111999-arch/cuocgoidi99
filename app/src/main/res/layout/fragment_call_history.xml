@@ -96,15 +96,15 @@
             <LinearLayout android:id="@+id/rowSimDefault"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="13dp"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal" android:gravity="center_vertical"
                 android:clickable="true" android:focusable="true">
 
                 <FrameLayout
-                    android:layout_width="20dp" android:layout_height="18dp">
+                    android:layout_width="15dp" android:layout_height="15dp">
 
                     <TextView android:id="@+id/tvSimBadge"
-                        android:layout_width="11.76dp" android:layout_height="14dp"
+                        android:layout_width="15dp" android:layout_height="15dp"
                         android:gravity="center"
                         android:background="@drawable/bg_sim_badge_light"
                         android:textSize="7sp" android:textColor="#9AA0A6" />
