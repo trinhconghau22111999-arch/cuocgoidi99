@@ -120,7 +120,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Row 1: Ghi âm | Tắt mic | Giữ -->
+        <!-- Row 1: Ghi âm | Im lặng | Giữ -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
             android:layout_marginBottom="20dp">
@@ -128,10 +128,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
@@ -144,10 +144,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>
@@ -160,10 +160,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
@@ -182,10 +182,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
@@ -198,10 +198,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
@@ -213,10 +213,10 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="match_parent" android:layout_height="138dp"
+                    android:layout_width="14dp" android:layout_height="14dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitXY"
-                    android:padding="35dp"
+                    android:scaleType="fitCenter"
+                    android:padding="0dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
