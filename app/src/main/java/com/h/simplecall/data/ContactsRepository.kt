@@ -52,7 +52,7 @@ object ContactsRepository {
                 ContactsContract.CommonDataKinds.Phone.PHOTO_THUMBNAIL_URI,
                 ContactsContract.CommonDataKinds.Phone.STARRED
             ), null, null,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+            ContactsContract.CommonDataKinds.Phone.SORT_KEY_PRIMARY + " ASC"
         ) ?: return list
 
         cur.use {

@@ -16,6 +16,13 @@ import java.text.Normalizer
 data class ContactHeader(val iconRes: Int, val label: String, val onClick: () -> Unit)
 
 /** Chuẩn hoá chữ cái đầu tên để nhóm A-Z (bỏ dấu, giữ riêng "Đ", số/ký hiệu -> "#"). */
+// Biên dịch 1 LẦN DUY NHẤT khi app khởi động, dùng lại cho mọi lần gọi firstLetterKey() -
+// trước đây Regex("\\p{Mn}") bị biên dịch MỚI mỗi lần hàm này chạy (gọi ~2 lần/liên hệ: 1 lần
+// lúc sắp xếp trong ContactsRepository, 1 lần lúc nhóm chữ cái ở đây), với danh bạ vài nghìn số
+// thì riêng việc biên dịch Regex lặp lại đã cộng dồn thành độ trễ đáng kể - đây là nguyên nhân
+// chính khiến truy xuất danh bạ chậm hơn hẳn ứng dụng quay số có sẵn trên máy.
+private val DIACRITIC_MARK_REGEX = Regex("\\p{Mn}")
+
 fun firstLetterKey(name: String): String {
     val trimmed = name.trim()
     if (trimmed.isEmpty()) return "#"
@@ -24,7 +31,7 @@ fun firstLetterKey(name: String): String {
     val upper = first.uppercaseChar()
     if (upper == 'Đ') return "Đ"
     val base = Normalizer.normalize(upper.toString(), Normalizer.Form.NFD)
-        .replace(Regex("\\p{Mn}"), "")
+        .replace(DIACRITIC_MARK_REGEX, "")
     return if (base.isNotEmpty() && base[0] in 'A'..'Z') base[0].toString() else "#"
 }
 
