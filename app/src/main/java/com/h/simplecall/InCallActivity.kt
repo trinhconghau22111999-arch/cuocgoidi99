@@ -67,7 +67,6 @@ class InCallActivity : AppCompatActivity() {
         binding.btnMute.setOnClickListener {
             isMuted = !isMuted
             CallManager.toggleMute(isMuted)
-            binding.
             binding.btnMute.setImageResource(
                 if (isMuted) R.drawable.ic_mic_off else R.drawable.ic_mic)
             binding.tvMuteLabel.text = if (isMuted) "Bật mic" else "Tắt mic"
@@ -76,14 +75,12 @@ class InCallActivity : AppCompatActivity() {
         binding.btnSpeaker.setOnClickListener {
             isSpeaker = !isSpeaker
             CallManager.setSpeaker(isSpeaker)
-            binding.
         }
 
         // DTMF toggle
         binding.btnDtmf.setOnClickListener {
             dtmfVisible = !dtmfVisible
             binding.dtmfPanel.visibility = if (dtmfVisible) View.VISIBLE else View.GONE
-            binding.
         }
 
         // DTMF keys
@@ -107,7 +104,6 @@ class InCallActivity : AppCompatActivity() {
         binding.btnHold.setOnClickListener {
             isHeld = !isHeld
             if (isHeld) CallManager.currentCall?.hold() else CallManager.currentCall?.unhold()
-            binding.
             binding.tvHoldLabel.text = getString(if (isHeld) R.string.unhold_call else R.string.hold_call)
         }
 
@@ -138,7 +134,6 @@ class InCallActivity : AppCompatActivity() {
                 Toast.makeText(this, "Máy không hỗ trợ khử tiếng ồn", Toast.LENGTH_SHORT).show()
                 isClarityOn = false
             }
-            binding.
         }
 
         // "Thêm cuộc gọi" (ghép cuộc gọi thứ 2/hội nghị) và "Thêm" (tuỳ chọn khác) chưa được
