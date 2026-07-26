@@ -126,13 +126,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Back luôn dừng ở trang gốc (Gần đây/Danh bạ), KHÔNG được phép "back ra ngoài" (thoát
-        // app) - khi back-stack rỗng (đang đứng ở trang gốc), đưa app xuống nền (moveTaskToBack)
-        // thay vì để hệ thống finish() Activity như hành vi mặc định.
+        // app) - CHỈ khi đang đứng ở trang gốc VÀ bàn phím số đã tắt (Gần đây/Danh bạ thực sự)
+        // thì back mới thoát app (moveTaskToBack). Nếu bàn phím số (DialerFragment) đang hiện đè
+        // lên trên (mở qua FAB hoặc mặc định lúc khởi động app) - fragment này KHÔNG được add vào
+        // back-stack nên backStackEntryCount vẫn = 0 - back phải đóng bàn phím/quay về danh sách
+        // Gần đây/Danh bạ TRƯỚC, không được thoát app ngay ở bước này.
         onBackPressedDispatcher.addCallback(this) {
-            if (supportFragmentManager.backStackEntryCount > 0) {
-                supportFragmentManager.popBackStack()
-            } else {
-                moveTaskToBack(true)
+            val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            when {
+                supportFragmentManager.backStackEntryCount > 0 -> supportFragmentManager.popBackStack()
+                current is DialerFragment -> goToTab(currentNavId, animate = false)
+                else -> moveTaskToBack(true)
             }
         }
 

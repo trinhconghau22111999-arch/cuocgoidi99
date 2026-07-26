@@ -34,6 +34,7 @@ import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.data.CallLogEntry
 import com.h.simplecall.data.Contact
+import com.h.simplecall.data.mergeConsecutiveDuplicates
 import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
@@ -536,9 +537,9 @@ class DialerFragment : Fragment() {
     /** Áp bộ lọc tab (Tất cả/Cuộc gọi nhỡ) đang chọn lên allRecentEntries rồi bơm vào adapter.
      *  Dùng chung cho lần tải đầu tiên VÀ mỗi khi người dùng đổi tab. */
     private fun renderRecents(isDualSim: Boolean) {
-        val entries = if (showMissedOnly)
+        val entries = (if (showMissedOnly)
             allRecentEntries.filter { it.type == CallLog.Calls.MISSED_TYPE }
-        else allRecentEntries
+        else allRecentEntries).mergeConsecutiveDuplicates()
         b.rvRecents.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
         b.rvRecents.adapter = CallLogAdapter(
             entries,

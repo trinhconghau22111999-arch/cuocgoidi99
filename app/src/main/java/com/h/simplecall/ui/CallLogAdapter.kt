@@ -72,7 +72,10 @@ class CallLogAdapter(
         }
 
         // ── Số / tên: SÁNG (trắng) nếu bình thường, ĐỎ nếu nhỡ ──
-        h.b.tvName.text = if (isBlocked) "🚫 $display" else display
+        // Nếu đã gộp nhiều cuộc gọi liên tiếp cùng số (item.count > 1), hiện thêm "(n)" phía sau
+        // - giống cách danh bạ Android gốc hiện "Nguyễn Văn A (3)" khi có 3 cuộc gọi nhỡ liên tiếp.
+        val displayWithCount = if (item.count > 1) "$display (${item.count})" else display
+        h.b.tvName.text = if (isBlocked) "🚫 $displayWithCount" else displayWithCount
         h.b.tvName.setTextColor(
             ctx.getColor(if (isMissed) R.color.missed_red else R.color.text_primary)
         )
