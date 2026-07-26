@@ -270,11 +270,11 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <FrameLayout android:id="@+id/btnEndCall"
-                    android:layout_width="76dp" android:layout_height="76dp"
+                    android:layout_width="68dp" android:layout_height="68dp"
                     android:background="@drawable/bg_decline_circle"
                     android:clickable="true" android:focusable="true">
                     <ImageView
-                        android:layout_width="46dp" android:layout_height="46dp"
+                        android:layout_width="41dp" android:layout_height="41dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_call_end"
                         android:contentDescription="@string/end_call"
