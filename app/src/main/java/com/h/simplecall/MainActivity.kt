@@ -14,6 +14,7 @@ import android.view.View
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -121,6 +122,21 @@ class MainActivity : AppCompatActivity() {
                 // thanh điều hướng, không được che/ẩn nó đi.
                 navigateTo(DialerFragment())
                 binding.fabDialpad.visibility = View.GONE
+            }
+        }
+
+        // Back luôn dừng ở trang gốc (Gần đây/Danh bạ), KHÔNG được phép "back ra ngoài" (thoát
+        // app) - CHỈ khi đang đứng ở trang gốc VÀ bàn phím số đã tắt (Gần đây/Danh bạ thực sự)
+        // thì back mới thoát app (moveTaskToBack). Nếu bàn phím số (DialerFragment) đang hiện đè
+        // lên trên (mở qua FAB hoặc mặc định lúc khởi động app) - fragment này KHÔNG được add vào
+        // back-stack nên backStackEntryCount vẫn = 0 - back phải đóng bàn phím/quay về danh sách
+        // Gần đây/Danh bạ TRƯỚC, không được thoát app ngay ở bước này.
+        onBackPressedDispatcher.addCallback(this) {
+            val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+            when {
+                supportFragmentManager.backStackEntryCount > 0 -> supportFragmentManager.popBackStack()
+                current is DialerFragment -> goToTab(currentNavId, animate = false)
+                else -> moveTaskToBack(true)
             }
         }
 

@@ -339,24 +339,26 @@ class InCallActivity : AppCompatActivity() {
     }
 
     /** Hiện icon SIM (1/2) đang dùng để gọi, dựa vào PhoneAccountHandle của cuộc gọi.
-     *  Máy 1 SIM hoặc không tra được subscription thì ẩn icon này đi. Không hiện tên nhà
-     *  mạng/quốc gia nữa - chỉ icon thẻ SIM + số bên trong. */
+     *  Máy 1 SIM hoặc không tra được subscription thì chỉ ẩn icon SIM (tvSimBadge), KHÔNG ẩn
+     *  cả hàng - hàng này còn chứa nhãn "Việt Nam" phải hiện độc lập, không phụ thuộc icon SIM. */
     private fun renderSimLine(call: Call) {
         try {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) { binding.llSimLine.visibility = View.GONE; return }
+                != PackageManager.PERMISSION_GRANTED) { binding.tvSimBadge.visibility = View.GONE; updateSimRowVisibility(); return }
             val subId = call.details?.accountHandle?.id?.toIntOrNull()
             val info = if (subId != null)
                 getSystemService(SubscriptionManager::class.java)?.getActiveSubscriptionInfo(subId)
             else null
             if (info != null) {
-                binding.llSimLine.visibility = View.VISIBLE
+                binding.tvSimBadge.visibility = View.VISIBLE
                 binding.tvSimBadge.text = (info.simSlotIndex + 1).toString()
             } else {
-                binding.llSimLine.visibility = View.GONE
+                binding.tvSimBadge.visibility = View.GONE
             }
         } catch (_: Exception) {
-            binding.llSimLine.visibility = View.GONE
+            binding.tvSimBadge.visibility = View.GONE
+        } finally {
+            updateSimRowVisibility()
         }
     }
 
@@ -369,13 +371,26 @@ class InCallActivity : AppCompatActivity() {
         val photoUri = contactInfo?.second
 
         binding.tvCallerName.text = displayName
-        if (contactInfo != null && number.isNotEmpty()) {
-            binding.tvCallerNumber.text = formatNumberForDisplay(number)
-            binding.tvCallerNumber.visibility = View.VISIBLE
-        } else {
-            binding.tvCallerNumber.visibility = View.GONE
-        }
 
+        // Số ĐÃ LƯU trong danh bạ: tên hiện riêng ở trên (to) NÊN hàng dưới cần lặp lại số +
+        // "| Việt Nam" để người dùng vẫn biết chính xác số đang gọi.
+        // Số CHƯA LƯU (lạ): bản thân tên ĐÃ LÀ số điện thoại rồi (xem displayName ở trên) - nên
+        // hàng dưới KHÔNG lặp lại số/"Việt Nam" nữa, chỉ còn icon SIM đứng riêng (nếu máy có).
+        val isSavedContact = contactInfo != null && number.isNotEmpty()
+        binding.tvCallerNumber.visibility = if (isSavedContact) View.VISIBLE else View.GONE
+        binding.tvNumberType.visibility   = if (isSavedContact) View.VISIBLE else View.GONE
+        if (isSavedContact) binding.tvCallerNumber.text = formatNumberForDisplay(number)
+
+        updateSimRowVisibility()
+    }
+
+    /** Hàng dưới tên (llSimLine) hiện ra nếu có BẤT KỲ nội dung nào bên trong: hoặc số+Việt Nam
+     *  (số đã lưu danh bạ), hoặc icon SIM (số lạ, máy xác định được SIM đang dùng để gọi).
+     *  Gọi lại mỗi khi 1 trong 2 nguồn dữ liệu (tên liên hệ / SIM) cập nhật xong. */
+    private fun updateSimRowVisibility() {
+        val hasContent = binding.tvCallerNumber.visibility == View.VISIBLE ||
+            binding.tvSimBadge.visibility == View.VISIBLE
+        binding.llSimLine.visibility = if (hasContent) View.VISIBLE else View.GONE
     }
 
     private fun formatNumberForDisplay(raw: String): String {

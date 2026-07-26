@@ -16,6 +16,7 @@ import com.h.simplecall.MainActivity
 import com.h.simplecall.R
 import com.h.simplecall.call.CallHistoryManager
 import com.h.simplecall.data.CallLogEntry
+import com.h.simplecall.data.mergeConsecutiveDuplicates
 import com.h.simplecall.data.local.AppDatabase
 import com.h.simplecall.data.local.toCallLogEntry
 import com.h.simplecall.databinding.FragmentCallLogBinding
@@ -122,9 +123,9 @@ class CallLogFragment : Fragment() {
     }
 
     private fun renderList() {
-        val entries = if (showMissedOnly)
+        val entries = (if (showMissedOnly)
             allEntries.filter { it.type == CallLog.Calls.MISSED_TYPE }
-        else allEntries
+        else allEntries).mergeConsecutiveDuplicates()
 
         if (entries.isEmpty()) {
             b.tvEmpty.text = if (showMissedOnly) "Không có cuộc gọi nhỡ" else "Chưa có nhật ký cuộc gọi"
