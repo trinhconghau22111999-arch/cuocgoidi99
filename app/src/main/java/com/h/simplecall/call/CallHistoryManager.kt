@@ -103,14 +103,15 @@ object CallHistoryManager {
         sessionNumber = CallManager.resolveDisplayNumber(call, isOutgoing)
         recordId = -1
 
-        val name = CallManager.callerName(call)
         val simSlot = resolveSimSlot(call)
         val startedAt = sessionStartMs
         val outgoing = isOutgoing
         val number = sessionNumber
+        val ctx = appContext
 
         bgExecutor.execute {
             try {
+                val name = CallManager.callerName(call, ctx, number)
                 val id = dao().insert(
                     CallHistoryEntity(
                         name = name,
@@ -142,13 +143,14 @@ object CallHistoryManager {
         }
         val duration = if (reachedActive) (System.currentTimeMillis() - sessionStartMs) / 1000 else 0L
         val number = sessionNumber
-        val name = CallManager.callerName(call)
+        val ctx = appContext
 
         lastFinalizedCall = call
         trackedCall = null
 
         bgExecutor.execute {
             try {
+                val name = CallManager.callerName(call, ctx, number)
                 // recordId có thể chưa kịp gán (insert() còn đang chạy) - đợi ngắn bằng cách đọc
                 // lại từ chính executor tuần tự (mọi lệnh trong bgExecutor chạy lần lượt trên 1
                 // thread), nên tới đây insert() ở startSession chắc chắn đã xong nếu gửi trước.

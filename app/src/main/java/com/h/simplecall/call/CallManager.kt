@@ -39,8 +39,18 @@ object CallManager {
     fun callerNumber(call: Call?): String =
         call?.details?.handle?.schemeSpecificPart ?: ""
 
-    fun callerName(call: Call?): String =
-        call?.details?.callerDisplayName ?: ""
+    /** Tên người gọi. callerDisplayName của Telecom CHỈ tự có cho cuộc gọi ĐẾN (hệ thống tự tra
+     *  caller ID) - cuộc gọi ĐI (bấm gọi từ Danh bạ) trường này luôn rỗng, nên phải tự tra thêm
+     *  qua danh bạ cục bộ (ContactsRepository.lookupNameByNumber) nếu có context + số điện thoại,
+     *  nếu không "Gần đây" sẽ chỉ hiện số thay vì tên dù số đó đã được lưu danh bạ. */
+    fun callerName(call: Call?, context: android.content.Context? = null, number: String? = null): String {
+        val fromTelecom = call?.details?.callerDisplayName ?: ""
+        if (fromTelecom.isNotEmpty()) return fromTelecom
+        if (context != null && !number.isNullOrEmpty()) {
+            return com.h.simplecall.data.ContactsRepository.lookupNameByNumber(context, number) ?: ""
+        }
+        return ""
+    }
 
     /** Cuộc gọi này là gọi ĐI hay gọi ĐẾN. Dùng chung cho UI (InCallActivity) và lịch sử. */
     fun isOutgoingCall(call: Call, state: Int): Boolean =
