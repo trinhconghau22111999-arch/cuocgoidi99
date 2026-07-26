@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Khung số SIM: hình thẻ SIM bo góc, GÓC TRÊN-PHẢI bị cắt vát - vẽ bằng 1 NÉT VIỀN (stroke)
-     duy nhất, dày đều 100% quanh toàn bộ hình (kể cả đoạn cắt vát), không dùng kiểu "hình đặc
-     khoét lỗ" như ic_sim_card.xml (file đó có viền phải bị mảnh dần, thậm chí = 0 ở đoạn dưới,
-     do lệch toạ độ giữa path ngoài và path trong). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="18dp" android:height="18dp"
+    android:width="20dp" android:height="18dp"
     android:viewportWidth="24" android:viewportHeight="24">
     <path
         android:fillColor="#00000000"
