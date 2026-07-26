@@ -378,31 +378,31 @@
 
                     <FrameLayout
                         android:id="@+id/btnCallSim1"
-                        android:layout_width="95dp" android:layout_height="match_parent"
+                        android:layout_width="75dp" android:layout_height="match_parent"
                         android:background="@drawable/bg_call_pill_left"
                         android:clickable="true" android:focusable="true">
                         <View
-                            android:layout_width="14dp" android:layout_height="match_parent"
+                            android:layout_width="11dp" android:layout_height="match_parent"
                             android:layout_gravity="end"
                             android:background="@color/btn_call_pill_right" />
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp"
                             android:layout_gravity="center" android:src="@drawable/ic_call" tools:ignore="MissingClass"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_gravity="center" android:translationX="9dp" android:translationY="-4dp"
-                            android:text="1" android:textSize="12sp" android:textStyle="bold"
+                            android:layout_gravity="center" android:translationX="8dp" android:translationY="-4dp"
+                            android:text="1" android:textSize="11sp" android:textStyle="bold"
                             android:textColor="@color/white" android:fontFamily="sans-serif-medium"/>
                     </FrameLayout>
 
                     <FrameLayout
                         android:id="@+id/btnCallSim2"
-                        android:layout_width="95dp" android:layout_height="match_parent"
+                        android:layout_width="75dp" android:layout_height="match_parent"
                         android:background="@drawable/bg_call_pill_right"
                         android:clickable="true" android:focusable="true">
-                        <ImageView android:layout_width="22dp" android:layout_height="22dp"
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp"
                             android:layout_gravity="center" android:src="@drawable/ic_call" tools:ignore="MissingClass"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:layout_gravity="center" android:translationX="9dp" android:translationY="-4dp"
-                            android:text="2" android:textSize="12sp" android:textStyle="bold"
+                            android:layout_gravity="center" android:translationX="8dp" android:translationY="-4dp"
+                            android:text="2" android:textSize="11sp" android:textStyle="bold"
                             android:textColor="@color/white" android:fontFamily="sans-serif-medium"/>
                     </FrameLayout>
                 </LinearLayout>
