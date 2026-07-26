@@ -9,6 +9,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_incall_screen">
@@ -120,7 +121,7 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:visibility="gone"
         android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-        android:layout_marginBottom="96dp"
+        android:layout_marginBottom="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -179,7 +180,7 @@
         <!-- Row 2: Gọi rõ ràng | Thêm cuộc gọi | Thêm -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="96dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
@@ -268,11 +269,17 @@
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                <ImageButton android:id="@+id/btnEndCall"
+                <FrameLayout android:id="@+id/btnEndCall"
                     android:layout_width="76dp" android:layout_height="76dp"
                     android:background="@drawable/bg_decline_circle"
-                    android:src="@drawable/ic_call_end"
-                    android:contentDescription="@string/end_call"/>
+                    android:clickable="true" android:focusable="true">
+                    <ImageView
+                        android:layout_width="54dp" android:layout_height="54dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_call_end"
+                        android:contentDescription="@string/end_call"
+                        tools:ignore="MissingClass" />
+                </FrameLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"
