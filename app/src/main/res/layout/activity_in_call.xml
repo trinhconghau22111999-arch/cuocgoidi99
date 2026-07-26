@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- THIẾT LẬP LẠI TỪ ĐẦU (reset) theo yêu cầu: bỏ hết các kích cỡ/khoảng cách/màu tint chắp vá
+     qua nhiều lần chỉnh sửa riêng lẻ trước đây. Quy tắc thống nhất áp dụng cho TOÀN BỘ file:
+       - Nút chính (Trả lời/Từ chối/Kết thúc): 72dp, dùng chung 1 background tương ứng.
+       - Nút phụ (Ghi âm/Im lặng/Giữ/Rõ ràng/Thêm cuộc/Thêm/Loa ngoài/Bàn phím): ĐỀU 40dp,
+         CÙNG 1 màu tint @color/text_on_dark (không còn phân biệt sáng/mờ giữa các nút).
+       - Nhãn chữ dưới mỗi icon: ĐỀU marginTop 8dp, textSize 12sp, màu #9AA0A6.
+       - Khoảng cách giữa các hàng: ĐỀU 24dp. -->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,8 +13,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_incall_screen">
 
-
-    <!-- Avatar: vòng tròn màu nền (chữ cái đầu) HOẶC ảnh liên hệ thật, đặt phía trên tên -->
+    <!-- Tên người gọi -->
     <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
@@ -19,10 +25,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Số điện thoại (hiện dưới tên nếu có tên) -->
+    <!-- Số điện thoại -->
     <TextView android:id="@+id/tvCallerNumber"
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="4dp"
         android:gravity="center"
         android:textColor="@color/text_on_dark" android:textSize="14sp"
         android:fontFamily="sans-serif"
@@ -31,19 +37,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-
-    <!-- Icon SIM đang gọi: ĐỒNG BỘ 100% với khung thẻ SIM dùng ở màn Lịch sử cuộc gọi/Chi tiết
-         liên hệ (bg_sim_badge - cùng size, cùng màu, cùng kiểu chữ, không riêng lẻ nữa). -->
+    <!-- Icon SIM đang gọi -->
     <FrameLayout android:id="@+id/llSimLine"
         android:layout_width="22dp" android:layout_height="22dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView android:id="@+id/tvSimBadge"
-            android:layout_width="20dp" android:layout_height="22dp"
+            android:layout_width="22dp" android:layout_height="22dp"
             android:gravity="center"
             android:background="@drawable/bg_sim_badge"
             android:text="2"
@@ -55,7 +59,7 @@
     <LinearLayout android:id="@+id/llStatusLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/llSimLine"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -75,7 +79,7 @@
             android:fontFamily="sans-serif" />
     </LinearLayout>
 
-    <!-- INCOMING controls -->
+    <!-- INCOMING controls: Từ chối | Trả lời -->
     <LinearLayout android:id="@+id/incomingControls"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center"
@@ -93,8 +97,8 @@
                 android:src="@drawable/ic_call_end"
                 android:contentDescription="@string/decline"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Từ chối" android:textColor="#9AA0A6" android:textSize="13sp"
-                android:layout_marginTop="5dp" android:fontFamily="sans-serif"/>
+                android:text="Từ chối" android:textColor="#9AA0A6" android:textSize="12sp"
+                android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
         </LinearLayout>
 
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
@@ -105,8 +109,8 @@
                 android:src="@drawable/ic_call"
                 android:contentDescription="@string/answer"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Trả lời" android:textColor="#9AA0A6" android:textSize="13sp"
-                android:layout_marginTop="5dp" android:fontFamily="sans-serif"/>
+                android:text="Trả lời" android:textColor="#9AA0A6" android:textSize="12sp"
+                android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -115,7 +119,7 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:visibility="gone"
         android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -123,16 +127,15 @@
         <!-- Row 1: Ghi âm | Im lặng | Giữ -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="28dp">
+            android:layout_marginBottom="24dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="56dp" android:layout_height="20dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
-                    android:tint="#9AA0A6"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
                 <TextView android:id="@+id/tvRecordLabel"
@@ -144,31 +147,27 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="28dp" android:layout_height="28dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
+                    android:scaleType="center"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
-                    android:contentDescription="Im lặng"
-                    android:minWidth="0dp" android:minHeight="0dp"/>
+                    android:contentDescription="Im lặng"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Im lặng" android:textColor="@color/text_on_dark" android:textSize="12sp"
+                    android:text="Im lặng" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="28dp" android:layout_height="28dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
-                    android:tint="#9AA0A6"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_call_hold"
-                    android:contentDescription="@string/hold_call"
-                    android:minWidth="0dp" android:minHeight="0dp"/>
+                    android:contentDescription="@string/hold_call"/>
                 <TextView android:id="@+id/tvHoldLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="12sp"
@@ -184,14 +183,12 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="28dp" android:layout_height="28dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
-                    android:tint="#9AA0A6"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_call_clarity"
-                    android:contentDescription="@string/call_clarity"
-                    android:minWidth="0dp" android:minHeight="0dp"/>
+                    android:contentDescription="@string/call_clarity"/>
                 <TextView android:id="@+id/tvClarityLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="12sp"
@@ -201,14 +198,12 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="28dp" android:layout_height="28dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
-                    android:tint="#9AA0A6"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_add"
-                    android:contentDescription="@string/add_call"
-                    android:minWidth="0dp" android:minHeight="0dp"/>
+                    android:contentDescription="@string/add_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
@@ -217,16 +212,14 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="28dp" android:layout_height="28dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="fitCenter"
-                    android:padding="0dp"
+                    android:scaleType="center"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
-                    android:contentDescription="@string/more_options"
-                    android:minWidth="0dp" android:minHeight="0dp"/>
+                    android:contentDescription="@string/more_options"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/more_options" android:textColor="@color/text_on_dark" android:textSize="12sp"
+                    android:text="@string/more_options" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="8dp" android:fontFamily="sans-serif"/>
             </LinearLayout>
         </LinearLayout>
@@ -236,7 +229,7 @@
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:columnCount="3" android:rowCount="4"
             android:visibility="gone"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="24dp">
 
             <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="1" android:tag="1" android:textColor="@color/text_on_dark"/>
             <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="2" android:tag="2" android:textColor="@color/text_on_dark"/>
@@ -252,14 +245,14 @@
             <androidx.appcompat.widget.AppCompatButton style="@style/KeyBtn" android:text="#" android:tag="#" android:textColor="@color/text_on_dark"/>
         </GridLayout>
 
-        <!-- Bottom row: Loa ngoài | Kết thúc | Bàn phím -->
+        <!-- Row 3: Loa ngoài | Kết thúc | Bàn phím -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnSpeaker"
-                    android:layout_width="36dp" android:layout_height="36dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
                     android:scaleType="center"
                     android:tint="@color/text_on_dark"
@@ -268,7 +261,7 @@
                 <TextView android:id="@+id/tvSpeakerLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Loa ngoài" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
 
@@ -280,21 +273,23 @@
                     android:src="@drawable/ic_call_end"
                     android:contentDescription="@string/end_call"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="13sp"
-                    android:layout_marginTop="10dp" android:fontFamily="sans-serif"
+                    android:text="Kết thúc" android:textColor="#9AA0A6" android:textSize="12sp"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnDtmf"
-                    android:layout_width="36dp" android:layout_height="36dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
+                    android:scaleType="center"
+                    android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_dialpad"
                     android:contentDescription="Bàn phím"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Bàn phím" android:textColor="#9AA0A6" android:textSize="12sp"
-                    android:layout_marginTop="3dp" android:fontFamily="sans-serif"
+                    android:layout_marginTop="8dp" android:fontFamily="sans-serif"
                     android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
