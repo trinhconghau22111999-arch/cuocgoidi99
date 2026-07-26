@@ -84,13 +84,13 @@
                 android:clickable="true" android:focusable="true">
 
                 <FrameLayout
-                    android:layout_width="22dp" android:layout_height="22dp">
+                    android:layout_width="14dp" android:layout_height="14dp">
 
                     <TextView android:id="@+id/tvSimBadge"
-                        android:layout_width="18.48dp" android:layout_height="22dp"
+                        android:layout_width="11.76dp" android:layout_height="14dp"
                         android:gravity="center"
                         android:background="@drawable/bg_sim_badge"
-                        android:textSize="9sp" android:textColor="@color/call_log_muted" />
+                        android:textSize="7sp" android:textColor="@color/call_log_muted" />
                 </FrameLayout>
 
                 <TextView android:id="@+id/tvSubtitle"
