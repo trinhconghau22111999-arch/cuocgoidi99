@@ -43,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView android:id="@+id/tvSimBadge"
-            android:layout_width="18.48dp" android:layout_height="22dp"
+            android:layout_width="20dp" android:layout_height="22dp"
             android:gravity="center"
             android:background="@drawable/bg_sim_badge"
             android:text="2"
@@ -128,7 +128,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -143,12 +143,12 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
-                    android:padding="0dp"
                     android:contentDescription="Im lặng"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -180,7 +180,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -195,7 +195,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="#9AA0A6"
@@ -209,7 +209,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="match_parent" android:layout_height="69dp"
+                    android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
                     android:tint="@color/text_on_dark"
