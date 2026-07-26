@@ -131,6 +131,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
@@ -162,6 +163,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
@@ -183,6 +185,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
@@ -198,6 +201,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
@@ -212,6 +216,7 @@
                     android:layout_width="match_parent" android:layout_height="138dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitXY"
+                    android:padding="35dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
