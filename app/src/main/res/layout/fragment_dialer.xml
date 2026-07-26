@@ -379,7 +379,7 @@
 
                     <FrameLayout
                         android:id="@+id/btnCallSim1"
-                        android:layout_width="75dp" android:layout_height="match_parent"
+                        android:layout_width="79dp" android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:clickable="true" android:focusable="true">
                         <View
@@ -396,7 +396,7 @@
 
                     <FrameLayout
                         android:id="@+id/btnCallSim2"
-                        android:layout_width="75dp" android:layout_height="match_parent"
+                        android:layout_width="79dp" android:layout_height="match_parent"
                         android:background="@android:color/transparent"
                         android:clickable="true" android:focusable="true">
                         <ImageView android:layout_width="20dp" android:layout_height="20dp"
