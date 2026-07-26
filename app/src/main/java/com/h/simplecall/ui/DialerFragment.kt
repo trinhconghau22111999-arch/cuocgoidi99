@@ -478,6 +478,8 @@ class DialerFragment : Fragment() {
 
     /** Gọi từ MainActivity khi người dùng bấm FAB bàn phím lúc đang ở màn này với bàn phím đã ẩn. */
     fun showKeypad() = setKeypadVisible(true)
+    fun hideKeypad() = setKeypadVisible(false)
+    fun isKeypadVisible() = keypadVisible
 
     private fun syncBackspace() {
         val hasNumber = b.etNumber.text.isNotEmpty()

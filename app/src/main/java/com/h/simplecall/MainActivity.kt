@@ -140,13 +140,16 @@ class MainActivity : AppCompatActivity() {
                 if (supportFragmentManager.backStackEntryCount > 0) {
                     supportFragmentManager.popBackStack()
                 } else {
-                    // Back stack rỗng → quay về tab đang chọn (reload lại fragment gốc)
                     val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                    // Nếu đang ở Gần đây (DialerFragment) và bàn phím đang mở → back chỉ tắt bàn phím
+                    if (current is DialerFragment && current.isKeypadVisible()) {
+                        current.hideKeypad()
+                        return
+                    }
                     val isRootFrag = current is CallLogFragment || current is ContactsFragment
                     if (!isRootFrag) {
                         goToTab(currentNavId)
                     } else {
-                        // Đã ở fragment gốc → hành vi back mặc định (thoát app)
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
                     }
