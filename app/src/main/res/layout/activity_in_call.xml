@@ -13,47 +13,49 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_incall_screen">
 
-    <!-- Tên người gọi -->
+    <!-- Tên người gọi (hoặc số điện thoại nếu chưa lưu danh bạ) -->
     <TextView android:id="@+id/tvCallerName"
         android:layout_width="0dp" android:layout_height="wrap_content"
         android:layout_marginTop="160dp"
-        android:layout_marginStart="40dp" android:layout_marginEnd="40dp"
+        android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
         android:gravity="center"
-        android:textColor="@color/text_on_dark" android:textSize="28sp"
+        android:textColor="@color/text_on_dark" android:textSize="40sp"
+        android:textStyle="bold"
         android:fontFamily="sans-serif" android:singleLine="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Số điện thoại -->
-    <TextView android:id="@+id/tvCallerNumber"
-        android:layout_width="0dp" android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:gravity="center"
-        android:textColor="@color/text_on_dark" android:textSize="14sp"
-        android:fontFamily="sans-serif"
+    <!-- Icon SIM + số điện thoại + nhà mạng: GỘP CHUNG 1 HÀNG NGANG đúng bố cục ảnh mẫu.
+         - Số CHƯA lưu danh bạ: chỉ hiện icon SIM một mình (tvCallerNumber ẩn).
+         - Số ĐÃ lưu danh bạ (tên hiện ở tvCallerName rồi): hiện icon + "số | nhà mạng". -->
+    <LinearLayout android:id="@+id/llSimLine"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:layout_marginTop="12dp"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/tvCallerName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Icon SIM đang gọi -->
-    <FrameLayout android:id="@+id/llSimLine"
-        android:layout_width="22dp" android:layout_height="22dp"
-        android:layout_marginTop="8dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/tvCallerNumber"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView android:id="@+id/tvSimBadge"
+        <FrameLayout
             android:layout_width="22dp" android:layout_height="22dp"
-            android:gravity="center"
-            android:background="@drawable/bg_sim_badge"
-            android:text="2"
-            android:textSize="9sp"
-            android:textColor="@color/call_log_muted" />
-    </FrameLayout>
+            android:layout_marginEnd="6dp">
+            <TextView android:id="@+id/tvSimBadge"
+                android:layout_width="22dp" android:layout_height="22dp"
+                android:gravity="center"
+                android:background="@drawable/bg_sim_badge"
+                android:text="2"
+                android:textSize="9sp"
+                android:textColor="@color/call_log_muted" />
+        </FrameLayout>
+
+        <TextView android:id="@+id/tvCallerNumber"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="#9AA0A6" android:textSize="15sp"
+            android:fontFamily="sans-serif"
+            android:visibility="gone"/>
+    </LinearLayout>
 
     <!-- Badge HD + trạng thái/giờ gọi -->
     <LinearLayout android:id="@+id/llStatusLine"

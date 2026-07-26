@@ -226,15 +226,20 @@ class InCallActivity : AppCompatActivity() {
         val alpha = if (dim) 0.35f else 1f
         val views = listOf(
             binding.btnRecord, binding.tvRecordLabel,
+            binding.btnMute, binding.tvMuteLabel,
             binding.btnHold, binding.tvHoldLabel,
             binding.btnClarity, binding.tvClarityLabel,
-            binding.btnAddCall
+            binding.btnAddCall,
+            binding.btnMore,
+            binding.btnSpeaker, binding.btnDtmf
         )
         views.forEach { it.alpha = alpha }
         binding.btnRecord.isEnabled = !dim
         binding.btnHold.isEnabled = !dim
         binding.btnClarity.isEnabled = !dim
         binding.btnAddCall.isEnabled = !dim
+        // Nút Kết thúc KHÔNG bao giờ bị mờ/vô hiệu hoá - luôn phải cúp máy được dù đang đổ
+        // chuông hay đã kết nối.
     }
 
     private fun updateUi(call: Call?, state: Int) {
@@ -360,7 +365,10 @@ class InCallActivity : AppCompatActivity() {
 
         binding.tvCallerName.text = displayName
         if (contactInfo != null && number.isNotEmpty()) {
-            binding.tvCallerNumber.text = formatNumberForDisplay(number)
+            // Nhà mạng/quốc gia: dùng chung quy ước đơn giản đã có sẵn trong app (CallLogFragment) -
+            // "Di động" khi đã biết tên (số đã lưu danh bạ), "Việt Nam" khi chưa rõ.
+            binding.tvCallerNumber.text =
+                getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Di động")
             binding.tvCallerNumber.visibility = View.VISIBLE
         } else {
             binding.tvCallerNumber.visibility = View.GONE

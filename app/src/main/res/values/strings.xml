@@ -61,6 +61,7 @@
     <string name="feature_coming_soon">Tính năng đang được phát triển</string>
     <string name="contacts_title">Danh bạ</string>
     <string name="recents_title">Gần đây</string>
+    <string name="number_with_carrier">%1$s | %2$s</string>
     <string name="contacts_count">%d liên hệ</string>
     <string name="tab_all">Tất cả</string>
     <string name="tab_missed">Cuộc gọi nhỡ</string>
