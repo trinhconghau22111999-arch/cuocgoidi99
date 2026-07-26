@@ -51,15 +51,13 @@ object CallHistoryManager {
         appContext = context.applicationContext
         CallManager.addListener(::onCallEvent)
 
-        // Di trú lịch sử cũ từ CallLog hệ thống sang Room - chỉ chạy 1 lần, ở nền.
-        val ctx = appContext!!
-        bgExecutor.execute {
-            try {
-                CallHistoryMigration.runIfNeeded(ctx)
-            } finally {
-                migrationDoneLatch.countDown()
-            }
-        }
+        // ĐÃ TẮT: không còn di trú lịch sử cuộc gọi cũ từ CallLog hệ thống sang Room nữa.
+        // Trước đây CallHistoryMigration.runIfNeeded(ctx) sẽ đọc toàn bộ lịch sử cuộc gọi có
+        // sẵn trên máy (kể cả từ TRƯỚC khi cài app) và nạp 1 lần vào "Gần đây" ngay sau khi
+        // vừa được cấp quyền READ_CALL_LOG. Theo yêu cầu, "Gần đây" phải bắt đầu TRỐNG khi mới
+        // cài app, chỉ ghi nhận các cuộc gọi thực hiện QUA app từ lúc này trở đi (đã có sẵn ở
+        // onCallEvent() bên dưới).
+        migrationDoneLatch.countDown()
     }
 
     /** Gọi ở NỀN (KHÔNG phải main thread) trước khi query lịch sử, để đảm bảo migration lịch

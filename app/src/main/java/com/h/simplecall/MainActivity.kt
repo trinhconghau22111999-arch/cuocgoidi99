@@ -14,6 +14,7 @@ import android.view.View
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -121,6 +122,17 @@ class MainActivity : AppCompatActivity() {
                 // thanh điều hướng, không được che/ẩn nó đi.
                 navigateTo(DialerFragment())
                 binding.fabDialpad.visibility = View.GONE
+            }
+        }
+
+        // Back luôn dừng ở trang gốc (Gần đây/Danh bạ), KHÔNG được phép "back ra ngoài" (thoát
+        // app) - khi back-stack rỗng (đang đứng ở trang gốc), đưa app xuống nền (moveTaskToBack)
+        // thay vì để hệ thống finish() Activity như hành vi mặc định.
+        onBackPressedDispatcher.addCallback(this) {
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack()
+            } else {
+                moveTaskToBack(true)
             }
         }
 
