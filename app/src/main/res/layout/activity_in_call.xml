@@ -150,7 +150,8 @@
                     android:padding="0dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
-                    android:contentDescription="Im lặng"/>
+                    android:contentDescription="Im lặng"
+                    android:minWidth="0dp" android:minHeight="0dp"/>
                 <TextView android:id="@+id/tvMuteLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Im lặng" android:textColor="@color/text_on_dark" android:textSize="12sp"
@@ -166,7 +167,8 @@
                     android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_hold"
-                    android:contentDescription="@string/hold_call"/>
+                    android:contentDescription="@string/hold_call"
+                    android:minWidth="0dp" android:minHeight="0dp"/>
                 <TextView android:id="@+id/tvHoldLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/hold_call" android:textColor="#9AA0A6" android:textSize="12sp"
@@ -188,7 +190,8 @@
                     android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_call_clarity"
-                    android:contentDescription="@string/call_clarity"/>
+                    android:contentDescription="@string/call_clarity"
+                    android:minWidth="0dp" android:minHeight="0dp"/>
                 <TextView android:id="@+id/tvClarityLabel"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/call_clarity" android:textColor="#9AA0A6" android:textSize="12sp"
@@ -204,7 +207,8 @@
                     android:padding="0dp"
                     android:tint="#9AA0A6"
                     android:src="@drawable/ic_add"
-                    android:contentDescription="@string/add_call"/>
+                    android:contentDescription="@string/add_call"
+                    android:minWidth="0dp" android:minHeight="0dp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/add_call" android:textColor="#9AA0A6" android:textSize="12sp"
                     android:layout_marginTop="1dp" android:fontFamily="sans-serif"/>
@@ -219,7 +223,8 @@
                     android:padding="0dp"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
-                    android:contentDescription="@string/more_options"/>
+                    android:contentDescription="@string/more_options"
+                    android:minWidth="0dp" android:minHeight="0dp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/more_options" android:textColor="@color/text_on_dark" android:textSize="12sp"
                     android:layout_marginTop="1dp" android:fontFamily="sans-serif"/>
