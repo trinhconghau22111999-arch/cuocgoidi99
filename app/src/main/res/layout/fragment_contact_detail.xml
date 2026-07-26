@@ -73,7 +73,7 @@
                 android:gravity="center"
                 android:textSize="27sp"
                 android:textColor="@color/text_primary"
-                android:fontFamily="sans-serif-thin" />
+                android:fontFamily="sans-serif" />
 
             <!-- Dòng "Gọi bằng SIMx (mặc định) >" -->
             <LinearLayout android:id="@+id/rowSimDefault"
