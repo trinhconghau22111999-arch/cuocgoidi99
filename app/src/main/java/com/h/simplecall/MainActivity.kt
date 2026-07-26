@@ -131,6 +131,29 @@ class MainActivity : AppCompatActivity() {
                 if (empty && currentNavId != R.id.nav_contacts) View.VISIBLE else View.GONE
         }
 
+        // Khi bấm back từ CallHistoryFragment (mở từ icon "i" ở Gần đây):
+        // back stack pop về 0 nhưng fragment container vẫn đang hiện CallHistoryFragment
+        // (không có gì ở dưới để quay về) → Android thoát app. Fix: nếu back stack đã rỗng
+        // nhưng fragment hiện tại không phải fragment tab gốc, điều hướng lại về tab đang chọn.
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportFragmentManager.popBackStack()
+                } else {
+                    // Back stack rỗng → quay về tab đang chọn (reload lại fragment gốc)
+                    val current = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+                    val isRootFrag = current is CallLogFragment || current is ContactsFragment
+                    if (!isRootFrag) {
+                        goToTab(currentNavId)
+                    } else {
+                        // Đã ở fragment gốc → hành vi back mặc định (thoát app)
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        })
+
         if (savedInstanceState == null) {
             val data = intent?.data
             if (data?.scheme == "tel") {
