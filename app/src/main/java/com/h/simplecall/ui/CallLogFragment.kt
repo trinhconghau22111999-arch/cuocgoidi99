@@ -126,14 +126,23 @@ class CallLogFragment : Fragment() {
             allEntries.filter { it.type == CallLog.Calls.MISSED_TYPE }
         else allEntries
 
-        if (entries.isEmpty()) {
+        // Gộp các cuộc gọi LIÊN TIẾP cùng số điện thoại thành 1 dòng.
+        // Ví dụ: gọi 0909 lúc 10:01, gọi lại 0909 lúc 10:02 -> chỉ hiện 1 dòng 0909.
+        // Chỉ gộp khi 2 entry KỀ NHAU có cùng số, không gộp nếu xen giữa có số khác.
+        val collapsed = mutableListOf<CallLogEntry>()
+        for (entry in entries) {
+            if (collapsed.isNotEmpty() && collapsed.last().number == entry.number) continue
+            collapsed.add(entry)
+        }
+
+        if (collapsed.isEmpty()) {
             b.tvEmpty.text = if (showMissedOnly) "Không có cuộc gọi nhỡ" else "Chưa có nhật ký cuộc gọi"
             b.tvEmpty.visibility = View.VISIBLE
             b.recyclerView.visibility = View.GONE
         } else {
             b.tvEmpty.visibility = View.GONE
             b.recyclerView.visibility = View.VISIBLE
-            adapter?.updateItems(entries)
+            adapter?.updateItems(collapsed)
         }
     }
 
