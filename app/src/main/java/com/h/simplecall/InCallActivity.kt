@@ -260,7 +260,24 @@ class InCallActivity : AppCompatActivity() {
     }
 
     private fun updateUi(call: Call?, state: Int) {
-        if (call == null || state == Call.STATE_DISCONNECTED) {
+        // Khi đối phương TỪ CHỐI cuộc gọi hoặc máy đang bận (DisconnectCause.BUSY): không được
+        // finish() ngay và im lặng thoát ra như các trường hợp kết thúc bình thường khác - phải
+        // hiện "Đường dây bận" thay cho "Đang gọi...", đồng thời làm mờ 5 icon chỉ dùng được sau
+        // khi đã kết nối (Ghi âm/Giữ/Gọi rõ ràng/Thêm cuộc gọi + Im lặng vẫn sáng theo quy tắc cũ),
+        // giữ màn hình một lúc để người dùng đọc được trước khi tự đóng.
+        if (call != null && state == Call.STATE_DISCONNECTED) {
+            val cause = call.details?.disconnectCause?.code
+            if (cause == android.telecom.DisconnectCause.BUSY) {
+                timerHandler.removeCallbacks(timerRunnable)
+                binding.tvCallStatus.text = "Đường dây bận"
+                setPreConnectDimming(true)
+                timerHandler.postDelayed({ finish() }, 2500)
+                return
+            }
+            timerHandler.removeCallbacks(timerRunnable)
+            finish(); return
+        }
+        if (call == null) {
             timerHandler.removeCallbacks(timerRunnable)
             val callerName = binding.tvCallerName.text?.toString() ?: ""
             val isKnownContact = callerName.isNotBlank() && callerName != binding.tvCallerNumber.text?.toString()
