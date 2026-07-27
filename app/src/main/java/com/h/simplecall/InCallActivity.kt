@@ -224,19 +224,28 @@ class InCallActivity : AppCompatActivity() {
      *  ngay cả khi chưa kết nối (tắt mic trước, mở menu thêm, hoặc bật loa ngoài để nghe tiếng
      *  đổ chuông/thông báo) nên KHÔNG đụng tới 3 nút đó. */
     private fun setPreConnectDimming(dim: Boolean) {
-        val alpha = if (dim) 0.35f else 1f
-        val views = listOf(
-            binding.btnRecord, binding.tvRecordLabel,
-            binding.btnHold, binding.tvHoldLabel,
-            binding.btnClarity, binding.tvClarityLabel,
-            binding.btnAddCall,
-            binding.btnDtmf
-        )
-        views.forEach { it.alpha = alpha }
-        // btnMute, btnMore và btnSpeaker luôn sáng - có thể dùng ngay cả khi chưa kết nối
-        binding.btnMute.alpha = 1f; binding.tvMuteLabel.alpha = 1f
+        // 4 icon chỉ dùng được SAU KHI đã kết nối (Ghi âm/Giữ/Rõ ràng/Thêm cuộc gọi): mờ hẳn
+        // (0.35) khi đang đổ chuông/kết nối, sáng đủ (1.0) khi đã kết nối.
+        val dimIconAlpha = if (dim) 0.35f else 1f
+        listOf(binding.btnRecord, binding.btnHold, binding.btnClarity, binding.btnAddCall, binding.btnDtmf)
+            .forEach { it.alpha = dimIconAlpha }
+        // Chữ nhãn dưới 4 icon trên: mờ thêm 1 bậc (0.35) khi icon còn mờ; khi icon đã sáng đủ
+        // (đã kết nối) thì chữ CHỈ sáng bằng 50% màu số điện thoại - không sáng ngang icon.
+        listOf(binding.tvRecordLabel, binding.tvHoldLabel, binding.tvClarityLabel, binding.tvAddCallLabel)
+            .forEach { it.alpha = if (dim) 0.35f else 0.5f }
+
+        // btnMute/btnMore/btnSpeaker LUÔN sáng (1.0) bất kể đã kết nối hay chưa - dùng được
+        // ngay cả khi đang đổ chuông.
+        binding.btnMute.alpha = 1f
         binding.btnMore.alpha = 1f
         binding.btnSpeaker.alpha = 1f
+        // Nhãn chữ Im lặng/Thêm: CHỈ lúc CHƯA kết nối (dim=true) mới sáng ngang icon (100%) -
+        // vì đây là 2 nút duy nhất còn dùng được lúc đó nên cần nổi bật rõ ràng. Khi ĐÃ kết
+        // nối, quay lại mức 50% chuẩn giống mọi nhãn khác (không còn lý do nổi bật hơn nữa).
+        val muteMoreLabelAlpha = if (dim) 1f else 0.5f
+        binding.tvMuteLabel.alpha = muteMoreLabelAlpha
+        binding.tvMoreLabel.alpha = muteMoreLabelAlpha
+
         binding.btnRecord.isEnabled = !dim
         binding.btnHold.isEnabled = !dim
         binding.btnClarity.isEnabled = !dim
