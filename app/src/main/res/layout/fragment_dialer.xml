@@ -288,7 +288,7 @@
                 android:textSize="32sp"
                 android:textColor="@color/text_primary"
                 android:fontFamily="sans-serif-light"
-                android:cursorVisible="true"
+                android:cursorVisible="false"
                 android:maxLines="1" />
 
             <ImageButton

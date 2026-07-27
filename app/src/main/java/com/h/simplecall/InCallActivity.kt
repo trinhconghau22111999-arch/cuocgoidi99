@@ -261,30 +261,9 @@ class InCallActivity : AppCompatActivity() {
 
     private fun updateUi(call: Call?, state: Int) {
         // Khi đối phương TỪ CHỐI cuộc gọi hoặc máy đang bận (DisconnectCause.BUSY): không được
-        // finish() ngay và im lặng thoát ra như các trường hợp kết thúc bình thường khác - phải
-        // hiện "Đường dây bận" thay cho "Đang gọi...", đồng thời làm mờ 5 icon chỉ dùng được sau
-        // khi đã kết nối (Ghi âm/Giữ/Gọi rõ ràng/Thêm cuộc gọi + Im lặng vẫn sáng theo quy tắc cũ),
-        // giữ màn hình một lúc để người dùng đọc được trước khi tự đóng.
-        if (call != null && state == Call.STATE_DISCONNECTED) {
-            val cause = call.details?.disconnectCause?.code
-            if (cause == android.telecom.DisconnectCause.BUSY) {
-                timerHandler.removeCallbacks(timerRunnable)
-                binding.tvCallStatus.text = "Đường dây bận"
-                setPreConnectDimming(true)
-                timerHandler.postDelayed({ finish() }, 1000)
-                return
-            }
+        if (call == null || state == Call.STATE_DISCONNECTED) {
             timerHandler.removeCallbacks(timerRunnable)
             finish(); return
-        }
-        if (call == null) {
-            timerHandler.removeCallbacks(timerRunnable)
-            // Bất kể số ĐÃ lưu danh bạ hay CHƯA lưu: đều phải hiện "Cuộc gọi đã kết thúc" và
-            // GIỮ NGUYÊN icon SIM + nhãn "Việt Nam"/loại số bên dưới tên/số (không ẩn đi như
-            // trước đây) - đúng như ảnh mẫu. Giữ màn hình 1 giây, đủ thời gian đọc, rồi tự đóng.
-            binding.tvCallStatus.text = "Cuộc gọi đã kết thúc"
-            timerHandler.postDelayed({ finish() }, 1000)
-            return
         }
 
         // Xác định gọi đi/gọi đến MỘT LẦN DUY NHẤT khi nhận call, không tính lại theo state.

@@ -625,11 +625,14 @@ class DialerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        setKeypadVisible(true)
+        // Xóa số đã gõ sau khi gọi xong → về màn hình chưa bấm số
+        if (hasResumedOnce) {
+            b.etNumber.setText("")
+            syncBackspace()
+            setKeypadVisible(false)
+        }
+        setKeypadVisible(if (hasResumedOnce) false else keypadVisible)
         setupCallButtons()
-        // Không tải lịch sử cuộc gọi lần đầu tiên vào app (savedInstanceState == null và chưa resume lần nào)
-        // để tránh hiện danh sách cũ ngay khi mở app lần đầu. Từ lần thứ 2 trở đi (quay lại tab,
-        // lên từ background...) thì tải bình thường để cập nhật cuộc gọi mới nhất.
         if (hasResumedOnce) loadRecents()
         hasResumedOnce = true
     }
