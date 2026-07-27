@@ -75,6 +75,10 @@ class InCallActivity : AppCompatActivity() {
         binding.btnSpeaker.setOnClickListener {
             isSpeaker = !isSpeaker
             CallManager.setSpeaker(isSpeaker)
+            binding.btnSpeaker.imageTintList = android.content.res.ColorStateList.valueOf(
+                if (isSpeaker) android.graphics.Color.parseColor("#4A90E2")
+                else android.graphics.Color.WHITE
+            )
         }
 
         // DTMF toggle
