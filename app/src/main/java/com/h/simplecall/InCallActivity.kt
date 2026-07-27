@@ -389,7 +389,7 @@ class InCallActivity : AppCompatActivity() {
             // Nhà mạng/quốc gia: dùng chung quy ước đơn giản đã có sẵn trong app (CallLogFragment) -
             // "Di động" khi đã biết tên (số đã lưu danh bạ), "Việt Nam" khi chưa rõ.
             binding.tvCallerNumber.text =
-                getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Di động")
+                getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Việt Nam")
             binding.tvCallerNumber.visibility = View.VISIBLE
         } else {
             binding.tvCallerNumber.visibility = View.GONE
