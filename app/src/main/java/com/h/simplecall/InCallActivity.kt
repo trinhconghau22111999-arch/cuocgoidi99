@@ -400,8 +400,9 @@ class InCallActivity : AppCompatActivity() {
             binding.tvCallerName.setTypeface(
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         }
-        if (number.isNotEmpty()) {
-            // Nhà mạng/quốc gia: luôn hiện "Việt Nam" cố định (đổi từ "Di động" trước đây).
+        val isVietnamFormat = number.startsWith("0")
+        if (number.isNotEmpty() && isVietnamFormat) {
+            // Nhà mạng/quốc gia: hiện "Việt Nam" CHỈ khi số bắt đầu bằng 0 (số nội địa VN).
             // Số ĐÃ lưu danh bạ: hiện "số | Việt Nam" (tên đã chiếm chỗ tvCallerName rồi).
             // Số CHƯA lưu (số lạ): chỉ hiện "Việt Nam" một mình - không lặp lại số vì số đã
             // hiện to ở tvCallerName (displayName) phía trên rồi.
