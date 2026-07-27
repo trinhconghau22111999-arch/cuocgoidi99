@@ -401,8 +401,7 @@ class InCallActivity : AppCompatActivity() {
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         }
         if (contactInfo != null && number.isNotEmpty()) {
-            // Nhà mạng/quốc gia: dùng chung quy ước đơn giản đã có sẵn trong app (CallLogFragment) -
-            // "Di động" khi đã biết tên (số đã lưu danh bạ), "Việt Nam" khi chưa rõ.
+            // Nhà mạng/quốc gia: luôn hiện "Việt Nam" cố định (đổi từ "Di động" trước đây).
             binding.tvCallerNumber.text =
                 getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Việt Nam")
             binding.tvCallerNumber.visibility = View.VISIBLE
