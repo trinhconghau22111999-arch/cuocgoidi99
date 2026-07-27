@@ -295,19 +295,19 @@ class InCallActivity : AppCompatActivity() {
         if (number != lastLookedUpNumber) {
             lastLookedUpNumber = number
             lastContactInfo = null
-            renderCallerInfo(number, null)
+            renderCallerInfo(number, null, state)
             contactLookupExecutor.execute {
                 val info = lookupContact(number)
                 mainHandler.post {
                     // Bỏ qua nếu số đã thay đổi trong lúc chờ (ví dụ chuyển sang cuộc gọi khác)
                     if (number == lastLookedUpNumber) {
                         lastContactInfo = info
-                        renderCallerInfo(number, info)
+                        renderCallerInfo(number, info, state)
                     }
                 }
             }
         } else {
-            renderCallerInfo(number, lastContactInfo)
+            renderCallerInfo(number, lastContactInfo, state)
         }
 
         val isRinging = state == Call.STATE_RINGING
@@ -383,7 +383,7 @@ class InCallActivity : AppCompatActivity() {
         }
     }
 
-    private fun renderCallerInfo(number: String, contactInfo: Pair<String, android.net.Uri?>?) {
+    private fun renderCallerInfo(number: String, contactInfo: Pair<String, android.net.Uri?>?, state: Int) {
         val displayName = when {
             contactInfo != null -> contactInfo.first
             number.isNotEmpty() -> formatNumberForDisplay(number)
@@ -401,11 +401,14 @@ class InCallActivity : AppCompatActivity() {
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         }
         val isVietnamFormat = number.startsWith("0")
-        if (number.isNotEmpty() && isVietnamFormat) {
-            // Nhà mạng/quốc gia: hiện "Việt Nam" CHỈ khi số bắt đầu bằng 0 (số nội địa VN).
-            // Số ĐÃ lưu danh bạ: hiện "số | Việt Nam" (tên đã chiếm chỗ tvCallerName rồi).
-            // Số CHƯA lưu (số lạ): chỉ hiện "Việt Nam" một mình - không lặp lại số vì số đã
-            // hiện to ở tvCallerName (displayName) phía trên rồi.
+        // Số CHƯA lưu danh bạ: lúc đang ở giai đoạn "Đang gọi..." ban đầu (DIALING/CONNECTING,
+        // chưa rõ kết quả) thì CHỈ hiện số to + icon SIM trơ trọi, chưa hiện "Việt Nam" - đúng
+        // như ảnh mẫu (hình 1). Mọi trạng thái khác (đã kết nối ACTIVE, đã kết thúc
+        // DISCONNECTED, bận...) đều hiện "Việt Nam" - kể cả số lạ (hình 4, 6). Số ĐÃ lưu danh bạ
+        // thì luôn hiện "số | Việt Nam" bất kể trạng thái nào (hình 2, 3, 5).
+        val isInitialDialing = state == Call.STATE_DIALING || state == Call.STATE_CONNECTING
+        val showCarrier = isVietnamFormat && (contactInfo != null || !isInitialDialing)
+        if (number.isNotEmpty() && showCarrier) {
             binding.tvCallerNumber.text = if (contactInfo != null)
                 getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Việt Nam")
             else "Việt Nam"
