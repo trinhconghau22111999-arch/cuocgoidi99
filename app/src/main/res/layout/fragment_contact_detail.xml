@@ -90,8 +90,8 @@
                     <TextView android:id="@+id/tvSimBadge"
                         android:layout_width="15dp" android:layout_height="15dp"
                         android:gravity="center"
-                        android:background="@drawable/bg_sim_badge_light"
-                        android:textSize="7sp" android:textColor="@color/text_primary" />
+                        android:background="@drawable/bg_sim_badge"
+                        android:textSize="7sp" android:textColor="@color/text_secondary" />
                 </FrameLayout>
 
                 <TextView android:id="@+id/tvSubtitle"
