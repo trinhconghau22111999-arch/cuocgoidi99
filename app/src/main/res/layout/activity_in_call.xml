@@ -121,7 +121,7 @@
         android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:visibility="gone"
         android:layout_marginStart="24dp" android:layout_marginEnd="24dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -134,7 +134,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnRecord"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
@@ -149,7 +149,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMute"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
@@ -164,7 +164,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnHold"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
@@ -180,12 +180,12 @@
         <!-- Row 2: Gọi rõ ràng | Thêm cuộc gọi | Thêm -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="60dp">
+            android:layout_marginBottom="20dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnClarity"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
@@ -200,7 +200,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnAddCall"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
@@ -215,7 +215,7 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnMore"
-                    android:layout_width="41dp" android:layout_height="41dp"
+                    android:layout_width="33dp" android:layout_height="33dp"
                     android:background="@android:color/transparent"
                     android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
