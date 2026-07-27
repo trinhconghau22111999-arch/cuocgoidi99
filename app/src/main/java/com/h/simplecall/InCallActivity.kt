@@ -401,14 +401,11 @@ class InCallActivity : AppCompatActivity() {
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         }
         val isVietnamFormat = number.startsWith("0")
-        // Số CHƯA lưu danh bạ: lúc đang ở giai đoạn "Đang gọi..." ban đầu (DIALING/CONNECTING,
-        // chưa rõ kết quả) thì CHỈ hiện số to + icon SIM trơ trọi, chưa hiện "Việt Nam" - đúng
-        // như ảnh mẫu (hình 1). Mọi trạng thái khác (đã kết nối ACTIVE, đã kết thúc
-        // DISCONNECTED, bận...) đều hiện "Việt Nam" - kể cả số lạ (hình 4, 6). Số ĐÃ lưu danh bạ
-        // thì luôn hiện "số | Việt Nam" bất kể trạng thái nào (hình 2, 3, 5).
-        val isInitialDialing = state == Call.STATE_DIALING || state == Call.STATE_CONNECTING
-        val showCarrier = isVietnamFormat && (contactInfo != null || !isInitialDialing)
-        if (number.isNotEmpty() && showCarrier) {
+        // Hiện "Việt Nam" ở MỌI trạng thái cuộc gọi (đang gọi/đã kết nối/kết thúc/bận), kể cả
+        // số lạ chưa lưu danh bạ - đúng theo ảnh mẫu cập nhật (số lạ cũng hiện ngay từ lúc
+        // "Đang gọi..."). Số ĐÃ lưu danh bạ: "số | Việt Nam". Số CHƯA lưu: chỉ "Việt Nam" một
+        // mình (không lặp số vì số đã hiện to ở tvCallerName/displayName phía trên rồi).
+        if (number.isNotEmpty() && isVietnamFormat) {
             binding.tvCallerNumber.text = if (contactInfo != null)
                 getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Việt Nam")
             else "Việt Nam"
