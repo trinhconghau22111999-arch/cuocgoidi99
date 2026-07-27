@@ -226,14 +226,15 @@ class InCallActivity : AppCompatActivity() {
         val alpha = if (dim) 0.35f else 1f
         val views = listOf(
             binding.btnRecord, binding.tvRecordLabel,
-            binding.btnMute, binding.tvMuteLabel,
             binding.btnHold, binding.tvHoldLabel,
             binding.btnClarity, binding.tvClarityLabel,
             binding.btnAddCall,
-            binding.btnMore,
             binding.btnSpeaker, binding.btnDtmf
         )
         views.forEach { it.alpha = alpha }
+        // btnMute và btnMore luôn sáng - có thể dùng ngay cả khi chưa kết nối
+        binding.btnMute.alpha = 1f; binding.tvMuteLabel.alpha = 1f
+        binding.btnMore.alpha = 1f
         binding.btnRecord.isEnabled = !dim
         binding.btnHold.isEnabled = !dim
         binding.btnClarity.isEnabled = !dim
