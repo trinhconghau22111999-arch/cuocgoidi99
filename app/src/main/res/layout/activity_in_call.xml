@@ -40,10 +40,10 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <FrameLayout
-            android:layout_width="17dp" android:layout_height="15dp"
+            android:layout_width="14dp" android:layout_height="21dp"
             android:layout_marginEnd="5dp">
             <TextView android:id="@+id/tvSimBadge"
-                android:layout_width="17dp" android:layout_height="15dp"
+                android:layout_width="14dp" android:layout_height="21dp"
                 android:gravity="center"
                 android:background="@drawable/bg_sim_badge_light"
                 android:text="2"
