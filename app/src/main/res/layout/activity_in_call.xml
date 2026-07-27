@@ -94,7 +94,7 @@
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical" android:gravity="center">
             <ImageButton android:id="@+id/btnDecline"
-                android:layout_width="72dp" android:layout_height="72dp"
+                android:layout_width="83dp" android:layout_height="72dp"
                 android:background="@drawable/bg_decline_circle"
                 android:src="@drawable/ic_call_end"
                 android:contentDescription="@string/decline"/>
@@ -106,7 +106,7 @@
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
             android:layout_weight="1" android:orientation="vertical" android:gravity="center">
             <ImageButton android:id="@+id/btnAnswer"
-                android:layout_width="72dp" android:layout_height="72dp"
+                android:layout_width="83dp" android:layout_height="72dp"
                 android:background="@drawable/bg_call_circle"
                 android:src="@drawable/ic_call"
                 android:contentDescription="@string/answer"/>
