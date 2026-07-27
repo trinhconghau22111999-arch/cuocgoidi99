@@ -262,7 +262,18 @@ class InCallActivity : AppCompatActivity() {
     private fun updateUi(call: Call?, state: Int) {
         if (call == null || state == Call.STATE_DISCONNECTED) {
             timerHandler.removeCallbacks(timerRunnable)
-            finish(); return
+            val callerName = binding.tvCallerName.text?.toString() ?: ""
+            val isKnownContact = callerName.isNotBlank() && callerName != binding.tvCallerNumber.text?.toString()
+            if (isKnownContact) {
+                binding.tvCallerNumber.visibility = android.view.View.GONE
+                binding.llSimLine.visibility = android.view.View.GONE
+                binding.tvHdBadge.visibility = android.view.View.GONE
+                binding.tvCallStatus.text = "Cuộc gọi đã kết thúc"
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ finish() }, 2000)
+            } else {
+                finish()
+            }
+            return
         }
 
         // Xác định gọi đi/gọi đến MỘT LẦN DUY NHẤT khi nhận call, không tính lại theo state.
