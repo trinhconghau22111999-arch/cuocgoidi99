@@ -129,7 +129,7 @@
         <!-- Row 1: Ghi âm | Im lặng | Giữ -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="28dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
@@ -180,7 +180,7 @@
         <!-- Row 2: Gọi rõ ràng | Thêm cuộc gọi | Thêm -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="28dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
@@ -252,7 +252,7 @@
         <!-- Row 3: Loa ngoài | Kết thúc | Bàn phím -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginTop="80dp">
+            android:layout_marginTop="0dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
