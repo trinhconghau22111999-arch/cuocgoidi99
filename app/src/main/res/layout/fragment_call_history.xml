@@ -98,7 +98,8 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:orientation="horizontal" android:gravity="center_vertical"
-                android:clickable="true" android:focusable="true">
+                android:clickable="true" android:focusable="true"
+                android:alpha="0.7">
 
                 <FrameLayout
                     android:layout_width="15dp" android:layout_height="15dp">
@@ -107,13 +108,13 @@
                         android:layout_width="15dp" android:layout_height="15dp"
                         android:gravity="center"
                         android:background="@drawable/bg_sim_badge_light"
-                        android:textSize="7sp" android:textColor="#9AA0A6" />
+                        android:textSize="7sp" android:textColor="@color/text_primary" />
                 </FrameLayout>
 
                 <TextView android:id="@+id/tvSubtitle"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginStart="1.5dp"
-                    android:textSize="14sp" android:textColor="@color/text_secondary" />
+                    android:textSize="14sp" android:textColor="@color/text_primary" />
 
                 <ImageView
                     android:layout_width="16dp" android:layout_height="16dp"
@@ -218,7 +219,7 @@
                     <TextView
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Xem thêm"
-                        android:textSize="14sp" android:textColor="@color/text_secondary" />
+                        android:textSize="14sp" android:textColor="@color/text_primary" />
 
                     <ImageView
                         android:layout_width="18dp" android:layout_height="18dp"
