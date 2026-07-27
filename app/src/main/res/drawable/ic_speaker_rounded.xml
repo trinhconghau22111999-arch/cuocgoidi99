@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Loa ngoài: version bầu/mũm mĩm, không nhọn như volume_up gốc. Chiếc loa có hình chữ D,
+     không loa nhọn chữ V. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Thân loa: D tròn bo -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M3,9 L8,9 Q12,5 12,12 Q12,19 8,15 L3,15 Q2,15 2,14 L2,10 Q2,9 3,9 Z"/>
+    <!-- Sóng âm 1: cung bo, gần loa -->
+    <path android:fillColor="#FFFFFF" android:strokeWidth="1.5"
+        android:pathData="M14,12 Q14,8 17,8 Q20,8 20,12 Q20,16 17,16 Q14,16 14,12"/>
+    <!-- Sóng âm 2: cung bo, xa loa hơn -->
+    <path android:fillColor="#FFFFFF" android:strokeWidth="1.5"
+        android:pathData="M15.5,12 Q15.5,7.5 19.5,7.5 Q23.5,7.5 23.5,12 Q23.5,16.5 19.5,16.5 Q15.5,16.5 15.5,12"/>
+</vector>
