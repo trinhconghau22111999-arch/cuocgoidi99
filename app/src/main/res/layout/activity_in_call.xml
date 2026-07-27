@@ -180,7 +180,7 @@
         <!-- Row 2: Gọi rõ ràng | Thêm cuộc gọi | Thêm -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginBottom="216dp">
+            android:layout_marginBottom="24dp">
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
