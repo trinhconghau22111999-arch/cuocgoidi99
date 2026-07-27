@@ -271,7 +271,7 @@ class InCallActivity : AppCompatActivity() {
                 timerHandler.removeCallbacks(timerRunnable)
                 binding.tvCallStatus.text = "Đường dây bận"
                 setPreConnectDimming(true)
-                timerHandler.postDelayed({ finish() }, 2500)
+                timerHandler.postDelayed({ finish() }, 1000)
                 return
             }
             timerHandler.removeCallbacks(timerRunnable)
@@ -279,17 +279,11 @@ class InCallActivity : AppCompatActivity() {
         }
         if (call == null) {
             timerHandler.removeCallbacks(timerRunnable)
-            val callerName = binding.tvCallerName.text?.toString() ?: ""
-            val isKnownContact = callerName.isNotBlank() && callerName != binding.tvCallerNumber.text?.toString()
-            if (isKnownContact) {
-                binding.tvCallerNumber.visibility = android.view.View.GONE
-                binding.llSimLine.visibility = android.view.View.GONE
-                binding.tvHdBadge.visibility = android.view.View.GONE
-                binding.tvCallStatus.text = "Cuộc gọi đã kết thúc"
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ finish() }, 2000)
-            } else {
-                finish()
-            }
+            // Bất kể số ĐÃ lưu danh bạ hay CHƯA lưu: đều phải hiện "Cuộc gọi đã kết thúc" và
+            // GIỮ NGUYÊN icon SIM + nhãn "Việt Nam"/loại số bên dưới tên/số (không ẩn đi như
+            // trước đây) - đúng như ảnh mẫu. Giữ màn hình 1 giây, đủ thời gian đọc, rồi tự đóng.
+            binding.tvCallStatus.text = "Cuộc gọi đã kết thúc"
+            timerHandler.postDelayed({ finish() }, 1000)
             return
         }
 
