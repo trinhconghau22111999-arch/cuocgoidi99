@@ -69,7 +69,7 @@ class InCallActivity : AppCompatActivity() {
             CallManager.toggleMute(isMuted)
             binding.btnMute.setImageResource(
                 if (isMuted) R.drawable.ic_mic_off else R.drawable.ic_mic)
-            binding.tvMuteLabel.text = if (isMuted) "Bật mic" else "Tắt mic"
+            binding.tvMuteLabel.text = "Im lặng"
         }
 
         binding.btnSpeaker.setOnClickListener {
