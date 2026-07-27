@@ -136,7 +136,7 @@
                 <ImageButton android:id="@+id/btnRecord"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_record_dot"
                     android:contentDescription="@string/start_recording"/>
@@ -151,7 +151,7 @@
                 <ImageButton android:id="@+id/btnMute"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_mic_off"
                     android:contentDescription="Im lặng"/>
@@ -166,7 +166,7 @@
                 <ImageButton android:id="@+id/btnHold"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_call_hold"
                     android:contentDescription="@string/hold_call"/>
@@ -187,7 +187,7 @@
                 <ImageButton android:id="@+id/btnClarity"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_call_clarity"
                     android:contentDescription="@string/call_clarity"/>
@@ -202,7 +202,7 @@
                 <ImageButton android:id="@+id/btnAddCall"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_add"
                     android:contentDescription="@string/add_call"/>
@@ -216,7 +216,7 @@
                 <ImageButton android:id="@+id/btnMore"
                     android:layout_width="112dp" android:layout_height="112dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_expand_more"
                     android:contentDescription="@string/more_options"/>
@@ -254,9 +254,9 @@
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                 <ImageButton android:id="@+id/btnSpeaker"
-                    android:layout_width="232dp" android:layout_height="232dp"
+                    android:layout_width="40dp" android:layout_height="40dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="@color/text_on_dark"
                     android:src="@drawable/ic_volume_up"
                     android:contentDescription="@string/speaker"/>
@@ -291,7 +291,7 @@
                 <ImageButton android:id="@+id/btnDtmf"
                     android:layout_width="24dp" android:layout_height="24dp"
                     android:background="@android:color/transparent"
-                    android:scaleType="center"
+                    android:scaleType="fitCenter"
                     android:tint="#FFFFFF"
                     android:src="@drawable/ic_dialpad"
                     android:contentDescription="Bàn phím"/>
