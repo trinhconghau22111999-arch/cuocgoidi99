@@ -48,7 +48,7 @@
                 android:background="@drawable/bg_sim_badge_light"
                 android:text="2"
                 android:textSize="7sp"
-                android:textColor="#E8EAED" />
+                android:textColor="#C0C0C0" />
         </FrameLayout>
 
         <TextView android:id="@+id/tvCallerNumber"
