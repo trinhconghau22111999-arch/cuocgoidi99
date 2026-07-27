@@ -400,10 +400,14 @@ class InCallActivity : AppCompatActivity() {
             binding.tvCallerName.setTypeface(
                 android.graphics.Typeface.create("sans-serif-light", android.graphics.Typeface.NORMAL))
         }
-        if (contactInfo != null && number.isNotEmpty()) {
+        if (number.isNotEmpty()) {
             // Nhà mạng/quốc gia: luôn hiện "Việt Nam" cố định (đổi từ "Di động" trước đây).
-            binding.tvCallerNumber.text =
+            // Số ĐÃ lưu danh bạ: hiện "số | Việt Nam" (tên đã chiếm chỗ tvCallerName rồi).
+            // Số CHƯA lưu (số lạ): chỉ hiện "Việt Nam" một mình - không lặp lại số vì số đã
+            // hiện to ở tvCallerName (displayName) phía trên rồi.
+            binding.tvCallerNumber.text = if (contactInfo != null)
                 getString(R.string.number_with_carrier, formatNumberForDisplay(number), "Việt Nam")
+            else "Việt Nam"
             binding.tvCallerNumber.visibility = View.VISIBLE
         } else {
             binding.tvCallerNumber.visibility = View.GONE

@@ -28,8 +28,8 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Icon SIM + số điện thoại + nhà mạng: GỘP CHUNG 1 HÀNG NGANG đúng bố cục ảnh mẫu.
-         - Số CHƯA lưu danh bạ: chỉ hiện icon SIM một mình (tvCallerNumber ẩn).
-         - Số ĐÃ lưu danh bạ (tên hiện ở tvCallerName rồi): hiện icon + "số | nhà mạng". -->
+         - Số CHƯA lưu danh bạ: icon SIM + "Việt Nam" (không lặp số vì số đã hiện to ở trên).
+         - Số ĐÃ lưu danh bạ (tên hiện ở tvCallerName rồi): hiện icon + "số | Việt Nam". -->
     <LinearLayout android:id="@+id/llSimLine"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:orientation="horizontal" android:gravity="center_vertical"
