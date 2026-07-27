@@ -220,8 +220,9 @@ class InCallActivity : AppCompatActivity() {
 
     /** Làm mờ + vô hiệu hoá 4 nút chỉ có tác dụng lúc đang nói chuyện thật (Ghi âm, Giữ,
      *  Rõ tiếng, Thêm cuộc gọi) trong lúc cuộc gọi ĐI còn đang đổ chuông/kết nối, chưa ai bắt
-     *  máy - bấm vào lúc này chưa có ý nghĩa gì. "Im lặng" và "Thêm" vẫn hữu ích ngay cả khi
-     *  chưa kết nối (tắt mic trước, hoặc mở menu thêm) nên KHÔNG đụng tới 2 nút đó. */
+     *  máy - bấm vào lúc này chưa có ý nghĩa gì. "Im lặng", "Thêm" và "Loa ngoài" vẫn hữu ích
+     *  ngay cả khi chưa kết nối (tắt mic trước, mở menu thêm, hoặc bật loa ngoài để nghe tiếng
+     *  đổ chuông/thông báo) nên KHÔNG đụng tới 3 nút đó. */
     private fun setPreConnectDimming(dim: Boolean) {
         val alpha = if (dim) 0.35f else 1f
         val views = listOf(
@@ -229,12 +230,13 @@ class InCallActivity : AppCompatActivity() {
             binding.btnHold, binding.tvHoldLabel,
             binding.btnClarity, binding.tvClarityLabel,
             binding.btnAddCall,
-            binding.btnSpeaker, binding.btnDtmf
+            binding.btnDtmf
         )
         views.forEach { it.alpha = alpha }
-        // btnMute và btnMore luôn sáng - có thể dùng ngay cả khi chưa kết nối
+        // btnMute, btnMore và btnSpeaker luôn sáng - có thể dùng ngay cả khi chưa kết nối
         binding.btnMute.alpha = 1f; binding.tvMuteLabel.alpha = 1f
         binding.btnMore.alpha = 1f
+        binding.btnSpeaker.alpha = 1f
         binding.btnRecord.isEnabled = !dim
         binding.btnHold.isEnabled = !dim
         binding.btnClarity.isEnabled = !dim
