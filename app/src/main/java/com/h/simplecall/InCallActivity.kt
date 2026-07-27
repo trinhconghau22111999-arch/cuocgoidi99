@@ -227,18 +227,19 @@ class InCallActivity : AppCompatActivity() {
         // 4 icon chỉ dùng được SAU KHI đã kết nối (Ghi âm/Giữ/Rõ ràng/Thêm cuộc gọi): mờ hẳn
         // (0.35) khi đang đổ chuông/kết nối, sáng đủ (1.0) khi đã kết nối.
         val dimIconAlpha = if (dim) 0.35f else 1f
-        listOf(binding.btnRecord, binding.btnHold, binding.btnClarity, binding.btnAddCall, binding.btnDtmf)
+        listOf(binding.btnRecord, binding.btnHold, binding.btnClarity, binding.btnAddCall)
             .forEach { it.alpha = dimIconAlpha }
         // Chữ nhãn dưới 4 icon trên: mờ thêm 1 bậc (0.35) khi icon còn mờ; khi icon đã sáng đủ
         // (đã kết nối) thì chữ CHỈ sáng bằng 50% màu số điện thoại - không sáng ngang icon.
         listOf(binding.tvRecordLabel, binding.tvHoldLabel, binding.tvClarityLabel, binding.tvAddCallLabel)
             .forEach { it.alpha = if (dim) 0.35f else 0.5f }
 
-        // btnMute/btnMore/btnSpeaker LUÔN sáng (1.0) bất kể đã kết nối hay chưa - dùng được
-        // ngay cả khi đang đổ chuông.
+        // btnMute/btnMore/btnSpeaker/btnDtmf LUÔN sáng (1.0) bất kể đã kết nối hay chưa - dùng
+        // được ngay cả khi đang đổ chuông.
         binding.btnMute.alpha = 1f
         binding.btnMore.alpha = 1f
         binding.btnSpeaker.alpha = 1f
+        binding.btnDtmf.alpha = 1f
         // Nhãn chữ Im lặng/Thêm: CHỈ lúc CHƯA kết nối (dim=true) mới sáng ngang icon (100%) -
         // vì đây là 2 nút duy nhất còn dùng được lúc đó nên cần nổi bật rõ ràng. Khi ĐÃ kết
         // nối, quay lại mức 50% chuẩn giống mọi nhãn khác (không còn lý do nổi bật hơn nữa).
