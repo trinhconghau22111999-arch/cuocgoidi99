@@ -156,7 +156,9 @@ class InCallActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        timerHandler.removeCallbacks(timerRunnable)
+        timerHandler.removeCallbacksAndMessages(null) // huỷ mọi callback đang chờ, kể cả
+        // postDelayed({ finish() }, 1500) ẩn danh - removeCallbacks(timerRunnable) trước đây
+        // chỉ huỷ đúng 1 Runnable (đồng hồ đếm giờ), bỏ sót các finish() hẹn giờ khác.
         CallManager.removeListener(listener)
         contactLookupExecutor.shutdownNow()
         if (isRecording) stopRecording()
