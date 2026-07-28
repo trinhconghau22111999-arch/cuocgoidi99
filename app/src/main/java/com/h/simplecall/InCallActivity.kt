@@ -261,7 +261,29 @@ class InCallActivity : AppCompatActivity() {
 
     private fun updateUi(call: Call?, state: Int) {
         // Khi đối phương TỪ CHỐI cuộc gọi hoặc máy đang bận (DisconnectCause.BUSY): không được
-        if (call == null || state == Call.STATE_DISCONNECTED) {
+        // finish() ngay và im lặng thoát ra như các trường hợp kết thúc bình thường khác - phải
+        // hiện "Đường dây bận" thay cho "Đang gọi...", đồng thời làm mờ các icon chỉ dùng được
+        // sau khi đã kết nối, giữ màn hình 1.5 giây để người dùng đọc được trước khi tự đóng.
+        if (call != null && state == Call.STATE_DISCONNECTED) {
+            val cause = call.details?.disconnectCause?.code
+            if (cause == android.telecom.DisconnectCause.BUSY) {
+                timerHandler.removeCallbacks(timerRunnable)
+                binding.tvCallStatus.text = "Đường dây bận"
+                setPreConnectDimming(true)
+                timerHandler.postDelayed({ finish() }, 1500)
+                return
+            }
+        }
+        if (call == null) {
+            timerHandler.removeCallbacks(timerRunnable)
+            // Bất kể số ĐÃ lưu danh bạ hay CHƯA lưu: đều phải hiện "Cuộc gọi đã kết thúc" và
+            // GIỮ NGUYÊN icon SIM + nhãn "Việt Nam"/loại số bên dưới tên/số (không ẩn đi).
+            // Giữ màn hình 1.5 giây, đủ thời gian đọc, rồi tự đóng.
+            binding.tvCallStatus.text = "Cuộc gọi đã kết thúc"
+            timerHandler.postDelayed({ finish() }, 1500)
+            return
+        }
+        if (state == Call.STATE_DISCONNECTED) {
             timerHandler.removeCallbacks(timerRunnable)
             finish(); return
         }
