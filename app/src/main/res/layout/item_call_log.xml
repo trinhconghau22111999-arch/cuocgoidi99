@@ -104,17 +104,15 @@
             android:fontFamily="sans-serif"
             android:layout_marginEnd="4dp" />
 
-        <!-- Icon hiển thị vẫn 20dp như cũ (32dp - 2*6dp padding trước đây) - chỉ tăng VÙNG CHẠM
-             lên 48dp (chuẩn tối thiểu khuyến nghị của Android), tránh chạm hụt. Padding tăng
-             tương ứng (14dp) để icon không bị phóng to theo. -->
+        <!-- info 2/3 kích thước: 32dp -->
         <ImageButton
             android:id="@+id/btnCallBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_info"
             android:scaleType="fitCenter"
-            android:padding="14dp"
+            android:padding="6dp"
             android:contentDescription="@string/call_history" />
     </LinearLayout>
 </LinearLayout>

@@ -108,6 +108,18 @@ class CallLogAdapter(
         h.b.root.setOnClickListener { onCall(item.number) }
         h.b.btnCallBack.setOnClickListener { onShowHistory(item.number) }
         h.b.root.setOnLongClickListener { showContextMenu(ctx, item.number, display); true }
+
+        // Mở rộng VÙNG CHẠM của icon info thêm 8dp mỗi cạnh (32dp hiển thị -> ~48dp vùng chạm
+        // hiệu quả, chuẩn tối thiểu khuyến nghị Android) - dùng TouchDelegate nên KHÔNG đổi
+        // kích thước/layout hiển thị của icon, chỉ vùng nhận chạm rộng hơn trong code.
+        (h.b.btnCallBack.parent as? View)?.post {
+            val parent = h.b.btnCallBack.parent as? View ?: return@post
+            val rect = android.graphics.Rect()
+            h.b.btnCallBack.getHitRect(rect)
+            val extra = (8 * ctx.resources.displayMetrics.density).toInt()
+            rect.left -= extra; rect.top -= extra; rect.right += extra; rect.bottom += extra
+            parent.touchDelegate = android.view.TouchDelegate(rect, h.b.btnCallBack)
+        }
     }
 
     private fun showContextMenu(ctx: Context, number: String, display: String) {
