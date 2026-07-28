@@ -478,29 +478,36 @@ class DialerFragment : Fragment() {
     }
 
     private fun loadRecents() {
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            b.rvRecents.visibility = View.GONE
-            return
-        }
-        val isDualSim = callCapableAccounts().size >= 2
+        // Bảo vệ: hàm này đụng requireContext()/b.* (view binding) - nếu bị gọi đúng lúc
+        // fragment không còn sẵn sàng (view đã huỷ, chưa attach) sẽ crash toàn app.
+        if (_b == null || !isAdded) return
+        try {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_CALL_LOG)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                b.rvRecents.visibility = View.GONE
+                return
+            }
+            val isDualSim = callCapableAccounts().size >= 2
 
-        // Hiện cache ngay nếu đã có (từ lần mở trước, cùng phiên app) → không chờ, không giật/trắng
-        if (recentsCacheLoaded && cachedRecents.isNotEmpty()) {
-            allRecentEntries = cachedRecents
-            renderRecents(isDualSim)
-        }
-
-        val appContext = requireContext().applicationContext
-        bgExecutor.execute {
-            val entries = queryRecents(appContext)
-            mainHandler.post {
-                if (_b == null) return@post // fragment đã bị huỷ trong lúc chờ
-                cachedRecents = entries
-                recentsCacheLoaded = true
-                allRecentEntries = entries
+            // Hiện cache ngay nếu đã có (từ lần mở trước, cùng phiên app) → không chờ, không giật/trắng
+            if (recentsCacheLoaded && cachedRecents.isNotEmpty()) {
+                allRecentEntries = cachedRecents
                 renderRecents(isDualSim)
             }
+
+            val appContext = requireContext().applicationContext
+            bgExecutor.execute {
+                val entries = queryRecents(appContext)
+                mainHandler.post {
+                    if (_b == null || !isAdded) return@post // fragment đã bị huỷ trong lúc chờ
+                    cachedRecents = entries
+                    recentsCacheLoaded = true
+                    allRecentEntries = entries
+                    renderRecents(isDualSim)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DialerFragment", "loadRecents() lỗi bất ngờ, bỏ qua an toàn", e)
         }
     }
 
@@ -625,6 +632,12 @@ class DialerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        // Bảo vệ: onResume() có thể chạy vào đúng lúc FragmentManager đang xử lý back stack
+        // (fragment chưa/không còn "sẵn sàng" - view đã bị huỷ hoặc chưa attach xong) -> đụng
+        // vào b.* (view binding) hay requireContext() lúc này sẽ crash TOÀN BỘ app. Luôn kiểm
+        // tra _b != null và isAdded trước khi làm bất cứ gì.
+        if (_b == null || !isAdded) return
+
         // Xóa số đã gõ sau khi gọi xong → về màn hình chưa bấm số, bàn phím vẫn HIỆN sẵn
         // (không ẩn đi) với ô số trống.
         if (hasResumedOnce) {
