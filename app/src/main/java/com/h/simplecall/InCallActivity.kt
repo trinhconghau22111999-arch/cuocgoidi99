@@ -153,6 +153,16 @@ class InCallActivity : AppCompatActivity() {
 
         CallManager.addListener(listener)
         updateUi(CallManager.currentCall, CallManager.currentCall?.state ?: Call.STATE_NEW)
+
+        // Nút Back: cuộc gọi CHƯA kết thúc thì màn hình này phải luôn tồn tại được (xem lại
+        // qua mục đa nhiệm) - không được finish()/đóng hẳn như hành vi Back mặc định. Chỉ lùi
+        // về nền giống hệt bấm Home. Màn hình chỉ thực sự đóng khi cuộc gọi kết thúc thật (xem
+        // updateUi() gọi finish() khi state == DISCONNECTED).
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                moveTaskToBack(true)
+            }
+        })
     }
 
     override fun onDestroy() {
