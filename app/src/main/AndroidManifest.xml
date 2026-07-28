@@ -51,7 +51,6 @@
         <activity
             android:name=".InCallActivity"
             android:exported="false"
-            android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:showOnLockScreen="true"
             android:turnScreenOn="true"
