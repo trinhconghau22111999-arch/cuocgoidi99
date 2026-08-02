@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Loa + 1 vòng cung nhỏ bên phải (chưa bật loa ngoài), giống ảnh mẫu -->
+<!-- Loa + 1 vòng cung nhỏ bên phải (chưa bật loa ngoài), giống ảnh mẫu người dùng gửi:
+     kiểu icon VIỀN/RỖNG (outline), bo góc mềm - KHÔNG phải tô đặc như trước. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">
-    <!-- Thân loa - chỉ tô đặc (fill) thuần, KHÔNG vẽ thêm viền (stroke) chồng lên
-         cùng khối hình, vì MIUI render sai lệch khiến icon bị phình to, mất cạnh
-         thẳng đứng bên phải. Đây là fix cho đúng chuẩn Material Icon. -->
-    <path android:fillColor="#FFFFFF"
-        android:pathData="M3,9v6h4l5,5V4L7,9H3z"/>
+    <!-- Thân loa: chỉ vẽ viền (stroke), fill trong suốt để rỗng ở giữa, bo góc/đầu nét
+         tròn mềm (strokeLineJoin/strokeLineCap = round) đúng như ảnh mẫu. -->
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineJoin="round"
+        android:strokeLineCap="round"
+        android:pathData="M11,5 L6,9 L2,9 L2,15 L6,15 L11,19 Z"/>
     <!-- 1 vòng cung nhỏ bên phải -->
     <path android:fillColor="#00000000"
         android:strokeColor="#FFFFFF"
         android:strokeWidth="1.8"
         android:strokeLineCap="round"
-        android:pathData="M14.5,8.5 A5,5 0 0 1 14.5,15.5"/>
+        android:pathData="M15.54,8.46 A5,5 0 0 1 15.54,15.53"/>
 </vector>
