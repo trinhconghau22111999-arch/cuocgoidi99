@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Nền màn hình gọi: màu xám lấy mẫu từ ảnh thực tế người dùng cung cấp
-     (trung bình pixel toàn ảnh = #D9D9D7), sau đó tăng sáng thêm 10% theo yêu cầu -> #EFEFED. -->
+<!-- Nền màn hình gọi: màu xám lấy mẫu từ ảnh thực tế người dùng cung cấp (trung bình pixel
+     toàn ảnh = #D9D9D7), tăng sáng thêm 10% -> #EFEFED, sau đó giảm độ sáng xuống còn 50% của
+     giá trị đó theo yêu cầu -> #787876. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#EFEFED" />
+    <solid android:color="#787876" />
 </shape>
