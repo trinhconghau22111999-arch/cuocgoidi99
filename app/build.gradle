@@ -9,7 +9,11 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.h.simplecall"
+        // applicationId: ID định danh duy nhất của app trên máy/Play Store, tách biệt với
+        // "namespace" (namespace giữ nguyên vì nó ứng với cấu trúc package Kotlin thật sự
+        // trong thư mục java/, đổi cái đó sẽ phải đổi package của TOÀN BỘ file .kt - không
+        // cần thiết cho việc chỉ đổi id nhận dạng app).
+        applicationId "com.h.simplecall1"
         minSdk 26
         targetSdk 34
         versionCode 1
