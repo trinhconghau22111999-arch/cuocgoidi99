@@ -373,7 +373,7 @@ class DialerFragment : Fragment() {
     // Giữ lại chữ số, "+" và các ký hiệu dừng/chờ (","=2 giây dừng, ";"=chờ) khi lọc nội dung
     // ô nhập số. Dùng chung cho cả gõ phím lẫn thêm dấu dừng/chờ từ menu 3 chấm, để 2 luồng
     // nhập không xoá mất ký hiệu của nhau.
-    private fun dialableFilter(s: String) = s.filter { it.isDigit() || it == '+' || it == ',' || it == ';' }
+    private fun dialableFilter(s: String) = s.filter { it.isDigit() || it == '+' || it == ',' || it == ';' || it == '*' || it == '#' }
 
     private fun appendDigit(d: String) {
         val cur = b.etNumber.text.toString()
@@ -385,8 +385,8 @@ class DialerFragment : Fragment() {
 
     private fun formatVN(raw: String): String {
         if (raw.isEmpty()) return raw
-        // Có dấu dừng/chờ: không áp dụng định dạng nhóm số VN, giữ nguyên chuỗi người dùng gõ.
-        if (raw.contains(',') || raw.contains(';')) return raw
+        // Có dấu dừng/chờ hoặc phím DTMF *,# : không áp dụng định dạng nhóm số VN, giữ nguyên chuỗi người dùng gõ.
+        if (raw.contains(',') || raw.contains(';') || raw.contains('*') || raw.contains('#')) return raw
         val digits = raw.filter { it.isDigit() }
         return when {
             raw.startsWith("+") -> when {
