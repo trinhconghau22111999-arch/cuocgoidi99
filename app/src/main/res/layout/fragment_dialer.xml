@@ -253,7 +253,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#151515" /> <!-- tối hơn @color/divider (#2A2A2A), chỉ riêng viền trên bàn phím -->
+            android:background="#4D151515" /> <!-- màu gốc #151515, giảm còn 30% độ đục theo yêu cầu -->
 
         <!-- Ô nhập số: ẩn khi chưa gõ số -->
         <FrameLayout
